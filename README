@@ -1,18 +1,15 @@
 Usage
-	jython main.py <source_code.py>
-	The output will go in logs/pytown.log
+	* jython main.py <source_code.py> The output will go in logs/pytown.log
 
 Structure
-	* the main program code is in pytown.py
-	* the type objects with methods such as unify, apply_subst, and free_type_vars are in inftype.py
+	* The main program code is in pytown.py the type objects with methods such as
+	  unify, apply_subst, and free_type_vars are in inftype.py
 	* builtins.py has some pre-written builtin types and the builtin environment
 	* parser.py is the parsing module
 
-	* Unit testing is in tests/. Run them with jython tests/*.py
-	* A collection of sample source code we can type-infer is in tests/src/
+	* Unit testing is in tests/. Run them with jython tests/*.py A collection of
+	* sample source code we can type-infer is in tests/src/
 
 Todo
-	* make sure inference with builtins is working as desired
-	* clean up the traverse() method in pytown.py
-	* class types
-	* more tests?
+	* make sure inference with builtins is working as desired clean up the
+	* traverse() method in pytown.py class types more tests?
