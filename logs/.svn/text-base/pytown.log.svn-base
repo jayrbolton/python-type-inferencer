@@ -1,0 +1,28 @@
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Successfully loaded source (tests/src/lambdas.py):
+lolmbda = lambda n: n + 1
+
+lolmbda(4)
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[Assign(targets=[Name(id='lolmbda', ctx=Store())], value=Lambda(args=arguments(args=[Name(id='n', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=BinOp(left=Name(id='n', ctx=Load()), op=Add(), right=Num(n=1)))), Expr(value=Call(func=Name(id='lolmbda', ctx=Load()), args=[Num(n=4)], keywords=[], starargs=None, kwargs=None))])
+INFO:root:Traversing our AST...
+DEBUG:root:arg_type: tuple(int)
+DEBUG:root:applied_type @149: (tuple(int) -> t1)
+DEBUG:root:type1 @150: (tuple(t0) -> None)
+INFO:root:Merging s1 ({t0 : int,}) and s2 ({t1 : None,})
+INFO:root:Merged s1 and s2: {t0 : int,t1 : None,}
+DEBUG:root:unified sub: {t0 : int,t1 : None,}
+DEBUG:root:type1: (tuple(t0) -> None)
+DEBUG:root:unified type: (tuple(int) -> None)
+INFO:root:Analyzed Tree:
+INFO:root:  tests/src/lambdas.py
+    
+      lolmbda : (tuple(t0) -> None)
+      lambda : (tuple(t0) -> None)
+        
+          n : t0
+        
+    
+      lolmbda : (tuple(int) -> None)
+

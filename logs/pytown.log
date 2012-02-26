@@ -1,0 +1,82 @@
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Successfully loaded source (tests/src/functions.py):
+def x(y,z):
+	return "hi"
+
+flops = 4 #should be shadowed below
+
+def giga(flops):
+	1
+	2
+	"loL"
+	return flops
+
+
+# The S LOLmbinator!
+def S(x,y):
+	return x
+ 
+# hack the gibson with higher order functions
+def hack(the, gibson):
+	return S
+
+def f(giga):
+	return hack
+
+# Now we can call some funky funcs
+S(1,"hi")
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[FunctionDef(name='x', args=arguments(args=[Name(id='y', ctx=Param()), Name(id='z', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Str(s='hi'))], decorator_list=[]), Assign(targets=[Name(id='flops', ctx=Store())], value=Num(n=4)), FunctionDef(name='giga', args=arguments(args=[Name(id='flops', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Expr(value=Num(n=1)), Expr(value=Num(n=2)), Expr(value=Str(s='loL')), Return(value=Name(id='flops', ctx=Load()))], decorator_list=[]), FunctionDef(name='S', args=arguments(args=[Name(id='x', ctx=Param()), Name(id='y', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='x', ctx=Load()))], decorator_list=[]), FunctionDef(name='hack', args=arguments(args=[Name(id='the', ctx=Param()), Name(id='gibson', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='S', ctx=Load()))], decorator_list=[]), FunctionDef(name='f', args=arguments(args=[Name(id='giga', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='hack', ctx=Load()))], decorator_list=[]), Expr(value=Call(func=Name(id='S', ctx=Load()), args=[Num(n=1), Str(s='hi')], keywords=[], starargs=None, kwargs=None))])
+INFO:root:Traversing our AST...
+DEBUG:root:arg_type: tuple(int)(int)
+DEBUG:root:applied_type @149: (tuple(int)(int) -> t8)
+DEBUG:root:type1 @150: (tuple(t3)(t4) -> t3)
+INFO:root:Substituting different variables.
+INFO:root:Merging s1 ({t3 : int,t4 : int,}) and s2 ({t8 : t3,})
+INFO:root:Merged s1 and s2: {t8 : t3,t3 : int,t4 : int,}
+DEBUG:root:unified sub: {t8 : t3,t3 : int,t4 : int,}
+DEBUG:root:type1: (tuple(t3)(t4) -> t3)
+DEBUG:root:unified type: (tuple(int)(int) -> int)
+INFO:root:Analyzed Tree:
+INFO:root:  tests/src/functions.py
+    x : (tuple(t0)(t1) -> str)
+      
+        y : t0
+        z : t1
+      return
+        "hi" : str
+    
+      flops : int
+      4 : int
+    giga : (tuple(t2) -> t2)
+      
+        flops : t2
+      
+        1 : int
+      
+        2 : int
+      
+        "loL" : str
+      return
+        flops : t2
+    S : (tuple(t3)(t4) -> t3)
+      
+        x : t3
+        y : t4
+      return
+        x : t3
+    hack : (tuple(t5)(t6) -> (tuple(t3)(t4) -> t3))
+      
+        the : t5
+        gibson : t6
+      return
+        S : (tuple(t3)(t4) -> t3)
+    f : (tuple(t7) -> (tuple(t5)(t6) -> (tuple(t3)(t4) -> t3)))
+      
+        giga : t7
+      return
+        hack : (tuple(t5)(t6) -> (tuple(t3)(t4) -> t3))
+    
+      S : (tuple(int)(int) -> int)
+
