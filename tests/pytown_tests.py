@@ -21,4 +21,5 @@ class PytownTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
+	print("Testing pytown.py...")
 	unittest.main()

@@ -51,4 +51,5 @@ class InftypeTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
+	print("Testing inftype.py...")
 	unittest.main()
