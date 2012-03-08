@@ -1,0 +1,67 @@
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Successfully loaded source (tests/src/demo.py):
+# Should have type: (t0, t1) -> str
+def x(y,z):
+	return "hi"
+
+# Should have type: int
+flops = 4
+
+# Flops should be shadowed below:
+# Should have type: t0 -> t0
+def giga(flops):
+	return flops
+
+# The S combinator
+# Should have type (t0, t1) -> t0
+def S(x,y):
+	return x
+ 
+# hack the gibson with higher order functions
+# Should have type: (t2, t3) -> ((t0, t1) -> t0)
+def hack(the, gibson):
+	return S
+
+# Function calling
+
+S(1,"hi")
+
+hack(1,2)
+
+giga("infinity")
+
+x(None, False)
+
+## Now let's play with classes
+
+class A:
+	x = lambda x: x+1
+	y = B()
+
+class B:
+	y = A()
+	z = C()
+
+class C:
+	x = A()
+	Z = "penguins"
+
+a = A()
+b = B()
+c = C()
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[FunctionDef(name='x', args=arguments(args=[Name(id='y', ctx=Param()), Name(id='z', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Str(s='hi'))], decorator_list=[]), Assign(targets=[Name(id='flops', ctx=Store())], value=Num(n=4)), FunctionDef(name='giga', args=arguments(args=[Name(id='flops', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='flops', ctx=Load()))], decorator_list=[]), FunctionDef(name='S', args=arguments(args=[Name(id='x', ctx=Param()), Name(id='y', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='x', ctx=Load()))], decorator_list=[]), FunctionDef(name='hack', args=arguments(args=[Name(id='the', ctx=Param()), Name(id='gibson', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='S', ctx=Load()))], decorator_list=[]), Expr(value=Call(func=Name(id='S', ctx=Load()), args=[Num(n=1), Str(s='hi')], keywords=[], starargs=None, kwargs=None)), Expr(value=Call(func=Name(id='hack', ctx=Load()), args=[Num(n=1), Num(n=2)], keywords=[], starargs=None, kwargs=None)), Expr(value=Call(func=Name(id='giga', ctx=Load()), args=[Str(s='infinity')], keywords=[], starargs=None, kwargs=None)), Expr(value=Call(func=Name(id='x', ctx=Load()), args=[Name(id='None', ctx=Load()), Name(id='False', ctx=Load())], keywords=[], starargs=None, kwargs=None)), ClassDef(name='A', bases=[], body=[Assign(targets=[Name(id='x', ctx=Store())], value=Lambda(args=arguments(args=[Name(id='x', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=BinOp(left=Name(id='x', ctx=Load()), op=Add(), right=Num(n=1)))), Assign(targets=[Name(id='y', ctx=Store())], value=Call(func=Name(id='B', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))], decorator_list=[]), ClassDef(name='B', bases=[], body=[Assign(targets=[Name(id='y', ctx=Store())], value=Call(func=Name(id='A', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Name(id='z', ctx=Store())], value=Call(func=Name(id='C', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))], decorator_list=[]), ClassDef(name='C', bases=[], body=[Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='A', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Name(id='Z', ctx=Store())], value=Str(s='penguins'))], decorator_list=[]), Assign(targets=[Name(id='a', ctx=Store())], value=Call(func=Name(id='A', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Name(id='b', ctx=Store())], value=Call(func=Name(id='B', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Name(id='c', ctx=Store())], value=Call(func=Name(id='C', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])
+INFO:root:Traversing our AST...
+DEBUG:root:arg_type: tuple(int)(str)
+DEBUG:root:applied_type @149: (tuple(int)(str) -> t7)
+DEBUG:root:type1 @150: (tuple(t3)(t4) -> t3)
+INFO:root:subituting different variables.
+INFO:root:Merging s1 ({t3 : int,t4 : str,}) and s2 ({t7 : t3,})
+INFO:root:Merged s1 and s2: {t7 : t3,t3 : int,t4 : str,}
+DEBUG:root:unified sub: {t7 : t3,t3 : int,t4 : str,}
+DEBUG:root:type1: (tuple(t3)(t4) -> t3)
+DEBUG:root:unified type: (tuple(int)(str) -> int)
+DEBUG:root:arg_type: tuple(int)(int)
+DEBUG:root:applied_type @149: (tuple(int)(int) -> t8)
+DEBUG:root:type1 @150: (tuple(t5)(t6) -> (tuple(t3)(t4) -> t3))

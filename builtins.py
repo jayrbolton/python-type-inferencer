@@ -1,7 +1,8 @@
-# All builtin types 
+# All builtin types
 
-from inftype import *
-
+from program_graph import *
+from typ import *
+from environment import *
 
 ## Templates for types:
 # Numeric
@@ -27,7 +28,7 @@ env = Environment({
 	# Constants
 	"None"                   : none_typ,
 	"True"                   : bool_typ,
-	"False"                  : bool_typ, 
+	"False"                  : bool_typ,
 
 	# IO
 	"print"                  : none_typ

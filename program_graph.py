@@ -12,14 +12,13 @@ todo:
 
 import sys, logging, types, builtins, re, copy
 
-from inftype import *
+from typ import *
 from ast import *
-from inference import *
 
 """
-Log all logging.info('wat') messages to logs/pytown.log
+Log all logging.info('wat') messages to logs/program_graph.log
 """
-logging.basicConfig(filename='logs/pytown.log',level=logging.DEBUG)
+logging.basicConfig(filename='logs/program_graph.log',level=logging.DEBUG)
 
 class ProgramGraph:
 
@@ -75,7 +74,7 @@ class ProgramGraph:
 		"""
 		print(dump(self.ast))
 
-	def traverse(self, node, env):
+	def traverse(self, n, env):
 		## TODO: make an inference module that mixes into this class. Simplify this
 		## case statement into function calls to the many type inference functions.
 		"""
@@ -85,25 +84,26 @@ class ProgramGraph:
 
 		Returns a tuple of the Node, a Substitution, and an Environment.
 		"""
-		if   isinstance(node, Module): return self.infer_module(node, env)
-		elif isinstance(node, Expr): return self.infer_expr(node, env)
-		elif isinstance(node, Num): return self.infer_num(node, env)
-		elif isinstance(node, Return): return self.infer_return(node, env)
-		elif isinstance(node, Lambda): return self.infer_lambda(node, env)
-		elif isinstance(node, Assign): return self.infer_assign(node, env)
-		elif isinstance(node, FunctionDef): return self.infer_funcdef(node, env)
-		elif isinstance(node, Call): return self.infer_call(node, env)
-		elif isinstance(node, Str): return self.infer_str(node, env)
-		elif isinstance(node, Name): return self.infer_name(node, env)
-		elif isinstance(node, List): return self.infer_list(node, env)
-		elif isinstance(node, Dict): return self.infer_dict(node, env)
-		else: return (Node(node), Substitution(), env)
+		IS = isinstance
+		if   IS(n, Module):        return self.infer_module(n, env)
+		elif IS(n, Expr):          return self.infer_expr(n, env)
+		elif IS(n, Num):           return self.infer_num(n, env)
+		elif IS(n, Return):        return self.infer_return(n, env)
+		elif IS(n, Lambda):        return self.infer_lambda(n, env)
+		elif IS(n, Assign):        return self.infer_assign(n, env)
+		elif IS(n, FunctionDef):   return self.infer_funcdef(n, env)
+		elif IS(n, Call):          return self.infer_call(n, env)
+		elif IS(n, Str):           return self.infer_str(n, env)
+		elif IS(n, Name):          return self.infer_name(n, env)
+		elif IS(n, List):          return self.infer_list(n, env)
+		elif IS(n, Dict):          return self.infer_dict(n, env)
+		else:                      return (Node(n), Substitution(), env)
 
 	def infer_module(self, node, env):
 		ns = []
 		for n in node.body:
 			(node1,sub1,env1) = self.traverse(n, env)
-			env.apply_subst(sub1)
+			env.apply_sub(sub1)
 			env.merge(env1)
 			ns.append(node1)
 		module = Node(node, self.filename,ns)
@@ -115,8 +115,8 @@ class ProgramGraph:
 		type1 = node1.info.get("typ")
 
 		arg_types = []
-		for arg in node.args:
-			(node2, sub2, env2) = self.traverse(node.args[0], env)
+		for arg in reversed(node.args):
+			(node2, sub2, env2) = self.traverse(arg, env)
 			type2 = node2.info.get("typ")
 			arg_types.append(type2)
 		arg_type = Instance("tuple",tuple,arg_types)
@@ -128,7 +128,7 @@ class ProgramGraph:
 		sub3 = applied_type.unify(type1)
 		logging.debug("unified sub: " + str(sub3))
 		logging.debug("type1: " + str(type1))
-		unified_type = type1.apply_subst(sub3)
+		unified_type = type1.apply_sub(sub3)
 		logging.debug("unified type: " + str(unified_type))
 
 		n = Node(node, node1.name, typ=unified_type)
@@ -136,7 +136,7 @@ class ProgramGraph:
 
 	def infer_assign(self, node, env):
 		(value, sub1, env1) = self.traverse(node.value, env)
-		env.apply_subst(sub1)
+		env.apply_sub(sub1)
 		env.merge(env1)
 		value_type = value.info.get("typ")
 		if not value_type: raise "RHS of assignment did not get a type."
@@ -171,7 +171,7 @@ class ProgramGraph:
 			body = []
 			for n in node.body:
 				(node1,sub1,env1) = self.traverse(n, env_scoped)
-				env_scoped.apply_subst(sub1)
+				env_scoped.apply_sub(sub1)
 				env_scoped.merge(env1)
 				body.append(node1)
 
@@ -201,7 +201,7 @@ class ProgramGraph:
 		args_node = Node(node.args, "", args)
 
 		(node1,sub1,env1) = self.traverse(node.body, env_scoped)
-		env_scoped.apply_subst(sub1)
+		env_scoped.apply_sub(sub1)
 		env_scoped.merge(env1)
 
 		return_type = env_scoped.types.get("return")

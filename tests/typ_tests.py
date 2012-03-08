@@ -1,9 +1,9 @@
 
 import unittest, sys
 sys.path.append('../')
-from inferencer.inftype import *
+from python-type-inferencer.typ import *
 
-class InftypeTests(unittest.TestCase):
+class TypeTests(unittest.TestCase):
 
 	def setUp(self):
 		self.var1 = Variable()
@@ -16,7 +16,7 @@ class InftypeTests(unittest.TestCase):
 		self.arr2 = Arrow(self.var1,self.var2)
 		self.arr3 = Arrow(self.var2,self.var3)
 		self.arr4 = Arrow(self.str1,self.str1)
-	
+
 	def test_unification(self):
 		## Unify two type vars
 		# Different type vars unify

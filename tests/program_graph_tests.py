@@ -1,16 +1,15 @@
-
 import unittest, sys
 sys.path.append('../')
-from inferencer.pytown import *
+from inferencer.program_graph import *
 
-class PytownTests(unittest.TestCase):
+class ProgramGraphTests(unittest.TestCase):
 
 	def test_valid_construction(self):
 		z = ProgramGraph("tests/src/arithmetic.py")
-	
+
 	def test_invalid_construction(self):
 		self.assertRaises(TypeError, ProgramGraph)
-	
+
 	def test_constants_inf(self):
 		p = ProgramGraph("tests/src/constants.py")
 		## Not sure how to test this besides looking at logs...
@@ -21,5 +20,5 @@ class PytownTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-	print("Testing pytown.py...")
+	print("Testing program_graph.py...")
 	unittest.main()
