@@ -113,6 +113,7 @@ class ProgramGraph:
 	def infer_call(self, node, env):
 		(node1, sub1, env1) = self.traverse(node.func, env)
 		type1 = node1.info.get("typ")
+		logging.debug("typtyptyptyp = " + str(type1))
 
 		arg_types = []
 		for arg in reversed(node.args):
@@ -121,15 +122,12 @@ class ProgramGraph:
 			arg_types.append(type2)
 		arg_type = Instance("tuple",tuple,arg_types)
 
-		logging.debug("arg_type: " + str(arg_type))
 		applied_type = Arrow(arg_type, Variable())
-		logging.debug("applied_type @149: " + str(applied_type))
-		logging.debug("type1 @150: " + str(type1))
 		sub3 = applied_type.unify(type1)
-		logging.debug("unified sub: " + str(sub3))
-		logging.debug("type1: " + str(type1))
+		logging.debug("sub3 = " + str(sub3))
 		unified_type = type1.apply_sub(sub3)
-		logging.debug("unified type: " + str(unified_type))
+		logging.debug("applied-type = " + str(applied_type))
+		logging.debug("unified-type = " + str(unified_type))
 
 		n = Node(node, node1.name, typ=unified_type)
 		return (n,Substitution(), env)

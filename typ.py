@@ -51,15 +51,10 @@ class Variable(Type):
 		as a Substitution.
 		"""
 		if isinstance(typ, Variable):
-			if self.name == typ.name:
-				logging.info("Variables with the same name. Returning empty Substitution")
-				return Substitution()
-			else:
-				logging.info("subituting different variables.")
-				return Substitution({self.name : typ})
+			if self.name == typ.name: return Substitution()
+			else: return Substitution({self.name : typ})
 		else: # typ is not a type variable
-			if self.name in typ.free_type_vars():
-				return Substitution()
+			if self.name in typ.free_type_vars(): return Substitution()
 		return Substitution({self.name : typ})
 
 
@@ -71,8 +66,16 @@ The applied field allows for type application:
 
 You may also optionally store python's own type object for this type, such as
 'int', 'str', etc.
+
+Type
+ Arrow
+ Class
+ Builtin
+  Atomic
+	Sequence
+	Dict
 """
-class Instance(Type):
+class Builtin(Type):
 	def __init__(self, name, pytype=None, applied=[]):
 		"""
 		Pass a string name and the python type object for this instance.
@@ -109,10 +112,10 @@ class Instance(Type):
 		For instance types applied to other types, then we recurse on those.
 		Returns a list of type names
 		"""
-		s = []
+		s = set()
 		for t in self.applied:
-			s.append(t.free_type_vars())
-		return set(s)
+			s.union(t.free_type_vars())
+		return s
 
 	def unify(self,typ):
 		"""
@@ -126,9 +129,13 @@ class Instance(Type):
 				return Substitution({typ.name : self}) # sub variable with instance
 		# Else if both are the same instance types and have unifiable applied types:
 		elif isinstance(typ,Instance) and self.name == typ.name and self.applied and typ.applied and len(self.applied) == len(typ.applied):
-			sub = Substitution()
+			sub = Substitution({})
+			logging.info("initial sub: " + str(sub))
 			for (self_applied, other_applied) in zip(self.applied, typ.applied):
 				sub.merge(self_applied.unify(other_applied))
+				logging.info("self applied = " + str(self_applied))
+				logging.info("other applied = " + str(other_applied))
+				logging.info("sub loop = " + str(sub))
 			return sub
 		else:
 			return Substitution()
@@ -176,13 +183,13 @@ class Arrow(Type):
 		Substitution, which we'll combine back into sub1 (and we return sub1).
 		"""
 		if isinstance(typ, Variable):
-			if typ.name in self.free_type_vars(): # occurs check
-				return Substitution()
-			else:
-				return Substitution({typ.name : self})
+			if typ.name in self.free_type_vars(): return Substitution()
+			else: return Substitution({typ.name : self})
 		elif isinstance(typ, Arrow):
 			s1 = self.left.unify(typ.left)
 			s2 = self.right.unify(typ.right)
+			logging.info("For typ = " + str(typ))
+			logging.info("For self = " + str(self))
 			logging.info("Merging s1 (" + str(s1) + ") and s2 (" + str(s2) + ")")
 			s1.merge(s2)
 			logging.info("Merged s1 and s2: " + str(s1))
