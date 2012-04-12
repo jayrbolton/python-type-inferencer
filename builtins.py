@@ -6,14 +6,14 @@ from environment import *
 
 ## Templates for types:
 # Numeric
-float_typ = Instance("float", float)
-int_typ = Instance("int", int)
+float_typ = Builtin("float", float)
+int_typ = Builtin("int", int)
 # Strings
-str_typ = Instance("str", str)
+str_typ = Builtin("str", str)
 # None
-none_typ = Instance("None",type(None))
+none_typ = Builtin("None",type(None))
 # Booleans
-bool_typ = Instance("bool",bool)
+bool_typ = Builtin("bool",bool)
 
 env = Environment({
 	# Arithmetic

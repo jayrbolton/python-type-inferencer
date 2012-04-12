@@ -120,7 +120,7 @@ class ProgramGraph:
 			(node2, sub2, env2) = self.traverse(arg, env)
 			type2 = node2.info.get("typ")
 			arg_types.append(type2)
-		arg_type = Instance("tuple",tuple,arg_types)
+		arg_type = Builtin("tuple",tuple,arg_types)
 
 		applied_type = Arrow(arg_type, Variable())
 		sub3 = applied_type.unify(type1)
@@ -176,7 +176,7 @@ class ProgramGraph:
 			return_type = env_scoped.types.get("return")
 			if not return_type: return_type = builtins.none_typ
 			arg_types.reverse() ## XXX inefficient
-			param_type = Instance("tuple",tuple,arg_types)
+			param_type = Builtin("tuple",tuple,arg_types)
 			func_type = Arrow(param_type, return_type)
 
 			env.bind(node.name, func_type)
@@ -205,7 +205,7 @@ class ProgramGraph:
 		return_type = env_scoped.types.get("return")
 		if not return_type: return_type = builtins.none_typ
 		arg_types.reverse() ## XXX inefficient
-		param_type = Instance("tuple",tuple,arg_types)
+		param_type = Builtin("tuple",tuple,arg_types)
 		func_type  = Arrow(param_type, return_type)
 
 		func = Node(node, "lambda", [args_node] + [node1], typ=Arrow(param_type,return_type))
@@ -224,11 +224,11 @@ class ProgramGraph:
 
 	def infer_num(self, node, env):
 		typ = node.n.__class__
-		n = Node(node, node.n, typ=Instance(typ.__name__, typ))
+		n = Node(node, node.n, typ=Builtin(typ.__name__, typ))
 		return (n, Substitution(), env)
 
 	def infer_str(self, node, env):
-		n = Node(node,"\"" + node.s + "\"",typ=Instance(type(node.s).__name__,type(node.s)))
+		n = Node(node,"\"" + node.s + "\"",typ=Builtin(type(node.s).__name__,type(node.s)))
 		return (n, Substitution(), env)
 
 	def infer_name(self, node, env):
@@ -239,13 +239,13 @@ class ProgramGraph:
 		return (n, Substitution(), env)
 
 	def infer_list(self, node, env):
-		# TODO traverse the children of the list and put them in the applied Instance type
-		n = Node(node, str(node.elts),typ=Instance("list",type([])))
+		# TODO traverse the children of the list and put them in the applied Builtin type
+		n = Node(node, str(node.elts),typ=Builtin("list",type([])))
 		return (n,Substitution(), env)
 
 	def infer_dict(self, node, env):
-		# TODO traverse the children of the dict and put them in the applied Instance type
-		n = Node(node, str(node.keys),typ=Instance("dict",type({})))
+		# TODO traverse the children of the dict and put them in the applied Builtin type
+		n = Node(node, str(node.keys),typ=Builtin("dict",type({})))
 		return (n,Substitution(), env)
 
 
