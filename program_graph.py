@@ -89,7 +89,7 @@ class ProgramGraph:
 ##	elif IS(n, Return):        return self.infer_return(n, env)
 ##	elif IS(n, Lambda):        return self.infer_lambda(n, env)
 		elif IS(n, Assign):        return self.infer_assign(n, env)
-##	elif IS(n, FunctionDef):   return self.infer_funcdef(n, env)
+		elif IS(n, FunctionDef):   return self.infer_funcdef(n, env)
 ##	elif IS(n, Call):          return self.infer_call(n, env)
 		elif IS(n, Str):           return self.infer_str(n, env)
 		elif IS(n, Name):          return self.infer_name(n, env)
@@ -140,43 +140,49 @@ class ProgramGraph:
 		n = Node(node, "Assign", targets + [value], io="Program stack")
 		return (n, sub1, env)
 
-##def infer_funcdef(self, node, env):
-##		"""
-##		1. Create a new environment with the parameters removed from the parent environment (shadowing)
-##		2. Traverse the body with the scoped environment.
-##		3. Now traverse the parameters with the new type information returned from traversing the body.
-##		4. Return the func node along with the old environment and the new substitution.
-##		"""
-##		arg_names = [arg.id for arg in node.args.args] # 1.
-##		env_scoped = copy.deepcopy(env)
-##		for name in env.types:
-##			if name in arg_names: del env_scoped.types[name]
+	def infer_funcdef(self, node, env):
+			"""
+			1. Create a new environment with the parameters removed from the parent environment (shadowing)
+			2. Traverse the body with the scoped environment.
+			3. Now traverse the parameters with the new type information returned from traversing the body.
+			4. Construct all the parameter and return types and encompass them in the function type.
+			5. Return the func node along with the old environment and the new substitution.
+			"""
+			# 1.
+			arg_names = [arg.id for arg in node.args.args]
+			env_scoped = copy.deepcopy(env)
+			for name in env.types.iterkeys():
+				if name in arg_names: del env_scoped.types[name]
+	
+			# 2.
+			body = []
+			for n in node.body:
+				(node1,sub1,env1) = self.traverse(n, env_scoped)
+				env_scoped.apply_sub(sub1)
+				env_scoped.merge(env1)
+				body.append(node1)
+	
+			# 3.
+			(param_nodes,param_types,param_names) = ([],[],[])
+			for param in node.args.args:
+				(node1,sub1,env1) = self.traverse(param, env_scoped)
+				param_nodes.append(node1)
+				param_names.append(node1.name)
+				param_type = node1.info.get("typ")
+				env_scoped.add_type(node1.name, param_type)
+				param_types.append(node1.info.get("typ"))
 
-##		(args,arg_types) = ([],[])
-##		for arg in node.args.args:
-##			(node1,sub1,env1) = self.traverse(arg, env_scoped)
-##			args.append(node1)
-##			arg_type = node1.info.get("typ")
-##			env_scoped.bind(node1.name, arg_type)
-##			arg_types.append(node1.info.get("typ"))
-##		args_node = Node(node.args, "", args)
-
-##		body = []
-##		for n in node.body:
-##			(node1,sub1,env1) = self.traverse(n, env_scoped)
-##			env_scoped.apply_sub(sub1)
-##			env_scoped.merge(env1)
-##			body.append(node1)
-
-##		return_type = env_scoped.types.get("return")
-##		if not return_type: return_type = builtins.none_typ
-##		arg_types.reverse() ## XXX inefficient
-##		param_type = Builtin("tuple",tuple,arg_types)
-##		func_type = Arrow(param_type, return_type)
-
-##		env.bind(node.name, func_type)
-##		func = Node(node, node.name, [args_node] + body, typ=Arrow(param_type,return_type))
-##		return (func, sub1, env) ## XXX what sub to return?
+			# 4.
+			param_type = TBuiltin(tuple,{"*contained":TObj(dict(zip(param_names,param_types)))})
+			return_type = env_scoped.get_type("return")
+			if not return_type: return_type = TBuiltin(type(None),{})
+			func_type = TObj({"*params" : param_type, "*return" : return_type})
+	
+			# 5.
+			env.add_type(node.name, func_type)
+			param_node = Node(node.args, "Parameters", param_nodes)
+			func = Node(node, node.name, [param_node] + body, typ=func_type)
+			return (func, sub1, env) ## XXX what sub to return?
 
 ##def infer_lambda(self, node, env):
 ##	arg_names = [arg.id for arg in node.args.args]
@@ -227,9 +233,11 @@ class ProgramGraph:
 		return (n, Substitution(), env)
 
 	def infer_name(self, node, env):
-		t = TObj({})
+		t = env.get_type(node.id)
+		if t == None:
+			t = TObj({})
+			env.add_type(t, node.id)
 		n = Node(node, node.id, typ=t)
-		env.add_type(t, node.id)
 		logging.info("Inferred name")
 		return (n, Substitution(), env)
 

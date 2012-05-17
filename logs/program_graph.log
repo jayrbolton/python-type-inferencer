@@ -1,21 +1,16 @@
 INFO:root:Using the parsing module to parse 'source'...
-INFO:root:Successfully loaded source (tests/src/assignment.py):
-x = 1
-y = "hi"
+INFO:root:Successfully loaded source (tests/src/demo.py):
+x = y
+y = 1
+z = y
+y = "str"
+
+def S(x,y): return x
 
 INFO:root:Parsed source. Raw AST is:
-Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Num(n=1)), Assign(targets=[Name(id='y', ctx=Store())], value=Str(s='hi'))])
+Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Name(id='y', ctx=Load())), Assign(targets=[Name(id='y', ctx=Store())], value=Num(n=1)), Assign(targets=[Name(id='z', ctx=Store())], value=Name(id='y', ctx=Load())), Assign(targets=[Name(id='y', ctx=Store())], value=Str(s='str')), FunctionDef(name='S', args=arguments(args=[Name(id='x', ctx=Param()), Name(id='y', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='x', ctx=Load()))], decorator_list=[])])
 INFO:root:Traversing our AST...
-INFO:root:Analyzed Tree:
-INFO:root:Node has type, printing
-INFO:root:Node has type, printing
-INFO:root:Node has type, printing
-INFO:root:Node has type, printing
-INFO:root:  tests/src/assignment.py
-    Assign
-      x : <type 'int'> {}
-      1 : <type 'int'> {}
-    Assign
-      y : <type 'str'> {}
-      "hi" : <type 'str'> {}
-
+INFO:root:Inferred name
+INFO:root:Inferred name
+INFO:root:Inferred name
+INFO:root:Inferred name

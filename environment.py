@@ -21,6 +21,8 @@ class Environment:
 		else: n = name
 		self.types[n] = t
 
+	def get_type(self, name): return self.types.get(name)
+
 	def merge(self, env2): self.types.update(env2.types)
 
 	def apply_sub(self,subst):
@@ -28,7 +30,11 @@ class Environment:
 		Apply the substitution to every value in the types dictionary.
 		(In other words, apply 'subst' to every type in the environment)
 		"""
-		for each_type in self.types.itervalues(): each_type.apply_sub(subst)
+		for each_type in self.types.itervalues():
+			print "====================="
+			print "Applying sub to: " + str(each_type)
+			print "====================="
+			each_type.apply_sub(subst)
 		return self
 
 	def free_type_vars(self):
