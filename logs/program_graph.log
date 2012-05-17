@@ -1,14 +1,21 @@
 INFO:root:Using the parsing module to parse 'source'...
-INFO:root:Successfully loaded source (tests/src/names.py):
-a
+INFO:root:Successfully loaded source (tests/src/assignment.py):
+x = 1
+y = "hi"
 
 INFO:root:Parsed source. Raw AST is:
-Module(body=[Expr(value=Name(id='a', ctx=Load()))])
+Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Num(n=1)), Assign(targets=[Name(id='y', ctx=Store())], value=Str(s='hi'))])
 INFO:root:Traversing our AST...
-INFO:root:Inferred name
 INFO:root:Analyzed Tree:
 INFO:root:Node has type, printing
-INFO:root:  tests/src/names.py
-    
-      a : {}
+INFO:root:Node has type, printing
+INFO:root:Node has type, printing
+INFO:root:Node has type, printing
+INFO:root:  tests/src/assignment.py
+    Assign
+      x : <type 'int'> {}
+      1 : <type 'int'> {}
+    Assign
+      y : <type 'str'> {}
+      "hi" : <type 'str'> {}
 

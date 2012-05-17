@@ -13,7 +13,7 @@ import logging
 
 from substitution import *
 
-class Type:
+class Type(object):
 	"""
 	The superclass of all our types.
 	"""
@@ -80,9 +80,12 @@ class TObj(Type):
 ##		return Substitution()
 
 class TBuiltin(TObj):
-	def __init__(self,pytype,name):
+	def __init__(self,pytype,attributes):
 		self.pytype = pytype
-		self.name = name
+		self.attributes = attributes
+
+	def __str__(self):
+		return str(self.pytype) + " " + super(TBuiltin,self).__str__()
 
 class TList(TBuiltin):
 	pass

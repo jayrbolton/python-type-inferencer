@@ -85,13 +85,13 @@ class ProgramGraph:
 		IS = isinstance
 		if   IS(n, Module):        return self.infer_module(n, env)
 		elif IS(n, Expr):          return self.infer_expr(n, env)
-##	elif IS(n, Num):           return self.infer_num(n, env)
+		elif IS(n, Num):           return self.infer_num(n, env)
 ##	elif IS(n, Return):        return self.infer_return(n, env)
 ##	elif IS(n, Lambda):        return self.infer_lambda(n, env)
-##	elif IS(n, Assign):        return self.infer_assign(n, env)
+		elif IS(n, Assign):        return self.infer_assign(n, env)
 ##	elif IS(n, FunctionDef):   return self.infer_funcdef(n, env)
 ##	elif IS(n, Call):          return self.infer_call(n, env)
-##	elif IS(n, Str):           return self.infer_str(n, env)
+		elif IS(n, Str):           return self.infer_str(n, env)
 		elif IS(n, Name):          return self.infer_name(n, env)
 ##	elif IS(n, List):          return self.infer_list(n, env)
 ##	elif IS(n, Dict):          return self.infer_dict(n, env)
@@ -127,18 +127,18 @@ class ProgramGraph:
 ##	n = Node(node, node1.name, typ=unified_type)
 ##	return (n,Substitution(), env)
 
-##def infer_assign(self, node, env):
-##	(value, sub1, env1) = self.traverse(node.value, env)
-##	env.apply_sub(sub1)
-##	env.merge(env1)
-##	value_type = value.info.get("typ")
-##	if not value_type: raise "RHS of assignment did not get a type."
-##	targets = []
-##	for t in node.targets:
-##		targets.append(Node(t, t.id, typ=value_type))
-##		env.bind(t.id, value_type)
-##	n = Node(node, "", targets + [value], io="Program stack")
-##	return (n, sub1, env)
+	def infer_assign(self, node, env):
+		(value, sub1, env1) = self.traverse(node.value, env)
+		env.apply_sub(sub1)
+		env.merge(env1)
+		value_type = value.info.get("typ")
+		if not value_type: raise "RHS of assignment did not get a type."
+		targets = []
+		for t in node.targets:
+			targets.append(Node(t, t.id, typ=value_type))
+			env.add_type(value_type, t.id)
+		n = Node(node, "Assign", targets + [value], io="Program stack")
+		return (n, sub1, env)
 
 ##def infer_funcdef(self, node, env):
 ##		"""
@@ -217,14 +217,14 @@ class ProgramGraph:
 ##	n = Node(node, "return", [node1])
 ##	return (n, Substitution(), env)
 
-##def infer_num(self, node, env):
-##	typ = node.n.__class__
-##	n = Node(node, node.n, typ=TBuiltin(typ.__name__, typ))
-##	return (n, Substitution(), env)
+	def infer_num(self, node, env):
+		typ = node.n.__class__
+		n = Node(node, node.n, typ=TBuiltin(type(node.n),{}))
+		return (n, Substitution(), env)
 
-##def infer_str(self, node, env):
-##	n = Node(node,"\"" + node.s + "\"",typ=Builtin(type(node.s).__name__,type(node.s)))
-##	return (n, Substitution(), env)
+	def infer_str(self, node, env):
+		n = Node(node,"\"" + node.s + "\"",typ=TBuiltin(type(node.s),{}))
+		return (n, Substitution(), env)
 
 	def infer_name(self, node, env):
 		t = TObj({})
