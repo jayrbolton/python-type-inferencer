@@ -344,3 +344,10 @@ INFO:root:  tests/src/demo.py
       c : (tuple -> t16)
       C : (tuple -> t16)
 
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Successfully loaded source (tests/src/names.py):
+a
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[Expr(value=Name(id='a', ctx=Load()))])
+INFO:root:Traversing our AST...

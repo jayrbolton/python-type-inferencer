@@ -1,12 +1,12 @@
 # Usage
- * jython main.py <source_code.py>
- * eg: jython main.py tests/src/functions.py
+ * $ jython main.py <source_code.py>
+ * eg: $ jython main.py tests/src/functions.py
  * The output will go in logs/pytown.log
 
 # Structure
 * The main program code is in pytown.py
 * The type objects with methods such as unify, apply_subst, and
-free_type_vars are in inftype.py
+free_type_vars are in typ.py
 * builtins.py has some pre-written builtin types and the builtin environment
 * parser.py is the parsing module
 

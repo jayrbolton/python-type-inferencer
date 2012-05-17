@@ -3,11 +3,6 @@ A data structure that encompasses information about python programs.
 
 So far, it is simply AST nodes mapped to type information.
 
-todo:
-	* clean up the giant traverse switch. you can probably break up all that shit
-	  into functions. also, there is redundant code in there (eg, Lambda and
-	  FuncDef)
-
 """
 
 import sys, logging, types, builtins, re, copy
@@ -21,6 +16,9 @@ Log all logging.info('wat') messages to logs/program_graph.log
 logging.basicConfig(filename='logs/program_graph.log',level=logging.DEBUG)
 
 class ProgramGraph:
+	"""
+	An Abstract Syntax Tree with type annotations.
+	"""
 
 	def __init__(self,source):
 		logging.info("Using the parsing module to parse 'source'...")
@@ -75,28 +73,28 @@ class ProgramGraph:
 		print(dump(self.ast))
 
 	def traverse(self, n, env):
-		## TODO: make an inference module that mixes into this class. Simplify this
-		## case statement into function calls to the many type inference functions.
 		"""
-		1. Descend the AST, converting all the AST node into our own Node objects.
+		1. Descend the AST, converting all the AST nodes into our own Node objects.
 		2. Infer the type of the current node.
 		3. Return a pair of Substitution and Node.
+
+		XXX: this could be done more OO-ish by using the NodeVisitor object.
 
 		Returns a tuple of the Node, a Substitution, and an Environment.
 		"""
 		IS = isinstance
 		if   IS(n, Module):        return self.infer_module(n, env)
 		elif IS(n, Expr):          return self.infer_expr(n, env)
-		elif IS(n, Num):           return self.infer_num(n, env)
-		elif IS(n, Return):        return self.infer_return(n, env)
-		elif IS(n, Lambda):        return self.infer_lambda(n, env)
-		elif IS(n, Assign):        return self.infer_assign(n, env)
-		elif IS(n, FunctionDef):   return self.infer_funcdef(n, env)
-		elif IS(n, Call):          return self.infer_call(n, env)
-		elif IS(n, Str):           return self.infer_str(n, env)
+##	elif IS(n, Num):           return self.infer_num(n, env)
+##	elif IS(n, Return):        return self.infer_return(n, env)
+##	elif IS(n, Lambda):        return self.infer_lambda(n, env)
+##	elif IS(n, Assign):        return self.infer_assign(n, env)
+##	elif IS(n, FunctionDef):   return self.infer_funcdef(n, env)
+##	elif IS(n, Call):          return self.infer_call(n, env)
+##	elif IS(n, Str):           return self.infer_str(n, env)
 		elif IS(n, Name):          return self.infer_name(n, env)
-		elif IS(n, List):          return self.infer_list(n, env)
-		elif IS(n, Dict):          return self.infer_dict(n, env)
+##	elif IS(n, List):          return self.infer_list(n, env)
+##	elif IS(n, Dict):          return self.infer_dict(n, env)
 		else:                      return (Node(n), Substitution(), env)
 
 	def infer_module(self, node, env):
@@ -110,143 +108,140 @@ class ProgramGraph:
 		self.modules.append(module)
 		return (module, Substitution(), env)
 
-	def infer_call(self, node, env):
-		(node1, sub1, env1) = self.traverse(node.func, env)
-		type1 = node1.info.get("typ")
-		logging.debug("typtyptyptyp = " + str(type1))
+##def infer_call(self, node, env):
+##	(node1, sub1, env1) = self.traverse(node.func, env)
+##	type1 = node1.info.get("typ")
 
-		arg_types = []
-		for arg in reversed(node.args):
-			(node2, sub2, env2) = self.traverse(arg, env)
-			type2 = node2.info.get("typ")
-			arg_types.append(type2)
-		arg_type = Builtin("tuple",tuple,arg_types)
+##	arg_types = []
+##	for arg in reversed(node.args):
+##		(node2, sub2, env2) = self.traverse(arg, env)
+##		type2 = node2.info.get("typ")
+##		arg_types.append(type2)
+##	arg_type = TBuiltin("tuple",tuple,arg_types)
 
-		applied_type = Arrow(arg_type, Variable())
-		sub3 = applied_type.unify(type1)
-		logging.debug("sub3 = " + str(sub3))
-		unified_type = type1.apply_sub(sub3)
-		logging.debug("applied-type = " + str(applied_type))
-		logging.debug("unified-type = " + str(unified_type))
+##	applied_type = Arrow(arg_type, Variable())
+##	sub3 = applied_type.unify(type1)
+##	logging.debug("sub3 = " + str(sub3))
+##	unified_type = type1.apply_sub(sub3)
 
-		n = Node(node, node1.name, typ=unified_type)
-		return (n,Substitution(), env)
+##	n = Node(node, node1.name, typ=unified_type)
+##	return (n,Substitution(), env)
 
-	def infer_assign(self, node, env):
-		(value, sub1, env1) = self.traverse(node.value, env)
-		env.apply_sub(sub1)
-		env.merge(env1)
-		value_type = value.info.get("typ")
-		if not value_type: raise "RHS of assignment did not get a type."
-		targets = []
-		for t in node.targets:
-			targets.append(Node(t, t.id, typ=value_type))
-			env.bind(t.id, value_type)
-		n = Node(node, "", targets + [value], io="Program stack")
-		return (n, sub1, env)
+##def infer_assign(self, node, env):
+##	(value, sub1, env1) = self.traverse(node.value, env)
+##	env.apply_sub(sub1)
+##	env.merge(env1)
+##	value_type = value.info.get("typ")
+##	if not value_type: raise "RHS of assignment did not get a type."
+##	targets = []
+##	for t in node.targets:
+##		targets.append(Node(t, t.id, typ=value_type))
+##		env.bind(t.id, value_type)
+##	n = Node(node, "", targets + [value], io="Program stack")
+##	return (n, sub1, env)
 
-	def infer_funcdef(self, node, env):
-			"""
-			1. Create a new environment with the parameters removed from the parent environment (shadowing)
-			2. Traverse the body with the scoped environment.
-			3. Now traverse the parameters with the new type information returned from traversing the body.
-			4. Return the func node along with the old environment and the new substitution.
-			"""
-			arg_names = [arg.id for arg in node.args.args] # 1.
-			env_scoped = copy.deepcopy(env)
-			for name in env.types:
-				if name in arg_names: del env_scoped.types[name]
+##def infer_funcdef(self, node, env):
+##		"""
+##		1. Create a new environment with the parameters removed from the parent environment (shadowing)
+##		2. Traverse the body with the scoped environment.
+##		3. Now traverse the parameters with the new type information returned from traversing the body.
+##		4. Return the func node along with the old environment and the new substitution.
+##		"""
+##		arg_names = [arg.id for arg in node.args.args] # 1.
+##		env_scoped = copy.deepcopy(env)
+##		for name in env.types:
+##			if name in arg_names: del env_scoped.types[name]
 
-			(args,arg_types) = ([],[])
-			for arg in node.args.args:
-				(node1,sub1,env1) = self.traverse(arg, env_scoped)
-				args.append(node1)
-				arg_type = node1.info.get("typ")
-				env_scoped.bind(node1.name, arg_type)
-				arg_types.append(node1.info.get("typ"))
-			args_node = Node(node.args, "", args)
+##		(args,arg_types) = ([],[])
+##		for arg in node.args.args:
+##			(node1,sub1,env1) = self.traverse(arg, env_scoped)
+##			args.append(node1)
+##			arg_type = node1.info.get("typ")
+##			env_scoped.bind(node1.name, arg_type)
+##			arg_types.append(node1.info.get("typ"))
+##		args_node = Node(node.args, "", args)
 
-			body = []
-			for n in node.body:
-				(node1,sub1,env1) = self.traverse(n, env_scoped)
-				env_scoped.apply_sub(sub1)
-				env_scoped.merge(env1)
-				body.append(node1)
+##		body = []
+##		for n in node.body:
+##			(node1,sub1,env1) = self.traverse(n, env_scoped)
+##			env_scoped.apply_sub(sub1)
+##			env_scoped.merge(env1)
+##			body.append(node1)
 
-			return_type = env_scoped.types.get("return")
-			if not return_type: return_type = builtins.none_typ
-			arg_types.reverse() ## XXX inefficient
-			param_type = Builtin("tuple",tuple,arg_types)
-			func_type = Arrow(param_type, return_type)
+##		return_type = env_scoped.types.get("return")
+##		if not return_type: return_type = builtins.none_typ
+##		arg_types.reverse() ## XXX inefficient
+##		param_type = Builtin("tuple",tuple,arg_types)
+##		func_type = Arrow(param_type, return_type)
 
-			env.bind(node.name, func_type)
-			func = Node(node, node.name, [args_node] + body, typ=Arrow(param_type,return_type))
-			return (func, sub1, env) ## XXX what sub to return?
+##		env.bind(node.name, func_type)
+##		func = Node(node, node.name, [args_node] + body, typ=Arrow(param_type,return_type))
+##		return (func, sub1, env) ## XXX what sub to return?
 
-	def infer_lambda(self, node, env):
-		arg_names = [arg.id for arg in node.args.args]
-		env_scoped = copy.deepcopy(env)
-		for name in env.types:
-			if name in arg_names: del env_scoped.types[name]
+##def infer_lambda(self, node, env):
+##	arg_names = [arg.id for arg in node.args.args]
+##	env_scoped = copy.deepcopy(env)
+##	for name in env.types:
+##		if name in arg_names: del env_scoped.types[name]
 
-		(args,arg_types) = ([],[])
-		for arg in node.args.args:
-			(node1,sub1,env1) = self.traverse(arg, env_scoped)
-			args.append(node1)
-			arg_type = node1.info.get("typ")
-			env_scoped.bind(node1.name, arg_type)
-			arg_types.append(node1.info.get("typ"))
-		args_node = Node(node.args, "", args)
+##	(args,arg_types) = ([],[])
+##	for arg in node.args.args:
+##		(node1,sub1,env1) = self.traverse(arg, env_scoped)
+##		args.append(node1)
+##		arg_type = node1.info.get("typ")
+##		env_scoped.bind(node1.name, arg_type)
+##		arg_types.append(node1.info.get("typ"))
+##	args_node = Node(node.args, "", args)
 
-		(node1,sub1,env1) = self.traverse(node.body, env_scoped)
-		env_scoped.apply_sub(sub1)
-		env_scoped.merge(env1)
+##	(node1,sub1,env1) = self.traverse(node.body, env_scoped)
+##	env_scoped.apply_sub(sub1)
+##	env_scoped.merge(env1)
 
-		return_type = env_scoped.types.get("return")
-		if not return_type: return_type = builtins.none_typ
-		arg_types.reverse() ## XXX inefficient
-		param_type = Builtin("tuple",tuple,arg_types)
-		func_type  = Arrow(param_type, return_type)
+##	return_type = env_scoped.types.get("return")
+##	if not return_type: return_type = builtins.none_typ
+##	arg_types.reverse() ## XXX inefficient
+##	param_type = Builtin("tuple",tuple,arg_types)
+##	func_type  = Arrow(param_type, return_type)
 
-		func = Node(node, "lambda", [args_node] + [node1], typ=Arrow(param_type,return_type))
-		return (func, sub1, env) ## XXX what sub to return?
+##	func = Node(node, "lambda", [args_node] + [node1], typ=Arrow(param_type,return_type))
+##	return (func, sub1, env) ## XXX what sub to return?
 
 	def infer_expr(self, node, env):
 		(node1, sub1, env1) = self.traverse(node.value,env)
 		n = Node(node,"",[node1])
 		return (n, Substitution(), env1)
 
-	def infer_return(self, node, env):
-		(node1, sub1, env1) = self.traverse(node.value, env)
-		env.bind("return", node1.info.get("typ"))
-		n = Node(node, "return", [node1])
-		return (n, Substitution(), env)
+##def infer_return(self, node, env):
+##	(node1, sub1, env1) = self.traverse(node.value, env)
+##	env.bind("return", node1.info.get("typ"))
+##	n = Node(node, "return", [node1])
+##	return (n, Substitution(), env)
 
-	def infer_num(self, node, env):
-		typ = node.n.__class__
-		n = Node(node, node.n, typ=Builtin(typ.__name__, typ))
-		return (n, Substitution(), env)
+##def infer_num(self, node, env):
+##	typ = node.n.__class__
+##	n = Node(node, node.n, typ=TBuiltin(typ.__name__, typ))
+##	return (n, Substitution(), env)
 
-	def infer_str(self, node, env):
-		n = Node(node,"\"" + node.s + "\"",typ=Builtin(type(node.s).__name__,type(node.s)))
-		return (n, Substitution(), env)
+##def infer_str(self, node, env):
+##	n = Node(node,"\"" + node.s + "\"",typ=Builtin(type(node.s).__name__,type(node.s)))
+##	return (n, Substitution(), env)
 
 	def infer_name(self, node, env):
 		n = Node(node, node.id)
 		type_in_env = env.types.get(node.id)
 		if type_in_env: n.info["typ"] = type_in_env
-		else: n.info["typ"] = Variable() #n.info["typ_err"] = str(node.id) + " undefined"
+		else: n.info["typ"] = TObj()
 		return (n, Substitution(), env)
 
-	def infer_list(self, node, env):
-		# TODO traverse the children of the list and put them in the applied Builtin type
-		n = Node(node, str(node.elts),typ=Builtin("list",type([])))
-		return (n,Substitution(), env)
+##def infer_list(self, node, env):
+##	# TODO traverse the children of the list and put them in the applied Builtin type
+##	n = Node(node, str(node.elts),typ=Builtin("list",type([])))
+##	return (n,Substitution(), env)
 
-	def infer_dict(self, node, env):
-		# TODO traverse the children of the dict and put them in the applied Builtin type
-		n = Node(node, str(node.keys),typ=Builtin("dict",type({})))
-		return (n,Substitution(), env)
+##def infer_dict(self, node, env):
+##	# TODO traverse the children of the dict and put them in the applied Builtin type
+##	n = Node(node, str(node.keys),typ=Builtin("dict",type({})))
+##	return (n,Substitution(), env)
 
 
 class Node(ProgramGraph):

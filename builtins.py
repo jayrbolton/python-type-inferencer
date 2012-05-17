@@ -6,14 +6,14 @@ from environment import *
 
 ## Templates for types:
 # Numeric
-float_typ = Builtin("float", float)
-int_typ = Builtin("int", int)
+float_typ = TBuiltin("float", float)
+int_typ = TBuiltin("int", int)
 # Strings
-str_typ = Builtin("str", str)
+str_typ = TBuiltin("str", str)
 # None
-none_typ = Builtin("None",type(None))
+none_typ = TBuiltin("None",type(None))
 # Booleans
-bool_typ = Builtin("bool",bool)
+bool_typ = TBuiltin("bool",bool)
 
 env = Environment({
 	# Arithmetic
