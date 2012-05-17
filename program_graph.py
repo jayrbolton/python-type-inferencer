@@ -227,10 +227,10 @@ class ProgramGraph:
 ##	return (n, Substitution(), env)
 
 	def infer_name(self, node, env):
-		n = Node(node, node.id)
-		type_in_env = env.types.get(node.id)
-		if type_in_env: n.info["typ"] = type_in_env
-		else: n.info["typ"] = TObj()
+		t = TObj({})
+		n = Node(node, node.id, typ=t)
+		env.add_type(t, node.id)
+		logging.info("Inferred name")
 		return (n, Substitution(), env)
 
 ##def infer_list(self, node, env):
@@ -253,19 +253,14 @@ class Node(ProgramGraph):
 
 	def __str__(self):
 		s = self.name
-		if "typ" in self.info: s += " : " + str(self.info["typ"])
+		if "typ" in self.info:
+			logging.info("Node has type, printing")
+			s += " : " + str(self.info["typ"])
 		if "typ_err" in self.info: s += " <<Type error: " + str(self.info["typ_err"]) + ">>"
 		return s + '\n'
 
-	def __repr__(self):
-		s = self.name
-		if self.info["typ"]: s += " : " + str(self.info["typ"])
-		return s
-
 	def format_tree(self,indents):
-		s = ""
-		s += "  " * indents
-		s += str(self)
+		s = "  " * indents + str(self)
 		for c in self.children:
 			s += c.format_tree(indents+1)
 		return s

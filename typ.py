@@ -20,7 +20,6 @@ class Type:
 	pass
 
 
-total_vars = 0 ### Generator of fresh names. XXX make this better? globals ew?
 class TObj(Type):
 	"""
 	The object type, of which all data is a member in Python. We describe python
@@ -28,23 +27,9 @@ class TObj(Type):
 	corresponding attributes (duck typing).
 	"""
 
-	def __init__(self,attributes,name=None):
-		if name == None:
-			global total_variables
-			self.name = "o" + str(total_variables)
-			total_variables += 1
-		else:
-			self.name = name
-		self.attributes = attributes
+	def __init__(self,attributes): self.attributes = attributes
 
-
-	def __str__(self):
-		s = self.name
-		if self.attributes:
-			s += "["
-			for a in self.attributes: s += " " + str(a) + " "
-			s += "]"
-		return s
+	def __str__(self): return str(self.attributes)
 
 	def apply_sub(self,sub):
 		"""
@@ -55,10 +40,8 @@ class TObj(Type):
 		Does not modify 'this'
 		-> Returns a new TObj with subs applied
 		"""
-		new_attrs = []
-		for each in self.attributes:
-			new_attrs.append(each.apply_sub(sub))
-		return TObj(new_attrs)
+		for name, typ in self.attributes.iteritems():
+			self.attributes[name] = typ.apply_sub(sub)
 		
 	def free_type_vars(self):
 		"""
@@ -69,8 +52,9 @@ class TObj(Type):
 		"""
 		s = set()
 		s.union(self.name)
-		for a in self.attributes:
-			s.union(a.free_type_vars())
+		for name, typ in self.attributes.iteritems():
+			s.union(name)
+			s.union(typ.free_type_vars())
 		return s
 
 	def unify(self,typ):
@@ -78,17 +62,22 @@ class TObj(Type):
 		Unify an object type with a another type. The only case in which we can
 		create a Substitution is if we are unifying with a type variable.
 		"""
-		if isinstance(typ, TVar):
-			if typ.name in self.free_type_vars(): # occurs check
-				return Substitution() # failed occurs check; ret empty sub
-			else:
-				return Substitution({typ.name : self}) # sub variable with this object
-		# Else if both are object types and have unifiable names and attributes.
-		elif isinstance(typ,TObj):
-			sub = Substitution({self.attributes.extend})
-			return sub
-		else:
-			return Substitution()
+##TODO
+## 1. loop thru attrs and see if any are inside typ
+## 2. if so, unify the those types
+## 3. then update attrs with typ.attrs
+		self.attributes.update(typ.attributes)
+##	if isinstance(typ, TVar):
+##		if typ.name in self.free_type_vars(): # occurs check
+##			return Substitution() # failed occurs check; ret empty sub
+##		else:
+##			return Substitution({typ.name : self}) # sub variable with this object
+##	# Else if both are object types and have unifiable names and attributes.
+##	elif isinstance(typ,TObj):
+##		sub = Substitution({self.attributes.extend})
+##		return sub
+##	else:
+##		return Substitution()
 
 class TBuiltin(TObj):
 	def __init__(self,pytype,name):

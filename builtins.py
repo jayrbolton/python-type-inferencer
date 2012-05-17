@@ -15,21 +15,21 @@ none_typ = TBuiltin("None",type(None))
 # Booleans
 bool_typ = TBuiltin("bool",bool)
 
-env = Environment({
-	# Arithmetic
-	("*",float_typ,int_typ)  : float_typ,
-	("/",float_typ,int_typ)  : float_typ,
-	("%",float_typ,int_typ)  : float_typ,
-	("//",float_typ,int_typ) : float_typ,
-	("+",int_typ,int_typ)    : int_typ,
-	("+",int_typ,float_typ)  : float_typ,
-	("+",str_typ,str_typ)    : str_typ,
-
-	# Constants
-	"None"                   : none_typ,
-	"True"                   : bool_typ,
-	"False"                  : bool_typ,
-
-	# IO
-	"print"                  : none_typ
-})
+env = Environment({})
+#	# Arithmetic
+#	("*",float_typ,int_typ)  : float_typ,
+#	("/",float_typ,int_typ)  : float_typ,
+#	("%",float_typ,int_typ)  : float_typ,
+#	("//",float_typ,int_typ) : float_typ,
+#	("+",int_typ,int_typ)    : int_typ,
+#	("+",int_typ,float_typ)  : float_typ,
+#	("+",str_typ,str_typ)    : str_typ,
+#
+#	# Constants
+#	"None"                   : none_typ,
+#	"True"                   : bool_typ,
+#	"False"                  : bool_typ,
+#
+#	# IO
+#	"print"                  : none_typ
+#})
