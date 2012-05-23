@@ -31,9 +31,6 @@ class Environment:
 		(In other words, apply 'subst' to every type in the environment)
 		"""
 		for each_type in self.types.itervalues():
-			print "====================="
-			print "Applying sub to: " + str(each_type)
-			print "====================="
 			each_type.apply_sub(subst)
 		return self
 

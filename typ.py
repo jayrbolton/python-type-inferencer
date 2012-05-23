@@ -19,7 +19,6 @@ class Type(object):
 	"""
 	pass
 
-
 class TObj(Type):
 	"""
 	The object type, of which all data is a member in Python. We describe python
@@ -30,6 +29,7 @@ class TObj(Type):
 	def __init__(self,attributes): self.attributes = attributes
 
 	def __str__(self): return str(self.attributes)
+	def __repr__(self): return str(self.attributes)
 
 	def apply_sub(self,sub):
 		"""
@@ -78,6 +78,14 @@ class TObj(Type):
 ##		return sub
 ##	else:
 ##		return Substitution()
+
+## XXX TODO inherit attributes
+class TError(TObj):
+	def __init__(self,message,attributes):
+		self.message = message
+		self.attributes = attributes
+	
+	def __str__(self): return "<<Type Error: " + self.message + ">>"
 
 class TBuiltin(TObj):
 	def __init__(self,pytype,attributes):
