@@ -2,7 +2,7 @@
 
 from program_graph import *
 from typ import *
-from environment import *
+from attributes import *
 
 ## Templates for types:
 # Numeric
@@ -15,7 +15,7 @@ none_typ = TBuiltin(type(None),{})
 # Booleans
 bool_typ = TBuiltin(bool,{})
 
-env = Environment({})
+env = Attributes({})
 #	# Arithmetic
 #	("*",float_typ,int_typ)  : float_typ,
 #	("/",float_typ,int_typ)  : float_typ,

@@ -5,11 +5,46 @@ y = 1
 z = y
 y = "str"
 
-def S(x,y): return x
+def S(x,y):  return x
+
+S(y,z)
+S(z,y)
 
 INFO:root:Parsed source. Raw AST is:
-Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Name(id='y', ctx=Load())), Assign(targets=[Name(id='y', ctx=Store())], value=Num(n=1)), Assign(targets=[Name(id='z', ctx=Store())], value=Name(id='y', ctx=Load())), Assign(targets=[Name(id='y', ctx=Store())], value=Str(s='str')), FunctionDef(name='S', args=arguments(args=[Name(id='x', ctx=Param()), Name(id='y', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='x', ctx=Load()))], decorator_list=[])])
+Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Name(id='y', ctx=Load())), Assign(targets=[Name(id='y', ctx=Store())], value=Num(n=1)), Assign(targets=[Name(id='z', ctx=Store())], value=Name(id='y', ctx=Load())), Assign(targets=[Name(id='y', ctx=Store())], value=Str(s='str')), FunctionDef(name='S', args=arguments(args=[Name(id='x', ctx=Param()), Name(id='y', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='x', ctx=Load()))], decorator_list=[]), Expr(value=Call(func=Name(id='S', ctx=Load()), args=[Name(id='y', ctx=Load()), Name(id='z', ctx=Load())], keywords=[], starargs=None, kwargs=None)), Expr(value=Call(func=Name(id='S', ctx=Load()), args=[Name(id='z', ctx=Load()), Name(id='y', ctx=Load())], keywords=[], starargs=None, kwargs=None))])
 INFO:root:Traversing our AST...
+DEBUG:root:Env: {'y': <<Type Error: Undefined>>}
+DEBUG:root:Env: {'x': <<Type Error: Undefined>>, 'y': <<Type Error: Undefined>>}
+DEBUG:root:Env: {'x': <<Type Error: Undefined>>, 'y': <type 'int'> {}}
+DEBUG:root:Env: {'x': <<Type Error: Undefined>>, 'z': <type 'int'> {}, 'y': <type 'int'> {}}
+DEBUG:root:Env: {'x': <<Type Error: Undefined>>, 'z': <type 'int'> {}, 'y': <type 'str'> {}}
+DEBUG:root:Env: {'x': {}, 'z': <type 'int'> {}}
+DEBUG:root:Env: {'x': {}, 'z': <type 'int'> {}, 'y': {}}
+DEBUG:root:Env: {'x': {}, 'z': <type 'int'> {}, 'y': {}, 'return': {}}
+DEBUG:root:return type: {}
+DEBUG:root:Env: {'S': {'*return': {}, '*params': [{}, {}]}, 'x': <<Type Error: Undefined>>, 'z': <type 'int'> {}, 'y': <type 'str'> {}}
+DEBUG:root:Given type: {'*return': {}, '*params': [{}, {}]}
+DEBUG:root:Environment: {'S': {'*return': {}, '*params': [{}, {}]}, 'x': <<Type Error: Undefined>>, 'z': <type 'int'> {}, 'y': <type 'str'> {}}
+DEBUG:root:Arg types: [<type 'int'> {}, <type 'str'> {}]
+DEBUG:root:Applied type: {'*return': {}, '*params': [<type 'int'> {}, <type 'str'> {}]}
+DEBUG:root:Unifying *return:{} with {}
+DEBUG:root:Env: {'*return': {}, '*params': [<type 'int'> {}, <type 'str'> {}]}
+DEBUG:root:New environment is: {'*return': {}, '*params': [<type 'int'> {}, <type 'str'> {}]}
+DEBUG:root:Unifying *params:[<type 'int'> {}, <type 'str'> {}] with [{}, {}]
+DEBUG:root:Env: {'*return': {}, '*params': [<type 'int'> {}, <type 'str'> {}]}
+DEBUG:root:New environment is: {'*return': {}, '*params': [<type 'int'> {}, <type 'str'> {}]}
+DEBUG:root:Unified type: {'*return': {}, '*params': [<type 'int'> {}, <type 'str'> {}]}
+DEBUG:root:Given type: {'*return': {}, '*params': [{}, {}]}
+DEBUG:root:Environment: {'S': {'*return': {}, '*params': [{}, {}]}, 'x': <<Type Error: Undefined>>, 'z': <type 'int'> {}, 'y': <type 'str'> {}}
+DEBUG:root:Arg types: [<type 'str'> {}, <type 'int'> {}]
+DEBUG:root:Applied type: {'*return': {}, '*params': [<type 'str'> {}, <type 'int'> {}]}
+DEBUG:root:Unifying *return:{} with {}
+DEBUG:root:Env: {'*return': {}, '*params': [<type 'str'> {}, <type 'int'> {}]}
+DEBUG:root:New environment is: {'*return': {}, '*params': [<type 'str'> {}, <type 'int'> {}]}
+DEBUG:root:Unifying *params:[<type 'str'> {}, <type 'int'> {}] with [{}, {}]
+DEBUG:root:Env: {'*return': {}, '*params': [<type 'str'> {}, <type 'int'> {}]}
+DEBUG:root:New environment is: {'*return': {}, '*params': [<type 'str'> {}, <type 'int'> {}]}
+DEBUG:root:Unified type: {'*return': {}, '*params': [<type 'str'> {}, <type 'int'> {}]}
 INFO:root:Analyzed Tree:
 INFO:root:  tests/src/demo.py
     Assign
@@ -24,10 +59,14 @@ INFO:root:  tests/src/demo.py
     Assign
       y : <type 'str'> {}
       "str" : <type 'str'> {}
-    S : {'*return': {}, '*params': {'*contained': {'x': {}, 'y': {}}}}
-      Parameters : <type 'tuple'> {'*contained': {'x': {}, 'y': {}}}
+    S : {'*return': {}, '*params': [{}, {}]}
+      Parameters : [{}, {}]
         x : {}
         y : {}
       return
         x : {}
+    
+      S : {'*return': {}, '*params': [<type 'int'> {}, <type 'str'> {}]}
+    
+      S : {'*return': {}, '*params': [<type 'str'> {}, <type 'int'> {}]}
 

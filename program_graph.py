@@ -5,7 +5,7 @@ So far, it is simply AST nodes mapped to type information.
 
 """
 
-import sys, logging, types, builtins, re, copy
+import sys, logging, types, builtins, re, copy, pdb
 
 from typ import *
 from ast import *
@@ -91,7 +91,7 @@ class ProgramGraph:
 ##	elif IS(n, Lambda):        return self.infer_lambda(n, env)
 		elif IS(n, Assign):        return self.infer_assign(n, env)
 		elif IS(n, FunctionDef):   return self.infer_funcdef(n, env)
-##	elif IS(n, Call):          return self.infer_call(n, env)
+		elif IS(n, Call):          return self.infer_call(n, env)
 		elif IS(n, Str):           return self.infer_str(n, env)
 		elif IS(n, Name):          return self.infer_name(n, env)
 ##	elif IS(n, List):          return self.infer_list(n, env)
@@ -108,30 +108,31 @@ class ProgramGraph:
 		self.modules.append(module)
 		return (module, Substitution(), env)
 
-##def infer_call(self, node, env):
-##	(node1, sub1, env1) = self.traverse(node.func, env)
-##	type1 = node1.info.get("typ")
+	def infer_call(self, node, env):
+		(node1, sub1, env1) = self.traverse(node.func, env)
+		given_type = node1.info.get("typ")
+		logging.debug("Given type: " + str(given_type))
+	
+		(arg_types,arg_names) = ([],[])
+		for arg in reversed(node.args):
+			(node2, sub2, env2) = self.traverse(arg, env)
+			type2 = node2.info.get("typ")
+			arg_types.append(type2)
+			arg_names.append(node2.name)
+		logging.debug("Environment: " + str(env))
+		logging.debug("Arg types: " + str(arg_types))
+		arg_tuple = TTuple(arg_types)
+		applied_type = TObj({"*params" : arg_tuple, "*return" : TObj({})})
+		logging.debug("Applied type: " + str(applied_type))
 
-##	(arg_types,arg_names) = ([],[])
-##	for arg in reversed(node.args):
-##		(node2, sub2, env2) = self.traverse(arg, env)
-##		type2 = node2.info.get("typ")
-##		arg_types.append(type2)
-##		arg_names.append(node2.name)
-##	arg_type = TBuiltin("tuple",tuple,arg_types)
-#		arg_type = TBuiltin(tuple,{"*contained":TObj(dict(zip(arg_names,arg_types)))})
-
-##	applied_type = Arrow(arg_type, Variable())
-##	sub3 = applied_type.unify(type1)
-##	logging.debug("sub3 = " + str(sub3))
-##	unified_type = type1.apply_sub(sub3)
-
-##	n = Node(node, node1.name, typ=unified_type)
-##	return (n,Substitution(), env)
+		unified_type = applied_type.unify(given_type)
+		logging.debug("Unified type: " + str(unified_type))
+		n = Node(node, node1.name, typ=unified_type)
+		return (n,Substitution(), env)
 
 	def infer_assign(self, node, env):
 		(value, sub1, env1) = self.traverse(node.value, env)
-		env.apply_sub(sub1)
+		#env.apply_sub(sub1)
 		env.merge(env1)
 		value_type = value.info.get("typ")
 		if not value_type: raise "RHS of assignment did not get a type."
@@ -153,13 +154,13 @@ class ProgramGraph:
 			# 1.
 			arg_names = [arg.id for arg in node.args.args]
 			env_scoped = copy.deepcopy(env)
-			for name in env.types.iterkeys():
-				if name in arg_names: del env_scoped.types[name]
+			for name in env.attrs.iterkeys():
+				if name in arg_names: del env_scoped.attrs[name]
 	
 			# 2.
 			(param_nodes,param_types,param_names) = ([],[],[])
 			for param in node.args.args:
-				env_scoped.add_type(TObj({}), param.id)
+				env_scoped.add_type(TObj(), param.id)
 				(node1,sub1,env1) = self.traverse(param, env_scoped)
 				param_nodes.append(node1)
 				param_names.append(node1.name)
@@ -170,14 +171,16 @@ class ProgramGraph:
 			body = []
 			for n in node.body:
 				(node1,sub1,env1) = self.traverse(n, env_scoped)
-				env_scoped.apply_sub(sub1)
+				#env_scoped.apply_sub(sub1)
 				env_scoped.merge(env1)
 				body.append(node1)
 
 			# 4.
-			param_type = TBuiltin(tuple,{"*contained":TObj(dict(zip(param_names,param_types)))})
+			param_type = TTuple(param_types)
+#		param_type = TBuiltin(tuple,{"*contained":TObj(dict(zip(param_names,param_types)))})
 			return_type = env_scoped.get_type("return")
-			if not return_type: return_type = TBuiltin(type(None),{})
+			if return_type == None: return_type = TError("No return type")
+			logging.debug("return type: " + str(return_type))
 			func_type = TObj({"*params" : param_type, "*return" : return_type})
 	
 			# 5.
@@ -237,7 +240,7 @@ class ProgramGraph:
 	def infer_name(self, node, env):
 		t = env.get_type(node.id)
 		if t == None:
-			t = TError("Undefined",{})
+			t = TError("Undefined")
 			env.add_type(t, node.id)
 		n = Node(node, node.id, typ=t)
 		return (n, Substitution(), env)

@@ -12,6 +12,7 @@ Type
 import logging
 
 from substitution import *
+from attributes import *
 
 class Type(object):
 	"""
@@ -26,22 +27,27 @@ class TObj(Type):
 	corresponding attributes (duck typing).
 	"""
 
-	def __init__(self,attributes): self.attributes = attributes
+	def __init__(self,attributes=None):
+		"""
+		Pass a dict to the constructor to TObj of the mapping of names to types in the attributes of this object.
+		"""
+		if attributes == None: self.attributes = Attributes({})
+		else: self.attributes = Attributes(attributes)
 
 	def __str__(self): return str(self.attributes)
 	def __repr__(self): return str(self.attributes)
 
-	def apply_sub(self,sub):
-		"""
-		Apply a type Substitution to an object.
-		TObjs themselves are not substitutable, but their attributes may be, so we loop
-		through 'attributes' and apply 'sub' to each.
+##def apply_sub(self,sub):
+##	"""
+##	Apply a type Substitution to an object.
+##	TObjs themselves are not substitutable, but their attributes may be, so we loop
+##	through 'attributes' and apply 'sub' to each.
 
-		Does not modify 'this'
-		-> Returns a new TObj with subs applied
-		"""
-		for name, typ in self.attributes.iteritems():
-			self.attributes[name] = typ.apply_sub(sub)
+##	Does not modify 'this'
+##	-> Returns a new TObj with subs applied
+##	"""
+##	for name, typ in self.attributes.iteritems():
+##		self.attributes[name] = typ.apply_sub(sub)
 		
 	def free_type_vars(self):
 		"""
@@ -62,30 +68,14 @@ class TObj(Type):
 		Unify an object type with a another type. The only case in which we can
 		create a Substitution is if we are unifying with a type variable.
 		"""
-##TODO
-## 1. loop thru attrs and see if any are inside typ
-## 2. if so, unify the those types
-## 3. then update attrs with typ.attrs
-		self.attributes.update(typ.attributes)
-##	if isinstance(typ, TVar):
-##		if typ.name in self.free_type_vars(): # occurs check
-##			return Substitution() # failed occurs check; ret empty sub
-##		else:
-##			return Substitution({typ.name : self}) # sub variable with this object
-##	# Else if both are object types and have unifiable names and attributes.
-##	elif isinstance(typ,TObj):
-##		sub = Substitution({self.attributes.extend})
-##		return sub
-##	else:
-##		return Substitution()
+		return TObj(self.attributes.unify(typ.attributes))
 
 ## XXX TODO inherit attributes
 class TError(TObj):
-	def __init__(self,message,attributes):
-		self.message = message
-		self.attributes = attributes
-	
+	attributes = {}
+	def __init__(self,message): self.message = message
 	def __str__(self): return "<<Type Error: " + self.message + ">>"
+	def __repr__(self): return "<<Type Error: " + self.message + ">>"
 
 class TBuiltin(TObj):
 	def __init__(self,pytype,attributes):
@@ -94,9 +84,25 @@ class TBuiltin(TObj):
 
 	def __str__(self):
 		return str(self.pytype) + " " + super(TBuiltin,self).__str__()
+	def __repr__(self):
+		return str(self.pytype) + " " + super(TBuiltin,self).__str__()
+
+	def unify(self,typ):
+		if self.attributes == typ.attributes: return self
+		elif isinstance(typ,TObj) and not typ.attributes: return self
+		else: return TError("Conflicting types: " + str(self) + " and " + str(typ))
+
+class TTuple(TBuiltin):
+	pytype = tuple
+	attributes = {}
+	def __init__(self,contained): self.contained = contained
+	def __str__(self): return str(self.contained)
+	def __repr__(self): return str(self.contained)
 
 class TList(TBuiltin):
-	pass
+	pytype = list
+	def __init__(self,contained): self.contained = contained
 
 class TDict(TBuiltin):
-	pass
+	pytype = dict
+	def __init__(self,contained): self.contained = contained
