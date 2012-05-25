@@ -1,23 +1,24 @@
-"""
-A substitution is a mapping of type variables to actual types.
-	e.g. { "t1" : "int",
-	       "t2" : "t1 -> str"}
-The 'vars_to_types' field holds this mapping.
-"""
 class Substitution:
-	def __init__(self, subs={}):
-		self.subs = subs
+	"""
+	A substitution is a mapping of type labels to types
+		e.g. { "t1" : "t0{}",
+					 "t2" : "t4{a:t5, b:int}}
+	subs is a dictionary that holds this mapping.
+	"""
+	def __init__(self, subs=None):
+		if subs == None: self.subs = {}
+		else: self.subs = subs
 	
 	def __repr__(self):
-		s = "{"
+		s = "["
 		for (key,val) in self.subs.iteritems():
-			s += str(key) + " : " + str(val) + ","
-		s += "}"
+			s += str(key) + " >> " + str(val) + ","
+		s += "]"
 		return s
 
-	def merge(self,other_sub):
-		self.subs.update(other_sub.subs)
-		return self
+	def merge(self,other_sub): self.subs.update(other_sub.subs)
+
+	def add(self,label,typ): self.subs[label] = typ
 
 	def apply_after(self, sub2):
 		"""
@@ -33,6 +34,6 @@ class Substitution:
 					 TODO What about deeper subsitutions? (e.g. t3 above in t4's sig)
 		"""
 		for each_type in self.subs.values():
-			each_type.apply_subst(sub2)
+			each_type.apply_sub(sub2)
 		self.subs = self.subs.update(sub2.subs)
 		return self

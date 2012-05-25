@@ -3,6 +3,8 @@
  * eg: $ jython main.py tests/src/functions.py
  * The output will go in logs/pytown.log
 
+ * Or quickly run the demo with: $ ./run_demo.sh
+
 # Structure
 * The main program code is in pytown.py
 * The type objects with methods such as unify, apply_subst, and

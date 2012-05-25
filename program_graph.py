@@ -125,14 +125,19 @@ class ProgramGraph:
 		applied_type = TObj({"*params" : arg_tuple, "*return" : TObj({})})
 		logging.debug("Applied type: " + str(applied_type))
 
-		unified_type = applied_type.unify(given_type)
+		sub = given_type.unify(applied_type)
+		logging.debug("Sub is: " + str(sub))
+		logging.debug("Applying sub to: " + str(given_type))
+		unified_type = given_type.apply_sub(sub)
+		return_type = unified_type.attributes.get_type("*return")
+		err = unified_type.attributes.get_type("*params")
+		if isinstance(err,TError): return_type = err
 		logging.debug("Unified type: " + str(unified_type))
-		n = Node(node, node1.name, typ=unified_type)
+		n = Node(node, node1.name, typ=return_type)
 		return (n,Substitution(), env)
 
 	def infer_assign(self, node, env):
 		(value, sub1, env1) = self.traverse(node.value, env)
-		#env.apply_sub(sub1)
 		env.merge(env1)
 		value_type = value.info.get("typ")
 		if not value_type: raise "RHS of assignment did not get a type."
@@ -160,7 +165,7 @@ class ProgramGraph:
 			# 2.
 			(param_nodes,param_types,param_names) = ([],[],[])
 			for param in node.args.args:
-				env_scoped.add_type(TObj(), param.id)
+				env_scoped.add_type(TObj({}), param.id)
 				(node1,sub1,env1) = self.traverse(param, env_scoped)
 				param_nodes.append(node1)
 				param_names.append(node1.name)
@@ -171,13 +176,11 @@ class ProgramGraph:
 			body = []
 			for n in node.body:
 				(node1,sub1,env1) = self.traverse(n, env_scoped)
-				#env_scoped.apply_sub(sub1)
 				env_scoped.merge(env1)
 				body.append(node1)
 
 			# 4.
 			param_type = TTuple(param_types)
-#		param_type = TBuiltin(tuple,{"*contained":TObj(dict(zip(param_names,param_types)))})
 			return_type = env_scoped.get_type("return")
 			if return_type == None: return_type = TError("No return type")
 			logging.debug("return type: " + str(return_type))
@@ -205,7 +208,6 @@ class ProgramGraph:
 ##	args_node = Node(node.args, "", args)
 
 ##	(node1,sub1,env1) = self.traverse(node.body, env_scoped)
-##	env_scoped.apply_sub(sub1)
 ##	env_scoped.merge(env1)
 
 ##	return_type = env_scoped.types.get("return")
@@ -230,11 +232,11 @@ class ProgramGraph:
 
 	def infer_num(self, node, env):
 		typ = node.n.__class__
-		n = Node(node, node.n, typ=TBuiltin(type(node.n),{}))
+		n = Node(node, node.n, typ=TBuiltin(type(node.n)))
 		return (n, Substitution(), env)
 
 	def infer_str(self, node, env):
-		n = Node(node,"\"" + node.s + "\"",typ=TBuiltin(type(node.s),{}))
+		n = Node(node,"\"" + node.s + "\"",typ=TBuiltin(type(node.s)))
 		return (n, Substitution(), env)
 
 	def infer_name(self, node, env):
@@ -254,7 +256,6 @@ class ProgramGraph:
 ##	# TODO traverse the children of the dict and put them in the applied Builtin type
 ##	n = Node(node, str(node.keys),typ=Builtin("dict",type({})))
 ##	return (n,Substitution(), env)
-
 
 class Node(ProgramGraph):
 	def __init__(self, ast_node, name="", children=[], **info):

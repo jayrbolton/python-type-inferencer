@@ -6,14 +6,14 @@ from attributes import *
 
 ## Templates for types:
 # Numeric
-float_typ = TBuiltin(float,{})
-int_typ = TBuiltin(int,{})
+float_typ = TBuiltin(float)
+int_typ = TBuiltin(int)
 # Strings
-str_typ = TBuiltin(str,{})
+str_typ = TBuiltin(str)
 # None
-none_typ = TBuiltin(type(None),{})
+none_typ = TBuiltin(type(None))
 # Booleans
-bool_typ = TBuiltin(bool,{})
+bool_typ = TBuiltin(bool)
 
 env = Attributes({})
 #	# Arithmetic

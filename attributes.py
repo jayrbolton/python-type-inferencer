@@ -1,5 +1,6 @@
 import typ
 from program_graph import *
+from substitution import *
 
 """
 An Attributes is a dictionary of names and their type schemes. Names are
@@ -26,25 +27,27 @@ class Attributes(object):
 	def merge(self, a2): self.attrs.update(a2.attrs)
 
 	def unify(self, a2):
-		new_attrs = Attributes(self.attrs)
+		"""
+		Unify all the types in these attributes with those in attributes a2.
+		-> Returns a Substitution
+		"""
+		sub = Substitution() # initialize empty substitution
 		for name, typ1 in self.attrs.iteritems():
 			typ2 = a2.attrs.get(name)
 			if typ2:
-				logging.debug("Unifying " + str(name) + ":" + str(typ1) + " with " + str(typ2))
-				new_attrs.add_type(typ1.unify(typ2), name)
-				logging.debug("New environment is: " + str(new_attrs))
-		return new_attrs
+				logging.debug("Unifying " + str(name) + ": " + str(typ1) + " with " + str(typ2))
+				sub.merge(typ1.unify(typ2))
+				logging.debug("New substitution: " + str(sub))
+		return sub
 
 	def reference(self, name, typ): pass
 
-##def apply_sub(self,subst):
-##	"""
-##	Apply the substitution to every value in the attrs dictionary.
-##	(In other words, apply 'subst' to every type in the environment)
-##	"""
-##	for each_type in self.attrs.itervalues():
-##		each_type.apply_sub(subst)
-##	return self
+	def apply_sub(self,subst):
+		"""
+		Apply the substitution to every type in these attributes
+		"""
+		for each_type in self.attrs.itervalues():
+			each_type.apply_sub(subst)
 
 	def free_type_vars(self):
 		"""
