@@ -14,8 +14,11 @@ str_typ = TBuiltin(str)
 none_typ = TBuiltin(type(None))
 # Booleans
 bool_typ = TBuiltin(bool)
+self_typ = TSelf()
 
-env = Attributes({})
+env = Attributes({"self" : TSelf()
+# "+" : Attributes({"*params":	...
+	})
 #	# Arithmetic
 #	("*",float_typ,int_typ)  : float_typ,
 #	("/",float_typ,int_typ)  : float_typ,

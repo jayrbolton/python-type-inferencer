@@ -39,12 +39,15 @@ class Attributes(object):
 
 	def reference(self, name, typ): pass
 
-	def apply_sub(self,subst):
+	def apply_sub(self,sub):
 		"""
-		Apply the substitution to every type in these attributes
+		Apply the subitution to every type in these attributes
 		"""
-		for each_type in self.attrs.itervalues():
-			each_type.apply_sub(subst)
+		new_attrs = {}
+		for name,each_type in self.attrs.iteritems():
+			new_attrs[name] = each_type.apply_sub(sub)
+		self.attrs = new_attrs
+		return self
 
 	def free_type_vars(self):
 		"""

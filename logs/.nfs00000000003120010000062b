@@ -1,0 +1,67 @@
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Successfully loaded source (tests/src/classes.py):
+# Class definition
+
+class A(object):
+	# Assignment attributes
+	z = 1
+
+	# Static methods	
+	def smethod(p1): return p1 # : (a{}) -> a{}
+
+	# Instance methods
+	def imethod(self): return self # : (A{...}) -> A{...}
+
+# Construction
+
+a = A() # : A{...}
+
+## Attribute reference
+
+y = a.z # : int
+
+## Static method reference
+
+z = a.static(1)
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load())], body=[Assign(targets=[Name(id='z', ctx=Store())], value=Num(n=1)), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load()))], decorator_list=[]), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load()))], decorator_list=[])], decorator_list=[]), Assign(targets=[Name(id='a', ctx=Store())], value=Call(func=Name(id='A', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Name(id='y', ctx=Store())], value=Attribute(value=Name(id='a', ctx=Load()), attr='z', ctx=Load())), Assign(targets=[Name(id='z', ctx=Store())], value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='static', ctx=Load()), args=[Num(n=1)], keywords=[], starargs=None, kwargs=None))])
+INFO:root:Traversing our AST...
+DEBUG:root:FOUND SELF
+DEBUG:root:in env: t3{}
+DEBUG:root:False
+DEBUG:root:FOUND SELF
+DEBUG:root:in env: t3{}
+DEBUG:root:False
+DEBUG:root:Given type: A{'*return': t6{'z': <type 'int'>}, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, 'imethod': t5{'*return': t3{}, '*params': tuple4[t3{}]}, '*params': tuple7[], 'z': <type 'int'>}
+DEBUG:root:Applied type: t9{'*return': t6{'z': <type 'int'>}, '*params': tuple8[]}
+DEBUG:root:Unified type: t9{'*return': t6{'z': <type 'int'>}, '*params': tuple8[]}
+DEBUG:root:Given type: <<Type Error: Object: a has no attribute: static>>
+DEBUG:root:Applied type: t12{'*return': t11{}, '*params': tuple10[<type 'int'>]}
+DEBUG:root:Unified type: t12{'*return': t11{}, '*params': tuple10[<type 'int'>]}
+INFO:root:Analyzed Tree:
+INFO:root:  tests/src/classes.py
+    A : A{'*return': t6{'z': <type 'int'>}, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, 'imethod': t5{'*return': t3{}, '*params': tuple4[t3{}]}, '*params': tuple7[], 'z': <type 'int'>}
+      Assign
+        z : <type 'int'>
+        1 : <type 'int'>
+      smethod : t2{'*return': t0{}, '*params': tuple1[t0{}]}
+        Parameters : tuple1[t0{}]
+          p1 : t0{}
+        return
+          p1 : t0{}
+      imethod : t5{'*return': t3{}, '*params': tuple4[t3{}]}
+        Parameters : tuple4[t3{}]
+          self : t3{}
+        return
+          self : t3{}
+    Assign
+      a : t6{'z': <type 'int'>}
+      A : t6{'z': <type 'int'>}
+    Assign
+      y : <type 'int'>
+      Attribute : <type 'int'>
+    Assign
+      z : t11{}
+      Attribute : t11{}
+

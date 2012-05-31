@@ -1,25 +1,40 @@
-def x(y,z):
+
+# Basic
+def hi(y,z): # : (a{}, b{}) -> str
 	return "hi"
 
-flops = 4 #should be shadowed below
+# Shadowing: shadow n as a parameter
+n = 4 # : int
 
-def giga(flops):
-	1
-	2
-	"loL"
-	return flops
+def shadow(n): # : (a{}) -> a{}
+	return n
 
+n # : int
 
-# The S LOLmbinator!
-def S(x,y):
-	return x
- 
-# hack the gibson with higher order functions
-def hack(the, gibson):
-	return S
+# Returning a function object
+def f(): return hi # : () -> ((a{}, b{}) -> str)
 
-def f(giga):
-	return hack
+# Multiple return types
 
-# Now we can call some funky funcs
-S(1,"hi")
+# def multi(p):
+# 	if p: return 1
+# 	else: return 2
+
+# Function application to parameters in the body changes the type of the parameters.
+
+def S(x,y):  return x      # : (a{}, b{}) -> a{}
+def S2(x,y): return S(x,y) # : (a{}, b{}) -> a{}
+
+# Function calls:
+
+a = hi(1,2)       # : str
+b = shadow("ret") # : str
+c = S("s",2)      # : str
+c = S2(2,"s")     # : int
+d = S(hi,shadow)  # : t3{...} (hi function type)
+
+# Type errors:
+# Parameters too few or many:
+hi(1,2,3) # : error: conflicting params
+hi(1)     # : error: conflicting params
+# 

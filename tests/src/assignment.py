@@ -1,2 +1,5 @@
-x = 1
-y = "hi"
+x = y     # : error: undefined
+x = 1     # : int
+y = "hi"  # : str
+x = "bye" # : str
+y = 2     # : int

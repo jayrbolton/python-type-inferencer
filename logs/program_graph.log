@@ -1,0 +1,101 @@
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Successfully loaded source (tests/src/classes.py):
+# Class definition
+
+class A(object):
+	# Assignment attributes
+	z = 1
+
+	# Static methods	
+	def smethod(p1): return p1 # : (a{}) -> a{}
+
+	# Instance methods
+	def imethod(self): return self # : (A{...}) -> A{...}
+
+# Construction
+
+a = A() # : A{...}
+
+# Attribute reference
+
+y = a.z # : int
+
+# Static method reference
+
+z = A.smethod(1)
+
+# Instance method reference
+
+z = a.imethod()
+
+## Type errors:
+
+# Undefined attributes
+a.wat
+A.wat
+a.smethod()
+A.imethod()
+
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load())], body=[Assign(targets=[Name(id='z', ctx=Store())], value=Num(n=1)), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load()))], decorator_list=[]), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load()))], decorator_list=[])], decorator_list=[]), Assign(targets=[Name(id='a', ctx=Store())], value=Call(func=Name(id='A', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Name(id='y', ctx=Store())], value=Attribute(value=Name(id='a', ctx=Load()), attr='z', ctx=Load())), Assign(targets=[Name(id='z', ctx=Store())], value=Call(func=Attribute(value=Name(id='A', ctx=Load()), attr='smethod', ctx=Load()), args=[Num(n=1)], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Name(id='z', ctx=Store())], value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='imethod', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Expr(value=Attribute(value=Name(id='a', ctx=Load()), attr='wat', ctx=Load())), Expr(value=Attribute(value=Name(id='A', ctx=Load()), attr='wat', ctx=Load())), Expr(value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='smethod', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Expr(value=Call(func=Attribute(value=Name(id='A', ctx=Load()), attr='imethod', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])
+INFO:root:Traversing our AST...
+INFO:root:Builtins: {'self': self<type 'object'>}
+DEBUG:root:env: {'self': self<type 'object'>, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, 'z': <type 'int'>}
+DEBUG:root:env_scoped: {'self': self<type 'object'>, 'z': <type 'int'>, 'p1': t0{}, 'return': t0{}}
+DEBUG:root:FOUND SELF
+DEBUG:root:env : {'self': self<type 'object'>, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, 'z': <type 'int'>}
+DEBUG:root:in env: self<type 'object'>
+DEBUG:root:True
+DEBUG:root:FOUND SELF
+DEBUG:root:env : {'self': self<type 'object'>, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, 'z': <type 'int'>}
+DEBUG:root:in env: self<type 'object'>
+DEBUG:root:True
+DEBUG:root:env: {'self': self<type 'object'>, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, 'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}
+DEBUG:root:env_scoped: {'self': self<type 'object'>, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, 'z': <type 'int'>, 'return': self<type 'object'>}
+DEBUG:root:Given type: A{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, '*params': tuple6[], 'z': <type 'int'>}
+DEBUG:root:Applied type: t8{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, '*params': tuple7[]}
+DEBUG:root:Unified type: t8{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, '*params': tuple7[]}
+DEBUG:root:Given type: t2{'*return': t0{}, '*params': tuple1[t0{}]}
+DEBUG:root:Applied type: t10{'*return': t0{}, '*params': tuple9[self<type 'object'>, <type 'int'>]}
+DEBUG:root:Unified type: t10{'*return': t0{}, '*params': <<Type Error: Conflicting types: tuple9[self<type 'object'>, <type 'int'>] and tuple1[t0{}]>>}
+DEBUG:root:Given type: t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}
+DEBUG:root:Applied type: t12{'*return': self<type 'object'>, '*params': tuple11[self<type 'object'>]}
+DEBUG:root:Unified type: t12{'*return': self<type 'object'>, '*params': tuple11[self<type 'object'>]}
+INFO:root:Analyzed Tree:
+INFO:root:  tests/src/classes.py
+    A : A{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, '*params': tuple6[], 'z': <type 'int'>}
+      Assign
+        z : <type 'int'>
+        1 : <type 'int'>
+      smethod : t2{'*return': t0{}, '*params': tuple1[t0{}]}
+        Parameters : tuple1[t0{}]
+          p1 : t0{}
+        return
+          p1 : t0{}
+      imethod : t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}
+        Parameters : tuple3[self<type 'object'>]
+          self : self<type 'object'>
+        return
+          self : self<type 'object'>
+    Assign
+      a : t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}
+      A : t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}
+    Assign
+      y : <type 'int'>
+      Attribute : <type 'int'>
+    Assign
+      z : <<Type Error: Conflicting types: tuple9[self<type 'object'>, <type 'int'>] and tuple1[t0{}]>>
+      Attribute : <<Type Error: Conflicting types: tuple9[self<type 'object'>, <type 'int'>] and tuple1[t0{}]>>
+    Assign
+      z : self<type 'object'>
+      Attribute : self<type 'object'>
+    
+      Attribute : <<Type Error: Object: a has no attribute: wat>>
+    
+      Attribute : <<Type Error: Object: A has no attribute: wat>>
+    
+      Attribute : <<Type Error: Object: a has no attribute: smethod>>
+    
+      Attribute : <<Type Error: Object: A has no attribute: imethod>>
+

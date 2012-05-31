@@ -35,7 +35,7 @@ class TObj(Type):
 		self.attributes = Attributes(attributes)
 		if label == None:
 			global total_vars
-			self.label = "object" + str(total_vars)
+			self.label = "t" + str(total_vars)
 			total_vars += 1
 		else: self.label = label
 
@@ -43,21 +43,15 @@ class TObj(Type):
 	def __repr__(self): return str(self.label) + str(self.attributes)
 
 	def apply_sub(self,sub):
-		"""
-		Apply a type Substitution to an object.
-		TObjs themselves are not substitutable, but their attributes may be, so we loop
-		through 'attributes' and apply 'sub' to each.
-
-		Does not modify 'this'
-		-> Returns a new TObj with subs applied
-		"""
-		mysub = sub.subs.get(self.label)
-		if mysub: return mysub
-		subbed = TObj({})
-		for name, typ in self.attributes.attrs.iteritems():
-			s_typ = typ.apply_sub(sub)
-			subbed.attributes.add_type(s_typ, name)
-		return subbed
+		if sub.subs:
+			mysub = sub.subs.get(self.label)
+			if mysub:
+				self = mysub
+			else: 
+				subbed = {}
+				for name, typ in self.attributes.attrs.iteritems():
+					self.attributes.attrs[name] = typ.apply_sub(sub)
+		return self
 		
 	def free_type_vars(self):
 		"""
@@ -82,9 +76,7 @@ class TObj(Type):
 		4. Otherwise, substitute this type for a type error.
 		-> Returns a Substitution.
 		"""
-		if not self.attributes.attrs and not typ.attributes.attrs:
-			return Substitution()
-		elif not self.attributes.attrs:
+		if not self.attributes.attrs:
 			return Substitution({self.label : typ})
 		elif isinstance(typ,TObj):
 			return self.attributes.unify(typ.attributes)
@@ -115,7 +107,9 @@ class TBuiltin(TObj):
 		2. typ is a an empty type object, in which case don't bother to substitue
 		3. otherwise substitute a type error.
 		"""
-		if self.__class__ == typ.__class__ or isinstance(typ,TObj) and not typ.attributes.attrs:
+		if isinstance(typ,TObj) and not typ.attributes.attrs:
+			return Substitution({typ.label : self})
+		if self.__class__ == typ.__class__:
 			return Substitution()
 		else:
 			err = TError("Conflicting types: " + str(self) + " and " + str(typ))
@@ -149,18 +143,33 @@ class TTuple(TBuiltin):
 		return Substitution({self.label : err})
 	
 	def apply_sub(self,sub): 
-		mysub = sub.subs.get(self.label)
-		if mysub: return mysub
-		else: return TTuple([c.apply_sub(sub) for c in self.contained])
+		if sub.subs:
+			mysub = sub.subs.get(self.label)
+			if mysub: self = mysub
+			else:
+				self.contained = [c.apply_sub(sub) for c in self.contained]
+		return self
+
 
 class TList(TBuiltin):
 	label = "list"
 	pytype = list
 	def __init__(self,contained): self.contained = contained
-	def apply_sub(self,sub): return TList([c.apply_sub(sub) for c in self.contained])
+	def apply_sub(self,sub):
+		t = TList([c.apply_sub(sub) for c in self.contained])
+		return t
 
 class TDict(TBuiltin):
 	label = "dict"
 	pytype = dict
 	def __init__(self,contained): self.contained = contained
 	def apply_sub(self,sub): return self
+
+class TSelf(TBuiltin):
+	label = "self"
+	pytype = object
+	attributes = Attributes({})
+	def __init__(self): pass
+	def apply_sub(self,sub): return self
+	def __repr__(self): return "self" + super(TSelf,self).__repr__()
+	def __str__(self): return "self" + super(TSelf,self).__str__()

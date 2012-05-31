@@ -28,6 +28,7 @@ class ProgramGraph:
 		self.parse_file(source)
 		logging.info("Traversing our AST...")
 		self.modules = []
+		logging.info("Builtins: " + str(builtins.env))
 		self.traverse(self.ast, builtins.env)
 		logging.info("Analyzed Tree:")
 		logging.info(self.format_tree())
@@ -99,7 +100,8 @@ class ProgramGraph:
 ##	elif IS(n, List):          return self.infer_list(n, env)
 ##	elif IS(n, Dict):          return self.infer_dict(n, env)
 		elif IS(n, ClassDef):      return self.infer_classdef(n,env)
-		else:                      return (Node(n), Substitution(), env)
+		elif type(n).__name__ == "Attribute":     return self.infer_attribute(n,env)
+		else:                     return (Node(n), Substitution(), env)
 
 	def infer_module(self, node, env):
 		ns = []
@@ -114,21 +116,32 @@ class ProgramGraph:
 	def infer_call(self, node, env):
 		(node1, sub1, env1) = self.traverse(node.func, env)
 		given_type = node1.info.get("typ")
+		if isinstance(given_type,TError): # Bail out on an error
+			return (Node(node, node1.name, typ=given_type),Substitution(),env)
 	
 		(arg_types,arg_names) = ([],[])
-		for arg in reversed(node.args):
+		if type(node.func).__name__ == "Attribute": # Automatically pass in self
+			arg_names.append("self")
+			arg_types.append(env.get_type("self"))
+		for arg in node.args:
 			(node2, sub2, env2) = self.traverse(arg, env)
 			type2 = node2.info.get("typ")
 			arg_types.append(type2)
 			arg_names.append(node2.name)
 		arg_tuple = TTuple(arg_types)
-		applied_type = TObj({"*params" : arg_tuple, "*return" : TObj({})})
+		rtype = given_type.attributes.get_type("*return")
+		if rtype == None: rtype = TObj({})
+		applied_type = TObj({"*params" : arg_tuple, "*return" : rtype})
 
-		## Unify and substitute
-		sub = given_type.unify(applied_type)
-		unified_type = given_type.apply_sub(sub)
+		# Unify and substitute
+		logging.debug("Given type: " + str(given_type))
+		logging.debug("Applied type: " + str(applied_type))
+		sub = applied_type.unify(given_type)
+		applied_type.apply_sub(sub)
+		unified_type = applied_type
+		logging.debug("Unified type: " + str(unified_type))
 		
-		## Handle type error results from unification.
+		# Handle type error results from unification.
 		if isinstance(unified_type,TError):
 			return_type = unified_type 
 		else:
@@ -139,7 +152,7 @@ class ProgramGraph:
 			return_type = err
 
 		n = Node(node, node1.name, typ=return_type)
-		return (n,Substitution(), env)
+		return (n, sub, env)
 
 	def infer_assign(self, node, env):
 		(value, sub1, env1) = self.traverse(node.value, env)
@@ -147,53 +160,52 @@ class ProgramGraph:
 		value_type = value.info.get("typ")
 		if not value_type: raise "RHS of assignment did not get a type."
 		targets = []
-		for t in node.targets:
-			targets.append(Node(t, t.id, typ=value_type))
-			env.add_type(value_type, t.id)
+		t = node.targets[0]
+		targets.append(Node(t, t.id, typ=value_type))
+		env.add_type(value_type, t.id)
 		n = Node(node, "Assign", targets + [value], io="Program stack")
-		return (n, sub1, env)
+		return (n, Substitution({t.id : value_type}), env)
 
 	def infer_funcdef(self, node, env):
-			"""
-			1. Create a new environment with the parameters removed from the parent environment (shadowing)
-			2. Traverse the parameters.
-			3. Traverse the body with the scoped environment.
-			4. Construct all the parameter and return types and encompass them in the function type.
-			5. Return the func node along with the old environment and the new substitution.
-			"""
-			# 1.
+			# Create a new environment with the parameters removed from the parent environment (shadowing)
 			arg_names = [arg.id for arg in node.args.args]
 			env_scoped = copy.deepcopy(env)
 			for name in env.attrs.iterkeys():
-				if name in arg_names: del env_scoped.attrs[name]
+				if name == "self": pass
+				elif name in arg_names: del env_scoped.attrs[name]
 	
-			# 2.
+			# Traverse the parameters.
 			(param_nodes,param_types,param_names) = ([],[],[])
 			for param in node.args.args:
-				env_scoped.add_type(TObj({}), param.id)
+				if not param.id == "self": env_scoped.add_type(TObj({}), param.id)
 				(node1,sub1,env1) = self.traverse(param, env_scoped)
 				param_nodes.append(node1)
 				param_names.append(node1.name)
 				param_type = node1.info.get("typ")
 				param_types.append(node1.info.get("typ"))
+			param_type = TTuple(param_types)
 
-			# 3.
+			# Traverse the body with the scoped environment.
 			body = []
 			for n in node.body:
 				(node1,sub1,env1) = self.traverse(n, env_scoped)
 				env_scoped.merge(env1)
+				env_scoped.apply_sub(sub1)
+				param_type.apply_sub(sub1)
+				for n in param_nodes: n.info["typ"] = n.info.get("typ").apply_sub(sub1)
 				body.append(node1)
 
-			# 4.
-			param_type = TTuple(param_types)
+			# Construct all the parameter and return types and encompass them in the function type.
 			return_type = env_scoped.get_type("return")
 			if return_type == None: return_type = TError("No return type")
 			func_type = TObj({"*params" : param_type, "*return" : return_type})
 	
-			# 5.
+			# Return the func node along with the old environment and the new substitution.
 			env.add_type(func_type, node.name)
 			param_node = Node(node.args, "Parameters", param_nodes, typ=param_type)
 			func = Node(node, node.name, [param_node] + body, typ=func_type)
+			logging.debug("env: " + str(env))
+			logging.debug("env_scoped: " + str(env_scoped))
 			return (func, sub1, env) ## XXX what sub to return?
 
 ##def infer_lambda(self, node, env):
@@ -226,13 +238,14 @@ class ProgramGraph:
 	def infer_expr(self, node, env):
 		(node1, sub1, env1) = self.traverse(node.value,env)
 		n = Node(node,"",[node1])
-		return (n, Substitution(), env1)
+		return (n, sub1, env1)
 
 	def infer_return(self, node, env):
 		(node1, sub1, env1) = self.traverse(node.value, env)
+		env.apply_sub(sub1)
 		env.add_type(node1.info.get("typ"), "return")
 		n = Node(node, "return", [node1])
-		return (n, Substitution(), env)
+		return (n, sub1, env)
 
 	def infer_num(self, node, env):
 		typ = node.n.__class__
@@ -244,6 +257,11 @@ class ProgramGraph:
 		return (n, Substitution(), env)
 
 	def infer_name(self, node, env):
+		if node.id == "self":
+			logging.debug("FOUND SELF")
+			logging.debug("env : " + str(env))
+			logging.debug("in env: " + str(env.get_type(node.id)))
+			logging.debug(isinstance(env.get_type(node.id),TSelf))
 		t = env.get_type(node.id)
 		if t == None:
 			t = TError("Undefined")
@@ -262,32 +280,49 @@ class ProgramGraph:
 
 		# We need a new, scoped environment, but we don't have to worry about
 		# shadowing.
-		logging.debug("Class typin...")
 		env_scoped = copy.deepcopy(env)
 		# Loop over the body, adding attributes to our type as we go.
-		(attrs, ns) = ({}, [])
+		(class_attrs, inst_attrs, ns) = ({}, {}, [])
 		for n in node.body:
 			(node1,sub1,env1) = self.traverse(n, env_scoped)
 			if isinstance(n, Assign):
-				logging.debug("Is assign!!!")
 				typ = node1.children[0].info.get("typ")
 				name = n.targets[0].id
-				attrs[name] = typ
-				logging.debug("Attrs: " + str(attrs))
-			if isinstance(node1, FunctionDef):
-				name = node1.name
+				class_attrs[name] = typ
+				inst_attrs[name] = typ
+			if isinstance(n, FunctionDef):
 				typ = node1.info.get("typ")
-				attrs[name] = typ
+				name = node1.name
+				first_param = typ.attributes.attrs.get("*params")
+				if first_param: first_param = first_param.contained[0]
+				if isinstance(first_param, TSelf):
+					inst_attrs[name] = typ
+				else: class_attrs[name] = typ
 			env_scoped.merge(env1)
 			ns.append(node1)
 
 		# Construct the types based on our inferred list of attributes
-		instance_type = TObj(attrs)
-		class_attrs = {"*return":instance_type, "*params":TTuple([])}
-		class_type = TObj(class_attrs)
+		instance_type = TObj(inst_attrs)
+		class_attrs.update({"*return":instance_type, "*params":TTuple([])})
+		class_type = TObj(class_attrs,node.name)
 		env.add_type(class_type, node.name)
 		n = Node(node, node.name, ns, typ=class_type)
 		return (n, Substitution(), env)
+
+	def infer_attribute(self, node, env):
+		"""
+		Infer an attribute reference on an object; given a value (the object), and
+		an attribute, perform a lookup in the type of the value for the attribute
+		and return the type.
+		"""
+		(val_node,sub1,env1) = self.traverse(node.value,env)
+		obj_type = val_node.info.get("typ")
+		err = TError("Object: " + val_node.name + " has no attribute: " + node.attr)
+		if obj_type == None: t = err
+		else: t = obj_type.attributes.get_type(node.attr)
+		if t == None: t = err
+		n = Node(node, "Attribute", typ=t)
+		return (n,Substitution(),env)
 
 ##def infer_list(self, node, env):
 ##	# TODO traverse the children of the list and put them in the applied Builtin type
