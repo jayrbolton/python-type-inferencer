@@ -20,7 +20,6 @@ class Attributes(object):
 			total_vars += 1
 		else: n = name
 		self.attrs[n] = t
-		logging.debug("Env: " + str(self))
 
 	def get_type(self, name): return self.attrs.get(name)
 
@@ -35,9 +34,7 @@ class Attributes(object):
 		for name, typ1 in self.attrs.iteritems():
 			typ2 = a2.attrs.get(name)
 			if typ2:
-				logging.debug("Unifying " + str(name) + ": " + str(typ1) + " with " + str(typ2))
 				sub.merge(typ1.unify(typ2))
-				logging.debug("New substitution: " + str(sub))
 		return sub
 
 	def reference(self, name, typ): pass

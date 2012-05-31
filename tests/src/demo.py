@@ -31,9 +31,9 @@ r = g("hi",42,S)
 
 ## Class definition
 
-#class A(object):
-#	z = 1
-#
-#a = A()
+class A(object):
+	z = 1
+
+a = A()
 
 ## Attribute reference

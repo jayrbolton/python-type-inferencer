@@ -82,7 +82,6 @@ class TObj(Type):
 		4. Otherwise, substitute this type for a type error.
 		-> Returns a Substitution.
 		"""
-		logging.debug("Unifying object: " + str(self) + " with: " + str(typ))
 		if not self.attributes.attrs and not typ.attributes.attrs:
 			return Substitution()
 		elif not self.attributes.attrs:
@@ -99,6 +98,7 @@ class TError(TObj):
 	def __init__(self,message): self.message = message
 	def __str__(self): return "<<Type Error: " + self.message + ">>"
 	def __repr__(self): return "<<Type Error: " + self.message + ">>"
+	def apply_sub(self,sub): return self
 
 class TBuiltin(TObj):
 	label = "builtin"
@@ -137,7 +137,6 @@ class TTuple(TBuiltin):
 	def unify(self,typ):
 		if isinstance(typ,TObj) and not typ.attributes.attrs: return Substitution()
 		elif isinstance(typ,TTuple): 
-			logging.debug("Unifying two tuples...")
 			sub = Substitution()
 			if len(self.contained) == len(typ.contained):
 				for t1, t2 in zip(self.contained,typ.contained):

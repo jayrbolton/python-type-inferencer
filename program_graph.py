@@ -3,6 +3,9 @@ A data structure that encompasses information about python programs.
 
 So far, it is simply AST nodes mapped to type information.
 
+TODO
+type inference of multiple assignment (unpacking), and we could detect errors
+
 """
 
 import sys, logging, types, builtins, re, copy, pdb
@@ -82,7 +85,6 @@ class ProgramGraph:
 
 		Returns a tuple of the Node, a Substitution, and an Environment.
 		"""
-		print "Scope: " + str(env)
 		IS = isinstance
 		if   IS(n, Module):        return self.infer_module(n, env)
 		elif IS(n, Expr):          return self.infer_expr(n, env)
@@ -96,6 +98,7 @@ class ProgramGraph:
 		elif IS(n, Name):          return self.infer_name(n, env)
 ##	elif IS(n, List):          return self.infer_list(n, env)
 ##	elif IS(n, Dict):          return self.infer_dict(n, env)
+		elif IS(n, ClassDef):      return self.infer_classdef(n,env)
 		else:                      return (Node(n), Substitution(), env)
 
 	def infer_module(self, node, env):
@@ -111,7 +114,6 @@ class ProgramGraph:
 	def infer_call(self, node, env):
 		(node1, sub1, env1) = self.traverse(node.func, env)
 		given_type = node1.info.get("typ")
-		logging.debug("Given type: " + str(given_type))
 	
 		(arg_types,arg_names) = ([],[])
 		for arg in reversed(node.args):
@@ -119,20 +121,23 @@ class ProgramGraph:
 			type2 = node2.info.get("typ")
 			arg_types.append(type2)
 			arg_names.append(node2.name)
-		logging.debug("Environment: " + str(env))
-		logging.debug("Arg types: " + str(arg_types))
 		arg_tuple = TTuple(arg_types)
 		applied_type = TObj({"*params" : arg_tuple, "*return" : TObj({})})
-		logging.debug("Applied type: " + str(applied_type))
 
+		## Unify and substitute
 		sub = given_type.unify(applied_type)
-		logging.debug("Sub is: " + str(sub))
-		logging.debug("Applying sub to: " + str(given_type))
 		unified_type = given_type.apply_sub(sub)
-		return_type = unified_type.attributes.get_type("*return")
+		
+		## Handle type error results from unification.
+		if isinstance(unified_type,TError):
+			return_type = unified_type 
+		else:
+			return_type = unified_type.attributes.get_type("*return")
+		# If there was a type error in the parameters, propogate it up
 		err = unified_type.attributes.get_type("*params")
-		if isinstance(err,TError): return_type = err
-		logging.debug("Unified type: " + str(unified_type))
+		if isinstance(err,TError):
+			return_type = err
+
 		n = Node(node, node1.name, typ=return_type)
 		return (n,Substitution(), env)
 
@@ -183,7 +188,6 @@ class ProgramGraph:
 			param_type = TTuple(param_types)
 			return_type = env_scoped.get_type("return")
 			if return_type == None: return_type = TError("No return type")
-			logging.debug("return type: " + str(return_type))
 			func_type = TObj({"*params" : param_type, "*return" : return_type})
 	
 			# 5.
@@ -245,6 +249,44 @@ class ProgramGraph:
 			t = TError("Undefined")
 			env.add_type(t, node.id)
 		n = Node(node, node.id, typ=t)
+		return (n, Substitution(), env)
+
+	def infer_classdef(self, node, env):
+		"""
+		Infer a class definition.  This will create a new type inserted into the
+		environment, mapped to the name of the class.  The class's type holds a
+		*return attribute that returns the object type.
+		"""
+		# Get the type of the superclass so we can merge into it.
+		# for b in node.bases...
+
+		# We need a new, scoped environment, but we don't have to worry about
+		# shadowing.
+		logging.debug("Class typin...")
+		env_scoped = copy.deepcopy(env)
+		# Loop over the body, adding attributes to our type as we go.
+		(attrs, ns) = ({}, [])
+		for n in node.body:
+			(node1,sub1,env1) = self.traverse(n, env_scoped)
+			if isinstance(n, Assign):
+				logging.debug("Is assign!!!")
+				typ = node1.children[0].info.get("typ")
+				name = n.targets[0].id
+				attrs[name] = typ
+				logging.debug("Attrs: " + str(attrs))
+			if isinstance(node1, FunctionDef):
+				name = node1.name
+				typ = node1.info.get("typ")
+				attrs[name] = typ
+			env_scoped.merge(env1)
+			ns.append(node1)
+
+		# Construct the types based on our inferred list of attributes
+		instance_type = TObj(attrs)
+		class_attrs = {"*return":instance_type, "*params":TTuple([])}
+		class_type = TObj(class_attrs)
+		env.add_type(class_type, node.name)
+		n = Node(node, node.name, ns, typ=class_type)
 		return (n, Substitution(), env)
 
 ##def infer_list(self, node, env):
