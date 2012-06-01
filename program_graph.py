@@ -118,7 +118,7 @@ class ProgramGraph:
 		given_type = node1.info.get("typ")
 		if isinstance(given_type,TError): # Bail out on an error
 			return (Node(node, node1.name, typ=given_type),Substitution(),env)
-	
+
 		(arg_types,arg_names) = ([],[])
 		if type(node.func).__name__ == "Attribute": # Automatically pass in self
 			arg_names.append("self")
@@ -137,13 +137,14 @@ class ProgramGraph:
 		logging.debug("Given type: " + str(given_type))
 		logging.debug("Applied type: " + str(applied_type))
 		sub = applied_type.unify(given_type)
+		logging.debug("Substitution: " + str(sub))
 		applied_type.apply_sub(sub)
 		unified_type = applied_type
 		logging.debug("Unified type: " + str(unified_type))
-		
+
 		# Handle type error results from unification.
 		if isinstance(unified_type,TError):
-			return_type = unified_type 
+			return_type = unified_type
 		else:
 			return_type = unified_type.attributes.get_type("*return")
 		# If there was a type error in the parameters, propogate it up
@@ -173,7 +174,7 @@ class ProgramGraph:
 			for name in env.attrs.iterkeys():
 				if name == "self": pass
 				elif name in arg_names: del env_scoped.attrs[name]
-	
+
 			# Traverse the parameters.
 			(param_nodes,param_types,param_names) = ([],[],[])
 			for param in node.args.args:
@@ -199,7 +200,7 @@ class ProgramGraph:
 			return_type = env_scoped.get_type("return")
 			if return_type == None: return_type = TError("No return type")
 			func_type = TObj({"*params" : param_type, "*return" : return_type})
-	
+
 			# Return the func node along with the old environment and the new substitution.
 			env.add_type(func_type, node.name)
 			param_node = Node(node.args, "Parameters", param_nodes, typ=param_type)

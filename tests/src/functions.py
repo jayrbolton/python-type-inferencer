@@ -34,7 +34,6 @@ c = S2(2,"s")     # : int
 d = S(hi,shadow)  # : t3{...} (hi function type)
 
 # Type errors:
-# Parameters too few or many:
+# Parameters too many or few:
 hi(1,2,3) # : error: conflicting params
 hi(1)     # : error: conflicting params
-# 

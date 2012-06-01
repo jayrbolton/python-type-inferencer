@@ -79,6 +79,7 @@ class TObj(Type):
 		if not self.attributes.attrs:
 			return Substitution({self.label : typ})
 		elif isinstance(typ,TObj):
+			if not typ.attributes.attrs: return Substitution({typ.label : self})
 			return self.attributes.unify(typ.attributes)
 		else:
 			err = TError("Conflicting types: " + str(self) + " and " + str(typ))
