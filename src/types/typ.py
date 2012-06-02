@@ -44,6 +44,9 @@ class TObj(Type):
 	def __str__(self): return str(self.label) + str(self.attributes)
 	def __repr__(self): return str(self.label) + str(self.attributes)
 
+	def get_attr(self,name): self.attributes.get(name)
+	def add_attr(self,t,name): self.attributes.add_type(t,name)
+
 	def apply_sub(self,sub):
 		if sub.subs:
 			mysub = sub.subs.get(self.label)
