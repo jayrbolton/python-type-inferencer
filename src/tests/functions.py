@@ -1,6 +1,9 @@
 
 # Basic
 def hi(y,z): # : (a{}, b{}) -> str
+	"""
+	This is a really amazing docstring
+	"""
 	return "hi"
 
 # Shadowing: shadow n as a parameter

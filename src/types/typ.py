@@ -11,8 +11,10 @@ Type
 
 import logging
 
-from substitution import *
-from attributes import *
+from .. import substitution
+from .. import attributes
+sub = substitution
+attr = attributes
 
 class Type(object):
 	"""
@@ -32,7 +34,7 @@ class TObj(Type):
 		"""
 		Pass a dict to the constructor to TObj of the mapping of names to types in the attributes of this object.
 		"""
-		self.attributes = Attributes(attributes)
+		self.attributes = attr.Attributes(attributes)
 		if label == None:
 			global total_vars
 			self.label = "t" + str(total_vars)
@@ -77,17 +79,17 @@ class TObj(Type):
 		-> Returns a Substitution.
 		"""
 		if not self.attributes.attrs:
-			return Substitution({self.label : typ})
+			return sub.Substitution({self.label : typ})
 		elif isinstance(typ,TObj):
-			if not typ.attributes.attrs: return Substitution({typ.label : self})
+			if not typ.attributes.attrs: return sub.Substitution({typ.label : self})
 			return self.attributes.unify(typ.attributes)
 		else:
 			err = TError("Conflicting types: " + str(self) + " and " + str(typ))
-			return Substitution({self.label : err})
+			return sub.Substitution({self.label : err})
 
 ## XXX TODO inherit attributes
 class TError(TObj):
-	attributes = Attributes({'x':1})
+	attributes = attr.Attributes({'x':1})
 	def __init__(self,message): self.message = message
 	def __str__(self): return "<<Type Error: " + self.message + ">>"
 	def __repr__(self): return "<<Type Error: " + self.message + ">>"
@@ -95,7 +97,7 @@ class TError(TObj):
 
 class TBuiltin(TObj):
 	label = "builtin"
-	attributes = Attributes({'x':1})
+	attributes = attr.Attributes({'x':1})
 	def __init__(self,pytype): self.pytype = pytype
 
 	def __str__(self): return str(self.pytype)
@@ -109,18 +111,18 @@ class TBuiltin(TObj):
 		3. otherwise substitute a type error.
 		"""
 		if isinstance(typ,TObj) and not typ.attributes.attrs:
-			return Substitution({typ.label : self})
+			return sub.Substitution({typ.label : self})
 		if self.__class__ == typ.__class__:
-			return Substitution()
+			return sub.Substitution()
 		else:
 			err = TError("Conflicting types: " + str(self) + " and " + str(typ))
-			return Substitution({self.label : err})
+			return sub.Substitution({self.label : err})
 	
 	def apply_sub(self,sub): return self
 
 class TTuple(TBuiltin):
 	pytype = tuple
-	attributes = Attributes({'x':1})
+	attributes = attr.Attributes({'x':1})
 	def __init__(self, contained):
 		self.contained = contained
 		global total_vars
@@ -130,18 +132,18 @@ class TTuple(TBuiltin):
 	def __repr__(self): return str(self.label) + str(self.contained)
 
 	def unify(self,typ):
-		if isinstance(typ,TObj) and not typ.attributes.attrs: return Substitution()
+		if isinstance(typ,TObj) and not typ.attributes.attrs: return sub.Substitution()
 		elif isinstance(typ,TTuple): 
-			sub = Substitution()
+			sub = sub.Substitution()
 			if len(self.contained) == len(typ.contained):
 				for t1, t2 in zip(self.contained,typ.contained):
 					sub.merge(t1.unify(t2))
 				return sub
 			else:
 				err = TError("Conflicting types: " + str(self) + " and " + str(typ))
-				return Substitution({self.label : err})
+				return sub.Substitution({self.label : err})
 		err = TError("Conflicting types: " + str(self) + " and " + str(typ))
-		return Substitution({self.label : err})
+		return sub.Substitution({self.label : err})
 	
 	def apply_sub(self,sub): 
 		if sub.subs:
@@ -169,7 +171,7 @@ class TDict(TBuiltin):
 class TSelf(TBuiltin):
 	label = "self"
 	pytype = object
-	attributes = Attributes({})
+	attributes = attr.Attributes({})
 	def __init__(self): pass
 	def apply_sub(self,sub): return self
 	def __repr__(self): return "self" + super(TSelf,self).__repr__()

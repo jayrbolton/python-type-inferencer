@@ -1,24 +1,26 @@
 """
 A data structure that encompasses information about python programs.
-
-So far, it is simply AST nodes mapped to type information.
+It is simply an AST tree with added type information tacked on.
 
 TODO
-type inference of multiple assignment (unpacking), and we could detect errors
+type inference of multiple assignment (unpacking), and error detection for that.
 
 """
 
-import sys, logging, types, builtins, re, copy, pdb
+import sys, logging, types, re, copy, pdb
 
-from typ import *
+from .. import builtins
+from .. import substitution
+from ..types import typ
 from ast import *
+sub = substitution
 
 """
-Log all logging.info('wat') messages to logs/program_graph.log
+Log all logging messages to logs/inference.log
 """
-logging.basicConfig(filename='logs/program_graph.log',level=logging.DEBUG)
+logging.basicConfig(filename='output/logs/inference.log',level=logging.DEBUG)
 
-class ProgramGraph:
+class TypedAST(object):
 	"""
 	An Abstract Syntax Tree with type annotations.
 	"""
@@ -28,7 +30,6 @@ class ProgramGraph:
 		self.parse_file(source)
 		logging.info("Traversing our AST...")
 		self.modules = []
-		logging.info("Builtins: " + str(builtins.env))
 		self.traverse(self.ast, builtins.env)
 		logging.info("Analyzed Tree:")
 		logging.info(self.format_tree())
@@ -38,43 +39,43 @@ class ProgramGraph:
 
 	def parse_file(self,source):
 		"""
+		Open source code and return an abstract syntax tree using python's ast
+		module.
+
 		You can give this func a string of source code, a file object, or a
 		string file name.
+		-> Returns an ast.Module
 		"""
 		m = "Cannot read from the provided file: " # for error handling below
 		if isinstance(source, file):
 			try:
+				logging.info("Source is a file object, reading")
 				self.source = source.read()
 				self.filename = source.name
 			except: print(m); logging.error(m + source.name); raise
 		elif isinstance(source, str):
 			if(re.compile('.*\.py\Z').match(source)):
-				# XXX we probably need more comprehensive filename parsing.
 				try:
+					logging.info("Source is a filename, opening and reading")
 					self.filename = source
 					self.source = open(source).read()
 				except: print(m); logging.error(m + source); raise
 			else:
+				logging.info("Source is a string of source code")
 				self.source = source
 				self.filename = "Unknown"
-		logging.info("Successfully loaded source (" + self.filename + "):\n" + self.source)
+		logging.info("Loaded source (" + self.filename + "):\n" + self.source)
 		self.ast = parse(self.source)
-		logging.info("Parsed source. Raw AST is:\n" + dump(self.ast))
+		logging.info("Parsed source. Raw AST is:\n" + dump(self.ast,include_attributes=True))
 
 	def format_tree(self):
 		"""
-		Return a formatted string representing the tree.
+		Return a readable indented string representing the typed AST.
 		"""
 		s = ""
 		for t in self.modules:
 			s += t.format_tree(1)
 		return s
-
-	def dump_ast(self):
-		"""
-		Print out the AST as a block of text showing AST objects and fields.
-		"""
-		print(dump(self.ast))
 
 	def traverse(self, n, env):
 		"""
@@ -101,7 +102,7 @@ class ProgramGraph:
 ##	elif IS(n, Dict):          return self.infer_dict(n, env)
 		elif IS(n, ClassDef):      return self.infer_classdef(n,env)
 		elif type(n).__name__ == "Attribute":     return self.infer_attribute(n,env)
-		else:                     return (Node(n), Substitution(), env)
+		else:                     return (Node(n), sub.Substitution(), env)
 
 	def infer_module(self, node, env):
 		ns = []
@@ -111,13 +112,13 @@ class ProgramGraph:
 			ns.append(node1)
 		module = Node(node, self.filename,ns)
 		self.modules.append(module)
-		return (module, Substitution(), env)
+		return (module, sub.Substitution(), env)
 
 	def infer_call(self, node, env):
 		(node1, sub1, env1) = self.traverse(node.func, env)
 		given_type = node1.info.get("typ")
-		if isinstance(given_type,TError): # Bail out on an error
-			return (Node(node, node1.name, typ=given_type),Substitution(),env)
+		if isinstance(given_type,typ.TError): # Bail out on an error
+			return (Node(node, node1.name, typ=given_type),sub.Substitution(),env)
 
 		(arg_types,arg_names) = ([],[])
 		if type(node.func).__name__ == "Attribute": # Automatically pass in self
@@ -128,10 +129,10 @@ class ProgramGraph:
 			type2 = node2.info.get("typ")
 			arg_types.append(type2)
 			arg_names.append(node2.name)
-		arg_tuple = TTuple(arg_types)
+		arg_tuple = typ.TTuple(arg_types)
 		rtype = given_type.attributes.get_type("*return")
-		if rtype == None: rtype = TObj({})
-		applied_type = TObj({"*params" : arg_tuple, "*return" : rtype})
+		if rtype == None: rtype = typ.TObj({})
+		applied_type = typ.TObj({"*params" : arg_tuple, "*return" : rtype})
 
 		# Unify and substitute
 		logging.debug("Given type: " + str(given_type))
@@ -143,13 +144,13 @@ class ProgramGraph:
 		logging.debug("Unified type: " + str(unified_type))
 
 		# Handle type error results from unification.
-		if isinstance(unified_type,TError):
+		if isinstance(unified_type,typ.TError):
 			return_type = unified_type
 		else:
 			return_type = unified_type.attributes.get_type("*return")
 		# If there was a type error in the parameters, propogate it up
 		err = unified_type.attributes.get_type("*params")
-		if isinstance(err,TError):
+		if isinstance(err,typ.TError):
 			return_type = err
 
 		n = Node(node, node1.name, typ=return_type)
@@ -165,7 +166,7 @@ class ProgramGraph:
 		targets.append(Node(t, t.id, typ=value_type))
 		env.add_type(value_type, t.id)
 		n = Node(node, "Assign", targets + [value], io="Program stack")
-		return (n, Substitution({t.id : value_type}), env)
+		return (n, sub.Substitution({t.id : value_type}), env)
 
 	def infer_funcdef(self, node, env):
 			# Create a new environment with the parameters removed from the parent environment (shadowing)
@@ -178,13 +179,13 @@ class ProgramGraph:
 			# Traverse the parameters.
 			(param_nodes,param_types,param_names) = ([],[],[])
 			for param in node.args.args:
-				if not param.id == "self": env_scoped.add_type(TObj({}), param.id)
+				if not param.id == "self": env_scoped.add_type(typ.TObj({}), param.id)
 				(node1,sub1,env1) = self.traverse(param, env_scoped)
 				param_nodes.append(node1)
 				param_names.append(node1.name)
 				param_type = node1.info.get("typ")
 				param_types.append(node1.info.get("typ"))
-			param_type = TTuple(param_types)
+			param_type = typ.TTuple(param_types)
 
 			# Traverse the body with the scoped environment.
 			body = []
@@ -198,8 +199,8 @@ class ProgramGraph:
 
 			# Construct all the parameter and return types and encompass them in the function type.
 			return_type = env_scoped.get_type("return")
-			if return_type == None: return_type = TError("No return type")
-			func_type = TObj({"*params" : param_type, "*return" : return_type})
+			if return_type == None: return_type = typ.TError("No return type")
+			func_type = typ.TObj({"*params" : param_type, "*return" : return_type})
 
 			# Return the func node along with the old environment and the new substitution.
 			env.add_type(func_type, node.name)
@@ -249,26 +250,25 @@ class ProgramGraph:
 		return (n, sub1, env)
 
 	def infer_num(self, node, env):
-		typ = node.n.__class__
-		n = Node(node, node.n, typ=TBuiltin(type(node.n)))
-		return (n, Substitution(), env)
+		n = Node(node, node.n, typ=typ.TBuiltin(type(node.n)))
+		return (n, sub.Substitution(), env)
 
 	def infer_str(self, node, env):
-		n = Node(node,"\"" + node.s + "\"",typ=TBuiltin(type(node.s)))
-		return (n, Substitution(), env)
+		n = Node(node,"\"" + node.s + "\"",typ=typ.TBuiltin(type(node.s)))
+		return (n, sub.Substitution(), env)
 
 	def infer_name(self, node, env):
 		if node.id == "self":
 			logging.debug("FOUND SELF")
 			logging.debug("env : " + str(env))
 			logging.debug("in env: " + str(env.get_type(node.id)))
-			logging.debug(isinstance(env.get_type(node.id),TSelf))
+			logging.debug(isinstance(env.get_type(node.id),typ.TSelf))
 		t = env.get_type(node.id)
 		if t == None:
-			t = TError("Undefined")
+			t = typ.TError("Undefined")
 			env.add_type(t, node.id)
 		n = Node(node, node.id, typ=t)
-		return (n, Substitution(), env)
+		return (n, sub.Substitution(), env)
 
 	def infer_classdef(self, node, env):
 		"""
@@ -287,28 +287,28 @@ class ProgramGraph:
 		for n in node.body:
 			(node1,sub1,env1) = self.traverse(n, env_scoped)
 			if isinstance(n, Assign):
-				typ = node1.children[0].info.get("typ")
+				t = node1.children[0].info.get("typ")
 				name = n.targets[0].id
-				class_attrs[name] = typ
-				inst_attrs[name] = typ
+				class_attrs[name] = t
+				inst_attrs[name] = t
 			if isinstance(n, FunctionDef):
-				typ = node1.info.get("typ")
+				t = node1.info.get("typ")
 				name = node1.name
-				first_param = typ.attributes.attrs.get("*params")
+				first_param = t.attributes.attrs.get("*params")
 				if first_param: first_param = first_param.contained[0]
-				if isinstance(first_param, TSelf):
-					inst_attrs[name] = typ
-				else: class_attrs[name] = typ
+				if isinstance(first_param, typ.TSelf):
+					inst_attrs[name] = t
+				else: class_attrs[name] = t
 			env_scoped.merge(env1)
 			ns.append(node1)
 
 		# Construct the types based on our inferred list of attributes
-		instance_type = TObj(inst_attrs)
-		class_attrs.update({"*return":instance_type, "*params":TTuple([])})
-		class_type = TObj(class_attrs,node.name)
+		instance_type = typ.TObj(inst_attrs)
+		class_attrs.update({"*return":instance_type, "*params":typ.TTuple([])})
+		class_type = typ.TObj(class_attrs,node.name)
 		env.add_type(class_type, node.name)
 		n = Node(node, node.name, ns, typ=class_type)
-		return (n, Substitution(), env)
+		return (n, sub.Substitution(), env)
 
 	def infer_attribute(self, node, env):
 		"""
@@ -318,12 +318,12 @@ class ProgramGraph:
 		"""
 		(val_node,sub1,env1) = self.traverse(node.value,env)
 		obj_type = val_node.info.get("typ")
-		err = TError("Object: " + val_node.name + " has no attribute: " + node.attr)
+		err = typ.TError("Object: " + val_node.name + " has no attribute: " + node.attr)
 		if obj_type == None: t = err
 		else: t = obj_type.attributes.get_type(node.attr)
 		if t == None: t = err
 		n = Node(node, "Attribute", typ=t)
-		return (n,Substitution(),env)
+		return (n,sub.Substitution(),env)
 
 ##def infer_list(self, node, env):
 ##	# TODO traverse the children of the list and put them in the applied Builtin type
@@ -335,7 +335,7 @@ class ProgramGraph:
 ##	n = Node(node, str(node.keys),typ=Builtin("dict",type({})))
 ##	return (n,Substitution(), env)
 
-class Node(ProgramGraph):
+class Node(TypedAST):
 	def __init__(self, ast_node, name="", children=[], **info):
 		self.ast_node = ast_node
 		self.name = str(name)

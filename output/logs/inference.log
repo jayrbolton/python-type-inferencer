@@ -1,0 +1,83 @@
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Source is a filename, opening and reading
+ERROR:root:Cannot read from the provided file: src/tests/src/assignment.py
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/src/assignment.py):
+x = y     # : error: undefined
+x = 1     # : int
+y = "hi"  # : str
+x = "bye" # : str
+y = 2     # : int
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[Assign(targets=[Name(id='x', ctx=Store(), lineno=1, col_offset=0)], value=Name(id='y', ctx=Load(), lineno=1, col_offset=4), lineno=1, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=2, col_offset=0)], value=Num(n=1, lineno=2, col_offset=4), lineno=2, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=3, col_offset=0)], value=Str(s='hi', lineno=3, col_offset=4), lineno=3, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=4, col_offset=0)], value=Str(s='bye', lineno=4, col_offset=4), lineno=4, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=5, col_offset=0)], value=Num(n=2, lineno=5, col_offset=4), lineno=5, col_offset=0)])
+INFO:root:Traversing our AST...
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/assignment.py):
+x = y     # : error: undefined
+x = 1     # : int
+y = "hi"  # : str
+x = "bye" # : str
+y = 2     # : int
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[Assign(targets=[Name(id='x', ctx=Store(), lineno=1, col_offset=0)], value=Name(id='y', ctx=Load(), lineno=1, col_offset=4), lineno=1, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=2, col_offset=0)], value=Num(n=1, lineno=2, col_offset=4), lineno=2, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=3, col_offset=0)], value=Str(s='hi', lineno=3, col_offset=4), lineno=3, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=4, col_offset=0)], value=Str(s='bye', lineno=4, col_offset=4), lineno=4, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=5, col_offset=0)], value=Num(n=2, lineno=5, col_offset=4), lineno=5, col_offset=0)])
+INFO:root:Traversing our AST...
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/assignment.py):
+x = y     # : error: undefined
+x = 1     # : int
+y = "hi"  # : str
+x = "bye" # : str
+y = 2     # : int
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[Assign(targets=[Name(id='x', ctx=Store(), lineno=1, col_offset=0)], value=Name(id='y', ctx=Load(), lineno=1, col_offset=4), lineno=1, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=2, col_offset=0)], value=Num(n=1, lineno=2, col_offset=4), lineno=2, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=3, col_offset=0)], value=Str(s='hi', lineno=3, col_offset=4), lineno=3, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=4, col_offset=0)], value=Str(s='bye', lineno=4, col_offset=4), lineno=4, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=5, col_offset=0)], value=Num(n=2, lineno=5, col_offset=4), lineno=5, col_offset=0)])
+INFO:root:Traversing our AST...
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/assignment.py):
+x = y     # : error: undefined
+x = 1     # : int
+y = "hi"  # : str
+x = "bye" # : str
+y = 2     # : int
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[Assign(targets=[Name(id='x', ctx=Store(), lineno=1, col_offset=0)], value=Name(id='y', ctx=Load(), lineno=1, col_offset=4), lineno=1, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=2, col_offset=0)], value=Num(n=1, lineno=2, col_offset=4), lineno=2, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=3, col_offset=0)], value=Str(s='hi', lineno=3, col_offset=4), lineno=3, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=4, col_offset=0)], value=Str(s='bye', lineno=4, col_offset=4), lineno=4, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=5, col_offset=0)], value=Num(n=2, lineno=5, col_offset=4), lineno=5, col_offset=0)])
+INFO:root:Traversing our AST...
+INFO:root:Analyzed Tree:
+INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/assignment.py):
+x = y     # : error: undefined
+x = 1     # : int
+y = "hi"  # : str
+x = "bye" # : str
+y = 2     # : int
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[Assign(targets=[Name(id='x', ctx=Store(), lineno=1, col_offset=0)], value=Name(id='y', ctx=Load(), lineno=1, col_offset=4), lineno=1, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=2, col_offset=0)], value=Num(n=1, lineno=2, col_offset=4), lineno=2, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=3, col_offset=0)], value=Str(s='hi', lineno=3, col_offset=4), lineno=3, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=4, col_offset=0)], value=Str(s='bye', lineno=4, col_offset=4), lineno=4, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=5, col_offset=0)], value=Num(n=2, lineno=5, col_offset=4), lineno=5, col_offset=0)])
+INFO:root:Traversing our AST...
+INFO:root:Analyzed Tree:
+INFO:root:  src/tests/assignment.py
+    Assign
+      x : <<Type Error: Undefined>>
+      y : <<Type Error: Undefined>>
+    Assign
+      x : <type 'int'>
+      1 : <type 'int'>
+    Assign
+      y : <type 'str'>
+      "hi" : <type 'str'>
+    Assign
+      x : <type 'str'>
+      "bye" : <type 'str'>
+    Assign
+      y : <type 'int'>
+      2 : <type 'int'>
+

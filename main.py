@@ -1,8 +1,8 @@
 import sys
-from program_graph import *
+from src.typed_ast.typed_ast import *
 
 def main(argv):
-	env = ProgramGraph(argv[0])
+	env = TypedAST(argv[0])
 
 def usage():
 	print("Usage:")

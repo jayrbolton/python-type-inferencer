@@ -1,12 +1,11 @@
-import typ
-from program_graph import *
-from substitution import *
-
 """
 An Attributes is a dictionary of names and their type schemes. Names are
 syntactic names derived from the AST tree, such as variables, literals,
 primitives, function names, class names, and so forth.
 """
+
+from substitution import *
+
 total_vars = 0 ### Generator of fresh names. XXX make this better? globals ew?
 class Attributes(object):
 	def __init__(self, attrs): self.attrs = attrs # Dictionary mapping of names to attrs

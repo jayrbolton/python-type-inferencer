@@ -1,7 +1,6 @@
 # All builtin types
 
-from program_graph import *
-from typ import *
+from types.typ import *
 from attributes import *
 
 ## Templates for types:
@@ -16,7 +15,7 @@ none_typ = TBuiltin(type(None))
 bool_typ = TBuiltin(bool)
 self_typ = TSelf()
 
-env = Attributes({"self" : TSelf()
+env = Attributes({"self" : self_typ
 # "+" : Attributes({"*params":	...
 	})
 #	# Arithmetic
