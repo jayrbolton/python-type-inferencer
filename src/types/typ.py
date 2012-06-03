@@ -11,10 +11,8 @@ Type
 
 import logging
 
-from .. import substitution
-from .. import attributes
-sub = substitution
-attr = attributes
+from .. import substitution as subst
+from .. import attributes as attr
 
 class Type(object):
 	"""
@@ -44,7 +42,7 @@ class TObj(Type):
 	def __str__(self): return str(self.label) + str(self.attributes)
 	def __repr__(self): return str(self.label) + str(self.attributes)
 
-	def get_attr(self,name): self.attributes.get(name)
+	def get_attr(self,name): return self.attributes.get_type(name)
 	def add_attr(self,t,name): self.attributes.add_type(t,name)
 
 	def apply_sub(self,sub):
@@ -52,12 +50,12 @@ class TObj(Type):
 			mysub = sub.subs.get(self.label)
 			if mysub:
 				self = mysub
-			else: 
+			else:
 				subbed = {}
 				for name, typ in self.attributes.attrs.iteritems():
 					self.attributes.attrs[name] = typ.apply_sub(sub)
 		return self
-		
+
 	def free_type_vars(self):
 		"""
 		Returns the set of unbound type variables in this type.
@@ -82,13 +80,13 @@ class TObj(Type):
 		-> Returns a Substitution.
 		"""
 		if not self.attributes.attrs:
-			return sub.Substitution({self.label : typ})
+			return subst.Substitution({self.label : typ})
 		elif isinstance(typ,TObj):
-			if not typ.attributes.attrs: return sub.Substitution({typ.label : self})
+			if not typ.attributes.attrs: return subst.Substitution({typ.label : self})
 			return self.attributes.unify(typ.attributes)
 		else:
 			err = TError("Conflicting types: " + str(self) + " and " + str(typ))
-			return sub.Substitution({self.label : err})
+			return subst.Substitution({self.label : err})
 
 ## XXX TODO inherit attributes
 class TError(TObj):
@@ -114,13 +112,13 @@ class TBuiltin(TObj):
 		3. otherwise substitute a type error.
 		"""
 		if isinstance(typ,TObj) and not typ.attributes.attrs:
-			return sub.Substitution({typ.label : self})
+			return subst.Substitution({typ.label : self})
 		if self.__class__ == typ.__class__:
-			return sub.Substitution()
+			return subst.Substitution()
 		else:
 			err = TError("Conflicting types: " + str(self) + " and " + str(typ))
-			return sub.Substitution({self.label : err})
-	
+			return subst.Substitution({self.label : err})
+
 	def apply_sub(self,sub): return self
 
 class TTuple(TBuiltin):
@@ -135,20 +133,20 @@ class TTuple(TBuiltin):
 	def __repr__(self): return str(self.label) + str(self.contained)
 
 	def unify(self,typ):
-		if isinstance(typ,TObj) and not typ.attributes.attrs: return sub.Substitution()
-		elif isinstance(typ,TTuple): 
-			sub = sub.Substitution()
+		if isinstance(typ,TObj) and not typ.attributes.attrs: return subst.Substitution()
+		elif isinstance(typ,TTuple):
+			sub = subst.Substitution()
 			if len(self.contained) == len(typ.contained):
 				for t1, t2 in zip(self.contained,typ.contained):
 					sub.merge(t1.unify(t2))
 				return sub
 			else:
 				err = TError("Conflicting types: " + str(self) + " and " + str(typ))
-				return sub.Substitution({self.label : err})
+				return subst.Substitution({self.label : err})
 		err = TError("Conflicting types: " + str(self) + " and " + str(typ))
-		return sub.Substitution({self.label : err})
-	
-	def apply_sub(self,sub): 
+		return subst.Substitution({self.label : err})
+
+	def apply_sub(self,sub):
 		if sub.subs:
 			mysub = sub.subs.get(self.label)
 			if mysub: self = mysub

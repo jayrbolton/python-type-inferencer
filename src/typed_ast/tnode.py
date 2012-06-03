@@ -1,7 +1,7 @@
 from typed_ast import *
 from tnode import *
 from .. import substitution as sub
-from .. import typ
+from ..types import typ
 
 class TNode(object):
 	"""
@@ -13,10 +13,9 @@ class TNode(object):
 	def __init__(self, n):
 		self.node = n;
 		self.name = "Node"
-		self.typ = typ.TObj({})
+		self.typ = None
 
-	def traverse(self, env): return (self.node, sub.Substitution(), env)
+	def traverse(self, env): return (self, sub.Substitution(), env)
 
 	def format_tree(self, indents):
-		return "  "*indents + self.name + "\n"
-	return "  "*indents + "Type: " + str(self.typ)
+		return "  "*indents + self.name + "\n" + "  "*indents + "Type: " + str(self.typ) + "\n"

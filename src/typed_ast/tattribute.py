@@ -2,7 +2,7 @@
 from typed_ast import *
 from tnode import *
 from .. import substitution as sub
-from .. import typ
+from ..types import typ
 
 class TAttribute(TNode):
 	"""
@@ -25,12 +25,12 @@ class TAttribute(TNode):
 		attribute, perform a lookup in the type of the object for the attribute and
 		return that type.
 		"""
-		(val_node,val_sub,val_env) = TypedAST.traverse(self.node.value,env)
+		(val_node,val_sub,val_env) = typed_ast.TypedAST.traverse(self.node.value,env)
 		self.value = val_node
 		self.attr = self.node.attr
 		err = typ.TError("Object: " + self.value.id + " has no attribute: " + self.attr)
 		if self.value.typ == None: self.typ = err
-		else: self.typ = self.value.typ.get_attr(node.attr)
+		else: self.typ = self.value.typ.get_attr(self.node.attr)
 		if self.typ == None: self.typ = err
 		return (self, sub.Substitution(), env)
 

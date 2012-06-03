@@ -1,83 +1,227 @@
-INFO:root:Using the parsing module to parse 'source'...
+INFO:root:Parsing and traversing the source...
 INFO:root:Source is a filename, opening and reading
-ERROR:root:Cannot read from the provided file: src/tests/src/assignment.py
-INFO:root:Using the parsing module to parse 'source'...
-INFO:root:Using the parsing module to parse 'source'...
-INFO:root:Source is a filename, opening and reading
-INFO:root:Loaded source (src/tests/src/assignment.py):
-x = y     # : error: undefined
-x = 1     # : int
-y = "hi"  # : str
-x = "bye" # : str
-y = 2     # : int
+INFO:root:Loaded source (src/tests/classes.py):
+# Class definition
+
+class A(object):
+	# Assignment attributes
+	z = 1
+
+	# Static methods	
+	def smethod(p1): return p1 # : (a{}) -> a{}
+
+	# Instance methods
+	def imethod(self): return self # : (A{...}) -> A{...}
+
+# Construction
+
+a = A() # : A{...}
+
+# Attribute reference
+
+y = a.z # : int
+
+# Static method reference
+
+z = A.smethod(1)
+
+# Instance method reference
+
+z = a.imethod()
+
+## Type errors:
+
+# Undefined attributes
+a.wat
+A.wat
+a.smethod()
+A.imethod()
+
 
 INFO:root:Parsed source. Raw AST is:
-Module(body=[Assign(targets=[Name(id='x', ctx=Store(), lineno=1, col_offset=0)], value=Name(id='y', ctx=Load(), lineno=1, col_offset=4), lineno=1, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=2, col_offset=0)], value=Num(n=1, lineno=2, col_offset=4), lineno=2, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=3, col_offset=0)], value=Str(s='hi', lineno=3, col_offset=4), lineno=3, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=4, col_offset=0)], value=Str(s='bye', lineno=4, col_offset=4), lineno=4, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=5, col_offset=0)], value=Num(n=2, lineno=5, col_offset=4), lineno=5, col_offset=0)])
-INFO:root:Traversing our AST...
-INFO:root:Using the parsing module to parse 'source'...
-INFO:root:Source is a filename, opening and reading
-INFO:root:Loaded source (src/tests/assignment.py):
-x = y     # : error: undefined
-x = 1     # : int
-y = "hi"  # : str
-x = "bye" # : str
-y = 2     # : int
-
-INFO:root:Parsed source. Raw AST is:
-Module(body=[Assign(targets=[Name(id='x', ctx=Store(), lineno=1, col_offset=0)], value=Name(id='y', ctx=Load(), lineno=1, col_offset=4), lineno=1, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=2, col_offset=0)], value=Num(n=1, lineno=2, col_offset=4), lineno=2, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=3, col_offset=0)], value=Str(s='hi', lineno=3, col_offset=4), lineno=3, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=4, col_offset=0)], value=Str(s='bye', lineno=4, col_offset=4), lineno=4, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=5, col_offset=0)], value=Num(n=2, lineno=5, col_offset=4), lineno=5, col_offset=0)])
-INFO:root:Traversing our AST...
-INFO:root:Using the parsing module to parse 'source'...
-INFO:root:Source is a filename, opening and reading
-INFO:root:Loaded source (src/tests/assignment.py):
-x = y     # : error: undefined
-x = 1     # : int
-y = "hi"  # : str
-x = "bye" # : str
-y = 2     # : int
-
-INFO:root:Parsed source. Raw AST is:
-Module(body=[Assign(targets=[Name(id='x', ctx=Store(), lineno=1, col_offset=0)], value=Name(id='y', ctx=Load(), lineno=1, col_offset=4), lineno=1, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=2, col_offset=0)], value=Num(n=1, lineno=2, col_offset=4), lineno=2, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=3, col_offset=0)], value=Str(s='hi', lineno=3, col_offset=4), lineno=3, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=4, col_offset=0)], value=Str(s='bye', lineno=4, col_offset=4), lineno=4, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=5, col_offset=0)], value=Num(n=2, lineno=5, col_offset=4), lineno=5, col_offset=0)])
-INFO:root:Traversing our AST...
-INFO:root:Using the parsing module to parse 'source'...
-INFO:root:Source is a filename, opening and reading
-INFO:root:Loaded source (src/tests/assignment.py):
-x = y     # : error: undefined
-x = 1     # : int
-y = "hi"  # : str
-x = "bye" # : str
-y = 2     # : int
-
-INFO:root:Parsed source. Raw AST is:
-Module(body=[Assign(targets=[Name(id='x', ctx=Store(), lineno=1, col_offset=0)], value=Name(id='y', ctx=Load(), lineno=1, col_offset=4), lineno=1, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=2, col_offset=0)], value=Num(n=1, lineno=2, col_offset=4), lineno=2, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=3, col_offset=0)], value=Str(s='hi', lineno=3, col_offset=4), lineno=3, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=4, col_offset=0)], value=Str(s='bye', lineno=4, col_offset=4), lineno=4, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=5, col_offset=0)], value=Num(n=2, lineno=5, col_offset=4), lineno=5, col_offset=0)])
-INFO:root:Traversing our AST...
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=8, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=8, col_offset=25), lineno=8, col_offset=18)], decorator_list=[], lineno=8, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=11, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=11, col_offset=27), lineno=11, col_offset=20)], decorator_list=[], lineno=11, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=15, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=15, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=15, col_offset=4), lineno=15, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=19, col_offset=0)], value=Attribute(value=Name(id='a', ctx=Load(), lineno=19, col_offset=4), attr='z', ctx=Load(), lineno=19, col_offset=4), lineno=19, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=23, col_offset=4), attr='smethod', ctx=Load(), lineno=23, col_offset=4), args=[Num(n=1, lineno=23, col_offset=14)], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=4), lineno=23, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=27, col_offset=0)], value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=27, col_offset=4), attr='imethod', ctx=Load(), lineno=27, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=27, col_offset=4), lineno=27, col_offset=0), Expr(value=Attribute(value=Name(id='a', ctx=Load(), lineno=32, col_offset=0), attr='wat', ctx=Load(), lineno=32, col_offset=0), lineno=32, col_offset=0), Expr(value=Attribute(value=Name(id='A', ctx=Load(), lineno=33, col_offset=0), attr='wat', ctx=Load(), lineno=33, col_offset=0), lineno=33, col_offset=0), Expr(value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=34, col_offset=0), attr='smethod', ctx=Load(), lineno=34, col_offset=0), args=[], keywords=[], starargs=None, kwargs=None, lineno=34, col_offset=0), lineno=34, col_offset=0), Expr(value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=35, col_offset=0), attr='imethod', ctx=Load(), lineno=35, col_offset=0), args=[], keywords=[], starargs=None, kwargs=None, lineno=35, col_offset=0), lineno=35, col_offset=0)])
+INFO:root:Traversing a module...
+DEBUG:root:Class funcdef params: tuple1[t0{}]
+DEBUG:root:HAS PARAMS
+DEBUG:root:Class funcdef params: tuple3[self<type 'object'>]
+DEBUG:root:HAS PARAMS
+INFO:root:Unifying a function call...
+INFO:root:Given type: A{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, '*params': tuple6[], 'z': <type 'int'>}
+INFO:root:Applied type: t8{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, '*params': tuple7[]}
+INFO:root:Substitution: [self >> self<type 'object'>,]
+DEBUG:root:Unified type: t8{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, '*params': tuple7[]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: t2{'*return': t0{}, '*params': tuple1[t0{}]}
+INFO:root:Applied type: t10{'*return': t0{}, '*params': tuple9[<type 'int'>]}
+INFO:root:Substitution: [t0 >> <type 'int'>,]
+DEBUG:root:Unified type: t10{'*return': <type 'int'>, '*params': tuple9[<type 'int'>]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}
+INFO:root:Applied type: t12{'*return': self<type 'object'>, '*params': tuple11[self<type 'object'>]}
+INFO:root:Substitution: [self >> self<type 'object'>,]
+DEBUG:root:Unified type: t12{'*return': self<type 'object'>, '*params': tuple11[self<type 'object'>]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: <<Type Error: Object: a has no attribute: smethod>>
+INFO:root:Unifying a function call...
+INFO:root:Given type: <<Type Error: Object: A has no attribute: imethod>>
 INFO:root:Analyzed Tree:
-INFO:root:Using the parsing module to parse 'source'...
-INFO:root:Source is a filename, opening and reading
-INFO:root:Loaded source (src/tests/assignment.py):
-x = y     # : error: undefined
-x = 1     # : int
-y = "hi"  # : str
-x = "bye" # : str
-y = 2     # : int
-
-INFO:root:Parsed source. Raw AST is:
-Module(body=[Assign(targets=[Name(id='x', ctx=Store(), lineno=1, col_offset=0)], value=Name(id='y', ctx=Load(), lineno=1, col_offset=4), lineno=1, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=2, col_offset=0)], value=Num(n=1, lineno=2, col_offset=4), lineno=2, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=3, col_offset=0)], value=Str(s='hi', lineno=3, col_offset=4), lineno=3, col_offset=0), Assign(targets=[Name(id='x', ctx=Store(), lineno=4, col_offset=0)], value=Str(s='bye', lineno=4, col_offset=4), lineno=4, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=5, col_offset=0)], value=Num(n=2, lineno=5, col_offset=4), lineno=5, col_offset=0)])
-INFO:root:Traversing our AST...
-INFO:root:Analyzed Tree:
-INFO:root:  src/tests/assignment.py
-    Assign
-      x : <<Type Error: Undefined>>
-      y : <<Type Error: Undefined>>
-    Assign
-      x : <type 'int'>
-      1 : <type 'int'>
-    Assign
-      y : <type 'str'>
-      "hi" : <type 'str'>
-    Assign
-      x : <type 'str'>
-      "bye" : <type 'str'>
-    Assign
-      y : <type 'int'>
-      2 : <type 'int'>
+INFO:root:  src/tests/classes.py
+  Type: src/tests/classes.py{'a': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, 'z': self<type 'object'>, 'A': A{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, '*params': tuple6[], 'z': <type 'int'>}, 'y': <type 'int'>}
+  Body: 
+    Class Definition
+    Type: A{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, '*params': tuple6[], 'z': <type 'int'>}
+    Name: A
+    Superclasses: []
+    Body: 
+      Assignment
+      Type: <type 'int'>
+      Targets: 
+        Name Node
+        Type: <type 'int'>
+        id = z
+      Value: 
+        Number
+        Type: <type 'int'>
+        n =  1
+      Function Definition
+      Type: t2{'*return': t0{}, '*params': tuple1[t0{}]}
+      Name: smethod
+      Arguments:
+        Arguments
+        Type: tuple1[t0{}]
+      Body: 
+        Return
+        Type: t0{}
+        Value: 
+          Name Node
+          Type: t0{}
+          id = p1
+      Function Definition
+      Type: t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}
+      Name: imethod
+      Arguments:
+        Arguments
+        Type: tuple3[self<type 'object'>]
+      Body: 
+        Return
+        Type: self<type 'object'>
+        Value: 
+          Name Node
+          Type: self<type 'object'>
+          id = self
+    Assignment
+    Type: t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}
+    Targets: 
+      Name Node
+      Type: t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}
+      id = a
+    Value: 
+      Function Call
+      Type: t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}
+      Function: 
+        Name Node
+        Type: A{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, '*params': tuple6[], 'z': <type 'int'>}
+        id = A
+      Arguments: 
+    Assignment
+    Type: <type 'int'>
+    Targets: 
+      Name Node
+      Type: <type 'int'>
+      id = y
+    Value: 
+      Attribute Reference
+      Type: <type 'int'>
+      Object: 
+        Name Node
+        Type: t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}
+        id = a
+      Attribute: z
+    Assignment
+    Type: <type 'int'>
+    Targets: 
+      Name Node
+      Type: <type 'int'>
+      id = z
+    Value: 
+      Function Call
+      Type: <type 'int'>
+      Function: 
+        Attribute Reference
+        Type: t2{'*return': t0{}, '*params': tuple1[t0{}]}
+        Object: 
+          Name Node
+          Type: A{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, '*params': tuple6[], 'z': <type 'int'>}
+          id = A
+        Attribute: smethod
+      Arguments: 
+        Number
+        Type: <type 'int'>
+        n =  1
+    Assignment
+    Type: self<type 'object'>
+    Targets: 
+      Name Node
+      Type: self<type 'object'>
+      id = z
+    Value: 
+      Function Call
+      Type: self<type 'object'>
+      Function: 
+        Attribute Reference
+        Type: t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}
+        Object: 
+          Name Node
+          Type: t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}
+          id = a
+        Attribute: imethod
+      Arguments: 
+    Expression
+    Type: <<Type Error: Object: a has no attribute: wat>>
+    Body: 
+      Attribute Reference
+      Type: <<Type Error: Object: a has no attribute: wat>>
+      Object: 
+        Name Node
+        Type: t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}
+        id = a
+      Attribute: wat
+    Expression
+    Type: <<Type Error: Object: A has no attribute: wat>>
+    Body: 
+      Attribute Reference
+      Type: <<Type Error: Object: A has no attribute: wat>>
+      Object: 
+        Name Node
+        Type: A{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, '*params': tuple6[], 'z': <type 'int'>}
+        id = A
+      Attribute: wat
+    Expression
+    Type: <<Type Error: Object: a has no attribute: smethod>>
+    Body: 
+      Function Call
+      Type: <<Type Error: Object: a has no attribute: smethod>>
+      Function: 
+        Attribute Reference
+        Type: <<Type Error: Object: a has no attribute: smethod>>
+        Object: 
+          Name Node
+          Type: t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}
+          id = a
+        Attribute: smethod
+      Arguments: 
+    Expression
+    Type: <<Type Error: Object: A has no attribute: imethod>>
+    Body: 
+      Function Call
+      Type: <<Type Error: Object: A has no attribute: imethod>>
+      Function: 
+        Attribute Reference
+        Type: <<Type Error: Object: A has no attribute: imethod>>
+        Object: 
+          Name Node
+          Type: A{'*return': t5{'imethod': t4{'*return': self<type 'object'>, '*params': tuple3[self<type 'object'>]}, 'z': <type 'int'>}, 'smethod': t2{'*return': t0{}, '*params': tuple1[t0{}]}, '*params': tuple6[], 'z': <type 'int'>}
+          id = A
+        Attribute: imethod
+      Arguments: 
 

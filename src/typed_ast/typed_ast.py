@@ -7,13 +7,17 @@ type inference of multiple assignment (unpacking), and error detection for that.
 
 """
 
-import sys, logging, types, re, copy, pdb
+import sys, logging, types, re, copy, pdb, os
 
 from .. import builtins
 from .. import substitution as sub
 from ..types import typ
 from ast import *
-from tnode import *
+from tmodule import *
+
+mods = os.listdir('./src/typed_ast/')
+mods = map(lambda x: x[:-3], filter(lambda x: x[-3:]==".py" and x!="__init__.py",mods))
+for m in mods: exec("import " + m)
 
 """
 Log all logging messages to logs/inference.log
@@ -27,7 +31,8 @@ class TypedAST(object):
 
 	def __init__(self,source):
 		logging.info("Parsing and traversing the source...")
-		self.modules = [TypedAST.parse_file(source).traverse(builtins.env)]
+		(m,s,e)= TypedAST.parse_file(source).traverse(builtins.env)
+		self.modules = [m]
 		logging.info("Analyzed Tree:")
 		logging.info(self.format_tree())
 
@@ -61,8 +66,8 @@ class TypedAST(object):
 				logging.info("Source is a string of source code")
 				source = source
 				filename = "Unknown"
-		logging.info("Loaded source (" + self.filename + "):\n" + self.source)
-		mod = TModule(parse(self.source),filename,source)
+		logging.info("Loaded source (" + filename + "):\n" + source)
+		mod = TModule(parse(source),filename,source)
 		logging.info("Parsed source. Raw AST is:\n" + dump(mod.node,include_attributes=True))
 		return mod
 
@@ -71,7 +76,7 @@ class TypedAST(object):
 		Return a readable indented string representing the typed AST.
 		"""
 		s = ""
-		for t in self.modules: s += t.format_tree(1)
+		for m in self.modules: s += m.format_tree(1)
 		return s
 
 	@staticmethod
@@ -84,7 +89,9 @@ class TypedAST(object):
 		-> Returns a type node
 		"""
 		clss = "T" + type(n).__name__
-		subclasses = [c.__name__ for c in self.__subclasses__()]
-		if clss in subclasses: clss = eval(clss)
-		else: clss = TNode
+		if clss.lower() in mods:
+			mod = eval(clss.lower())
+			clss = eval(clss.lower() + "." + clss)
+		else:
+			clss = tnode.TNode
 		return clss(n).traverse(env)

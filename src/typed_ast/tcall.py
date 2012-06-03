@@ -1,7 +1,8 @@
 from typed_ast import *
 from tnode import *
-from .. import substitution as sub
-from .. import typ
+from .. import substitution as subst
+from ..types import typ
+from tattribute import *
 
 class TCall(TNode):
 	"""
@@ -11,6 +12,7 @@ class TCall(TNode):
 	def __init__(self, n):
 		super(TCall,self).__init__(n)
 		self.name = "Function Call"
+		self.args = []
 
 	def format_tree(self, indents):
 		s = super(TCall,self).format_tree(indents)
@@ -21,29 +23,31 @@ class TCall(TNode):
 
 	def traverse(self, env):
 		logging.info("Unifying a function call...")
-		# From the function name, get the given type from the environment 
-		(node1, sub1, env1) = TypedAST.traverse(node.func, env)
+		# From the function name, get the given type from the environment
+		(node1, sub1, env1) = typed_ast.TypedAST.traverse(self.node.func, env)
 		self.func = node1
 		given_type = self.func.typ
 		logging.info("Given type: " + str(given_type))
 		if isinstance(given_type, typ.TError): # Bail out on an error
-			return (self, sub.Substitution(), env)
+			self.typ = given_type
+			return (self, subst.Substitution(), env)
 
 		# Infer and construct the tuple of arguments
 		# Then construct the applied type
 		(arg_types, arg_names) = ([], [])
-		if type(self.func).__name__ == "Attribute": # Automatically pass in self
+		first_param = given_type.get_attr("*return")
+		if isinstance(first_param,typ.TSelf):
 			arg_names.append("self")
-			arg_types.append(env.get_type("self"))
-		for arg in node.args:
-			(arg_node, arg_sub, arg_env) = self.traverse(arg, env)
+			arg_types.append(typ.TSelf())
+		for arg in self.node.args:
+			(arg_node, arg_sub, arg_env) = typed_ast.TypedAST.traverse(arg, env)
 			self.args.append(arg_node)
 			arg_types.append(arg_node.typ)
 			arg_names.append(arg_node.name)
 		arg_tuple = typ.TTuple(arg_types)
 		return_type = given_type.attributes.get_type("*return")
-		if rtype == None: rtype = typ.TObj({})
-		applied_type = typ.TObj({"*params" : arg_tuple, "*return" : rtype})
+		if return_type == None: return_type = typ.TObj({})
+		applied_type = typ.TObj({"*params" : arg_tuple, "*return" : return_type})
 		logging.info("Applied type: " + str(applied_type))
 
 		# Unify and substitute
@@ -57,11 +61,11 @@ class TCall(TNode):
 		# If there was a type error in the parameters, propogate it up to the
 		# return type
 		err = unified_type.attributes.get_type("*params")
-		if isinstance(err,typ.TError): return_type = err
+		if isinstance(err,typ.TError): self.typ = err
 		# Else if the unified type itself is an error, return that error
 		elif isinstance(unified_type,typ.TError):
-			return_type = unified_type
+			self.typ = unified_type
 		# No error, so our return type is correct.
-		else: return_type = unified_type.attributes.get_type("*return")
+		else: self.typ = unified_type.attributes.get_type("*return")
 
 		return (self, sub, env)

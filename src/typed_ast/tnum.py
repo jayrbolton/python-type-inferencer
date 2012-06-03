@@ -1,8 +1,7 @@
 
-from typed_ast import *
 from tnode import *
 from .. import substitution as sub
-from .. import typ
+from ..types import typ
 
 class TNum(TNode):
 	"""
@@ -15,12 +14,11 @@ class TNum(TNode):
 
 	def format_tree(self,indents):
 		s = super(TNum,self).format_tree(indents)
-		s += "  "*indents + "n =  " + self.n + "\n"
+		s += "  "*indents + "n =  " + str(self.n) + "\n"
 		return s
 
 	def traverse(self, env):
-		n = Node(node, node.n, typ=typ.TBuiltin(type(node.n)))
-		self.n, = self.node.n
+		self.n = self.node.n
 		self.typ = typ.TBuiltin(type(self.n))
 		return (self, sub.Substitution(), env)
 

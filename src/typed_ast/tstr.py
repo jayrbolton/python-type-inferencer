@@ -2,7 +2,7 @@
 from typed_ast import *
 from tnode import *
 from .. import substitution as sub
-from .. import typ
+from ..types import typ
 
 class TStr(TNode):
 	"""

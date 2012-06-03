@@ -17,11 +17,11 @@ n # : int
 # Returning a function object
 def f(): return hi # : () -> ((a{}, b{}) -> str)
 
-# Multiple return types
-
-# def multi(p):
-# 	if p: return 1
-# 	else: return 2
+## Multiple return types
+#
+## def multi(p):
+## 	if p: return 1
+## 	else: return 2
 
 # Function application to parameters in the body changes the type of the parameters.
 

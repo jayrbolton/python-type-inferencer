@@ -1,7 +1,7 @@
-from typed_ast import *
+import typed_ast
 from tnode import *
 from .. import substitution as sub
-from .. import typ
+from ..types import typ
 
 class TModule(TNode):
 	"""
@@ -9,19 +9,19 @@ class TModule(TNode):
 	"""
 
 	def __init__(self,n,filename,src):
-		self.node = node
+		super(TModule,self).__init__(n)
 		self.name = filename
 		self.source = src
 		self.body = []
-		self.typ  = typ.TObj({})
+		self.typ = typ.TObj({},filename)
 
-	def traverse(self, n, env):
+	def traverse(self, env):
 		logging.info("Traversing a module...")
-		for n in node.body:
-			(node1,sub1,env1) = TypedAST.traverse(n, env)
+		for n in self.node.body:
+			(node1,sub1,env1) = typed_ast.TypedAST.traverse(n, env)
 			env.merge(env1)
 			self.body.append(node1)
-			self.typ.add_attr(node1.typ, node1.name)
+			self.typ.attributes.merge(env1)
 		return (self, sub.Substitution(), env)
 
 	def format_tree(self, indents):

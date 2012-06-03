@@ -2,7 +2,7 @@
 from typed_ast import *
 from tnode import *
 from .. import substitution as sub
-from .. import typ
+from ..types import typ
 
 class TReturn(TNode):
 	"""
@@ -11,7 +11,7 @@ class TReturn(TNode):
 
 	def __init__(self, n):
 		super(TReturn,self).__init__(n)
-		self.name = "Returnment"
+		self.name = "Return"
 
 	def format_tree(self,indents):
 		s = super(TReturn,self).format_tree(indents)
@@ -19,9 +19,8 @@ class TReturn(TNode):
 		return s
 
 	def traverse(self, env):
-		(node1, sub1, env1) = TypedAST.traverse(node.value, env)
+		(node1, sub1, env1) = typed_ast.TypedAST.traverse(self.node.value, env)
 		self.value = node1
 		self.typ = node1.typ
 		env.add_type(self.typ, "return")
 		return (self, sub1, env)
-

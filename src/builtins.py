@@ -15,7 +15,7 @@ none_typ = TBuiltin(type(None))
 bool_typ = TBuiltin(bool)
 self_typ = TSelf()
 
-env = Attributes({"self" : self_typ
+env = Attributes({
 # "+" : Attributes({"*params":	...
 	})
 #	# Arithmetic

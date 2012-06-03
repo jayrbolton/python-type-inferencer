@@ -1,7 +1,8 @@
 from typed_ast import *
 from tnode import *
 from .. import substitution as sub
-from .. import typ
+from ..types import typ
+from tname import *
 
 class TAssign(TNode):
 	"""
@@ -21,33 +22,32 @@ class TAssign(TNode):
 
 	def traverse(self, env):
 		# Infer the type of the value
-		(val_node, val_sub, val_env) = self.traverse(self.node.value, env)
+		(val_node, val_sub, val_env) = typed_ast.TypedAST.traverse(self.node.value, env)
 		env.merge(val_env)
 		self.value = val_node
-		value_type = self.value.typ
-		if not value_type: value_type = TError("Invalid value in assignment")
+		self.typ = self.value.typ
+		if not self.typ: self.typ = typ.TError("Invalid value in assignment")
 
 		# Infer targets. Multiple target assignment makes it way more complicated.
-		targets = []
+		self.targets = []
 		for t in self.node.targets:
 			self.targets.append(TName(t))
+			self.targets[-1].id = t.id
 		if len(self.targets) > 1: # We have multiple assignment
-			iterable = getattr(value_type,"contained",None)
+			iterable = getattr(self.typ,"contained",None)
 			if not iterable:
-				err = TError("Multiple assignment to non-iterable value.")
+				err = typ.TError("Multiple assignment to non-iterable value.")
 				for t in self.targets: t.typ = err
 			elif len(iterable) < len(self.targets):
-				err = TError("Too few values in multiple assignment")
+				err = typ.TError("Too few values in multiple assignment")
 				for t in self.targets: t.typ = err
 			elif len(iterable) < len(self.targets):
-				err = TError("Too many values in multiple assignment")
+				err = typ.TError("Too many values in multiple assignment")
 				for t in self.targets: t.typ = err
 			else:
 				for tar,val in zip(self.targets,iterable): tar.typ = val.typ
-		else:
-			self.targets = targets[0]
-			self.targets.typ = value_type
+		else: self.targets[0].typ = self.typ
 
-		for t in self.targets: env.add_type(t.typ, t.name)
-		return (self, sub.Substitution({t.id : value_type}), env)
+		for t in self.targets: env.add_type(t.typ, t.id)
+		return (self, sub.Substitution({t.id : self.typ}), env)
 

@@ -2,7 +2,7 @@
 from typed_ast import *
 from tnode import *
 from .. import substitution as sub
-from .. import typ
+from ..types import typ
 
 class TClassDef(TNode):
 	"""
@@ -12,6 +12,8 @@ class TClassDef(TNode):
 	def __init__(self, n):
 		super(TClassDef,self).__init__(n)
 		self.name = "Class Definition"
+		self.bases = []
+		self.body = []
 
 	def format_tree(self,indents):
 		s = super(TClassDef,self).format_tree(indents)
@@ -35,22 +37,24 @@ class TClassDef(TNode):
 		env_scoped = copy.deepcopy(env)
 		self.cname = self.node.name
 		# Loop over the body, adding attributes to our type as we go.
-		class_attrs, inst_attrs, self.body = {}, {}, []
+		class_attrs, inst_attrs = {}, {}
 		for n in self.node.body:
-			(node1,sub1,env1) = TypedAST.traverse(n, env_scoped)
+			(node1,sub1,env1) = typed_ast.TypedAST.traverse(n, env_scoped)
 			self.body.append(node1)
 			env_scoped.merge(env1)
 			if isinstance(n, Assign):
 				for n in node1.targets:
-					class_attrs[n] = node1.typ
-					inst_attrs[n] = node1.typ 
+					class_attrs[n.id] = node1.typ
+					inst_attrs[n.id] = node1.typ
 			if isinstance(n, FunctionDef):
 				params = node1.typ.get_attr("*params")
+				logging.debug("Class funcdef params: " + str(params))
 				if params:
+					logging.debug("HAS PARAMS")
 					first_param = params.contained[0]
 					if isinstance(first_param, typ.TSelf):
-						inst_attrs[name] = t
-					else: class_attrs[name] = t
+						inst_attrs[node1.fname] = node1.typ
+					else: class_attrs[node1.fname] = node1.typ
 
 		# Construct the types based on our inferred list of attributes
 		instance_type = typ.TObj(inst_attrs)
