@@ -172,8 +172,11 @@ class TDict(TBuiltin):
 class TSelf(TBuiltin):
 	label = "self"
 	pytype = object
-	attributes = attr.Attributes({})
-	def __init__(self): pass
+
+	def __init__(self,attrs=None):
+		if attrs == None: self.attributes = attr.Attributes({})
+		else: self.attributes = attr.Attributes(attrs)
+
 	def apply_sub(self,sub): return self
-	def __repr__(self): return "self" + super(TSelf,self).__repr__()
-	def __str__(self): return "self" + super(TSelf,self).__str__()
+	def __repr__(self): return "s" + str(self.attributes)
+	def __str__(self): return "s" + str(self.attributes)

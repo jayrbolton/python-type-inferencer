@@ -47,14 +47,21 @@ class TClassDef(TNode):
 					class_attrs[n.id] = node1.typ
 					inst_attrs[n.id] = node1.typ
 			if isinstance(n, FunctionDef):
+				# Catch the constructor and get the attributes applied to 'self'
 				params = node1.typ.get_attr("*params")
-				logging.debug("Class funcdef params: " + str(params))
 				if params:
-					logging.debug("HAS PARAMS")
 					first_param = params.contained[0]
-					if isinstance(first_param, typ.TSelf):
-						inst_attrs[node1.fname] = node1.typ
-					else: class_attrs[node1.fname] = node1.typ
+					if node1.fname == "__init__":
+						logging.debug("found init, env1: " + str(env1))
+						if isinstance(first_param, typ.TSelf):
+							self_type = env1.get_type('self')
+							if self_type: inst_attrs.update(self_type.attributes.attrs)
+						else:
+							node1.typ = TError("First parameter of __init__ must be self")
+					else:
+						if isinstance(first_param, typ.TSelf):
+							inst_attrs[node1.fname] = node1.typ
+						else: class_attrs[node1.fname] = node1.typ
 
 		# Construct the types based on our inferred list of attributes
 		instance_type = typ.TObj(inst_attrs)

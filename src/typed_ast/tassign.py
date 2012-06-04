@@ -1,8 +1,11 @@
 from typed_ast import *
 from tnode import *
-from .. import substitution as sub
+from .. import substitution as subst
 from ..types import typ
 from tname import *
+from tlist import *
+from ttuple import *
+from tattribute import *
 
 class TAssign(TNode):
 	"""
@@ -26,28 +29,23 @@ class TAssign(TNode):
 		env.merge(val_env)
 		self.value = val_node
 		self.typ = self.value.typ
-		if not self.typ: self.typ = typ.TError("Invalid value in assignment")
+		if not self.typ: self.typ = typ.TError("Untyped value in assignment")
 
-		# Infer targets. Multiple target assignment makes it way more complicated.
-		self.targets = []
-		for t in self.node.targets:
-			self.targets.append(TName(t))
-			self.targets[-1].id = t.id
-		if len(self.targets) > 1: # We have multiple assignment
-			iterable = getattr(self.typ,"contained",None)
-			if not iterable:
-				err = typ.TError("Multiple assignment to non-iterable value.")
-				for t in self.targets: t.typ = err
-			elif len(iterable) < len(self.targets):
-				err = typ.TError("Too few values in multiple assignment")
-				for t in self.targets: t.typ = err
-			elif len(iterable) < len(self.targets):
-				err = typ.TError("Too many values in multiple assignment")
-				for t in self.targets: t.typ = err
+		(target_node, tsub, tenv) = typed_ast.TypedAST.traverse(self.node.targets[0], env)
+		target_node.typ = self.typ
+		self.targets = [target_node]
+		if isinstance(target_node, TName):
+			env.add_type(self.typ, target_node.id)
+			sub = subst.Substitution({target_node.id : self.typ})
+		elif isinstance(target_node, TAttribute):
+			self_given = env.get_type('self')
+			if self_given:
+				self_given.attributes.add_type(self.typ, target_node.attr)
 			else:
-				for tar,val in zip(self.targets,iterable): tar.typ = val.typ
-		else: self.targets[0].typ = self.typ
-
-		for t in self.targets: env.add_type(t.typ, t.id)
-		return (self, sub.Substitution({t.id : self.typ}), env)
-
+				self_type = typ.TSelf({target_node.attr : self.typ})
+				env.add_type(self_type, 'self')
+			sub = subst.Substitution({target_node.attr : self.typ})
+		logging.debug("Envenvenv: " + str(env))
+		# elif isinstance(target_node, TList):
+		# elif isinstance(target_node, TTuple):
+		return (self, sub, env)

@@ -51,6 +51,10 @@ class TFunctionDef(TNode):
 		func_type = typ.TObj({"*params" : self.args.typ, "*return" : return_type})
 		self.typ = func_type
 
+		# Percolate the self type up to the parent environment
+		self_type = env_scoped.get_type('self')
+		if self_type: env.add_type(self_type,'self')
+
 		# Add the function name and type to the parent environment
 		env.add_type(func_type, self.node.name)
 		return (self, sub1, env)

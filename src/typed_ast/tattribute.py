@@ -33,4 +33,3 @@ class TAttribute(TNode):
 		else: self.typ = self.value.typ.get_attr(self.node.attr)
 		if self.typ == None: self.typ = err
 		return (self, sub.Substitution(), env)
-

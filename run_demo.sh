@@ -1,4 +1,4 @@
-##!/bin/bash
+#!/bin/bash
 #
 #echo -e "Inferring assignments...\n\n"
 #rm output/logs/*
@@ -16,7 +16,7 @@
 #
 #echo -e "Enter to continue...\n\n"
 #read x
-#
+
 echo -e "Inferring class definitions and usage...\n\n"
 rm output/logs/*
 jython main.py src/tests/classes.py
