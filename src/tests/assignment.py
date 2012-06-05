@@ -1,6 +1,5 @@
 x = y     # : error: undefined
-x = 1     # : int
-y = "hi"  # : str
-x = "bye" # : str
-y = 2     # : int
-y = [1,2]
+i = 1     # : int
+s = "hi"  # : str
+x = 2     # : int
+y = [1,2] # : list[int,int]
