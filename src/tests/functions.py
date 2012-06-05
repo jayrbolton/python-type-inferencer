@@ -20,13 +20,19 @@ def f(): return hi # : () -> ((a{}, b{}) -> str)
 ## Multiple return types
 #
 ## def multi(p):
-## 	if p: return 1
-## 	else: return 2
+## if p: return 1
+## else: return 2
 
 # Function application to parameters in the body changes the type of the parameters.
 
 def S(x,y):  return x      # : (a{}, b{}) -> a{}
 def S2(x,y): return S(x,y) # : (a{}, b{}) -> a{}
+
+# Function definition using attributes adds those attributes to the type
+
+def attr(x,y):
+	x.a1
+	y.a2
 
 # Function calls:
 

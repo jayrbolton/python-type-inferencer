@@ -37,7 +37,7 @@ z = A.smethod(1)
 z = a.imethod()
 
 # Reference of attributes in functions
-def g(x) = x.z
+def g(x): return x.z
 g(a) # : int
 
 ## Type errors:

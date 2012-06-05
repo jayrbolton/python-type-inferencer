@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.4.4)  24 MAY 2012 13:50
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.4.4)  5 JUN 2012 00:26
 entering extended mode
  %&-line parsing enabled.
 **PythonTypeInference.tex
@@ -104,26 +104,30 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 32.
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2]
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4] [5]
 (./PythonTypeInference.aux) ) 
 Here is how much of TeX's memory you used:
- 847 strings out of 495061
- 9502 string characters out of 1182622
- 62261 words of memory out of 3000000
- 4078 multiletter control sequences out of 15000+50000
- 8408 words of font info for 31 fonts, out of 3000000 for 9000
+ 857 strings out of 495061
+ 9613 string characters out of 1182622
+ 65261 words of memory out of 3000000
+ 4084 multiletter control sequences out of 15000+50000
+ 9873 words of font info for 37 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 27i,11n,20p,215b,189s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 27i,11n,20p,254b,189s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/share/texmf-texlive/fonts/type1/public/amsfo
-nts/cm/cmbx12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmmi
-10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr
-/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf
--texlive/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-texlive/fon
-ts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/pu
-blic/amsfonts/cm/cmsy7.pfb>
-Output written on PythonTypeInference.pdf (2 pages, 90617 bytes).
+nts/cm/cmbx10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx
+12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmmi10.pfb></us
+r/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texm
+f-texlive/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-texlive/fo
+nts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/pu
+blic/amsfonts/cm/cmr17.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfont
+s/cm/cmr7.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.p
+fb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/sha
+re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texmf-te
+xlive/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on PythonTypeInference.pdf (5 pages, 159516 bytes).
 PDF statistics:
- 37 PDF objects out of 1000 (max. 8388607)
+ 66 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

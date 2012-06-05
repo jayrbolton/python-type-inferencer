@@ -24,8 +24,8 @@ of two objects. We'll explore this further in sections below.
 
 All languages can be statically typed, no matter how dynamic their current
 implementation may be. Our goal here is to perform static type checking (albeit
-in a limited form) to a very dynamic language with very minimal type
-enforcement. Our type checking system will be optional and will not affect your
+in a limited form) to a very dynamic language with very minimal inherent type
+enforcement. Our type checking system will be optional and will not affect the
 ability to run the program. The advantages of having such a system are:
 
 \begin{itemize}
@@ -34,34 +34,253 @@ ability to run the program. The advantages of having such a system are:
 \item Provide documentation and meaningful type annotations that can be helpful
 in understanding your program in a number of different ways, discussed in the
 last section.
+\item Potentially increase the performance of the language using the static type information.
 \end{itemize}
 
-\section*{The Type System}
+This project is not concerned specifically with any one of those items. It
+serves more as a demonstration of pure attribute type inference.
 
-Here will be an overview of how python's type system works, with some formalized notation for it.
+\subsection*{Terms and Definitions}
+
+When I use the term \emph{static}, I am referring to something that
+\textbf{does not depend} upon the execution of the program. When I say
+\emph{dynamic}, I mean something that depends upon or arises from the execution
+of the program.
+
+A \emph{type} is a labeled set of data bound by certain properties. In this
+project, those properties will be object attributes, which we'll discuss in
+more detail below.
+
+\section*{The Type System of Python}
+
+Python is a 100\% dynamic language and as such uses no static type information.
+The interpreter parses and then executes your code, and any errors arise as
+they are encountered.
+
+Everything in Python is an object, which provides a nice uniformity for our
+type system.
+
+\subsection*{Duck Typing}
+
+Duck Typing, or structural typing, is simply types represented as sets of attributes.
+
+An attribute is an object-oriented term that refers to the data fields in a class or object. Thus a type is a set of all the data fields for some object. For example:
+
+\begin{verbatim}
+class A(object):
+  x = 1
+	y = 'a'
+\end{verbatim}
+
+The class A is given two fields, x and y, so it has the type: ${x : int, y : str}$, which is a two-element set of keys and values, where the keys are \emph{attribute labels} and the values are \emph{other types}.
+
+Duck typing is usually defined as a ``dynamic typing'' system, but this does
+not necessarily have to be true.  The language Scala allows programmers to
+write explicit, static duck types as parameters to functions:
+
+\begin{verbatim}
+def f(obj: { def x; def y }) = {
+	  obj.x
+		obj.y
+}
+\end{verbatim}
+
+This is a Scala function that takes an object with two fields: x and y. We are not concerned with any other properties of `obj' except that it has those two fields. We do not even care what its superclass might be.
+
+\subsection*{Type Enforcement}
+
+In python type errors occur almost entirely when we reference attributes for some object. For example:
+
+\begin{verbatim}
+a = A()
+a.x # int
+a.q # undefined
+\end{verbatim}
+
+We reference two attributes of the object `a.' First, we reference x, which is
+defined and has type `int.' We then reference the undefined attribute `q.' This
+will return a type error when the Python interpreter tries to execute it.
+
+Undefined references comprise the vast majority of type errors in python. Our
+goal will then be to infer these sets of attributes for all the objects in a
+program and do lookups on references to make sure they exist.
 
 \section*{Type Inference Using Only Attributes}
 
-First formally define the type system...
+Structural type inference is somewhat of a conceptual branching off from
+traditional Hindley-Milner type inference found in Haskell and ML. In
+describing the rules for structural type inference, I will try to use similar
+notation as found in the papers on Hindley-Milner, but will have to alter much
+of it to fit this different paradigm.
+
+\subsection*{The Grammar}
+
+Our type grammar is fairly simple; we use sets of pairs to represent types, and
+map those to labels.
+
+The `type environment,' or the set of all types inferred so far, is simply a
+type itself.
 
 \begin{align*}
-type &= Obj\ \{ attr : type,\ attr:type,\ \cdots \} \\
-     &\ |\ Builtin \\
-attr &= name \\
-Builtin &= Tuple (type,\ type,\ \cdots) \\
-        &\ |\ Int\ |\ Str\ |\ \cdots
+Type = \alpha\{ Label : Type, \dots, Label : Type \} \\
+Label = [a-z] \\
+Environment = Type \\
+TList = [Type, Type, \dots, Type]
 \end{align*}
 
-Then define all the inference rules...
+The $\alpha$ represents a type label.
+
+We must distinguish between \emph{type labels} and \emph{attribute names}.  An
+attribute name is paired with both a type label and a type. The reason is that
+we may have two attributes with two different names but with the same type. We
+may also have two attributes with the same name but with different types. It is
+therefore necessary to be able to distinguish types in and of themselves with the
+attribute names mapped to the types.
+
+The built-in Python types list, tuple, and dictionary are special cases. They
+are container objects whose items we would like to be able to see all at once
+in the type signature, so we store a list of the types of its contents.
+
+Recall that in Python, everything is an object. That includes functions and
+classes. A function type is not a special case in this system; it is simply an
+object type with attributes that make it callable.
+
+\subsection*{Notation}
+
+We'll use the capital gamma, or $\Gamma$, to denote our `environment,' which
+includes all the built-ins, such as types for addition and subtraction.
+
+We'll use capital Greek letters to indicate whole types, lower case Greek
+letters for type labels, and Latin letters to indicate attribute names.
+
+We use a crossbeam symbol, $\Gamma \vdash\ e\ :\ T$, to indicate that we are able
+to derive the type $T$ for attribute $e$ from the environment $\Gamma$.
+
+A long right arrow indicates the application of a rule. Above the arrow, we
+have the assumption and below it is the conclusion that we can draw using that
+assumption.
+
+For example:
+
+\begin{align*}
+\Gamma\ \vdash\ a:T, T \vdash\ b:E\\
+\Longrightarrow \\
+c:E \vdash \Gamma
+\end{align*}
+
+States that if we assume we can derive the type of attribute $a$ from the
+environment $\Gamma$ to be of type $T$, and the type of attribute $b$ from $T$ to be $E$, then we can say that attribute $c$ has type $E$, and that we can insert that mapping back into $\Gamma$.
+
+Assumptions above the arrow are separated by commas or line breaks and often
+start with the actual syntax we are defining a rule for.
+
+\subsection*{Lookup and Assignment}
+
+We'll start with the most basic case: the `identity', or simple look-up of a
+single object, which is a sort of axiom or first principle rather than a rule.
 
 \begin{align*}
 &Lookup\\
-\frac{M\ \vdash\ e:\tau} {M\ \vdash\ e\ :\ \tau} \\
-&Assignment\\
-\frac{M\ \vdash\ e:\tau} {M\ \vdash\ x = e,\ x\ :\ \tau} \\
-&Function\ Definition\\
-\frac{M,\text{[params]}:\tau\vdash\ [body]:\{`*r':\sigma\}} {M\ \vdash\ \text{def f([params]) [body]}\ :\ \{`*r':\sigma,\ `*p': \tau\}}
+\Gamma \vdash\ e\ :\ T
 \end{align*}
+
+The assignment rule is the next simplest. The type of the left hand side of an
+assignment is derived from the type of the right hand side.
+
+\begin{align*}
+&Assignment\\
+\texttt{x = e},\ \Gamma\ \vdash\ e:T\\
+\Longrightarrow \\
+x\ :\ T \vdash \Gamma \\
+\end{align*}
+
+Attribute reference is a look-up of the type of the object. We first get the
+type of the object `x' from the environment, and then get the type of the
+attribute from the type of x.
+
+\begin{align*}
+&Attribute\\
+\frac{\texttt{x.y},\ \Gamma\ \vdash\ x:T,\ T \vdash y:\Upsilon} {\texttt{x.y}\ :\ \Upsilon} \\
+\end{align*}
+
+The next step forward is function definition, which is also a large step forward in complexity.
+
+In order to define this rule, we need to have a new notation for \emph{open
+types}. Open types are types that will absorb new attributes when attributes
+are referenced on them. In other words, when we reference an undefined
+attribute on an object, that object then acquires that attribute name mapped to
+an empty type inside the object's own type.
+
+The notation we can use for an open type is $(T)$.
+
+Here is the open type version of the attribute referencing rule:
+
+\begin{align*}
+&OpenAttribute\\
+\frac{\texttt{x.y},\ \Gamma\ \vdash\ x:(T),\ (T) \vdash y:Nil}
+{\texttt{x.y}\ :\ \alpha\{\},\ y\ :\ \alpha \vdash (T)} \\
+\end{align*}
+
+Now we can define our large function definition inference rule:
+
+Capital delta represents our "scoped environment." It is a copy of the environment with the parameter types overwritten, or ``shadowed.''
+
+\begin{align*}
+&FunctionDefinition\\
+\texttt{def f(p): b},\ \Gamma = \Delta, \\
+p = p_1,\dots,p_n, p : Tuple([(\alpha_1\{\}),\dots,(\alpha_n\{\})]) \vdash \Delta \\
+\Delta \vdash b : T,\ T \vdash \texttt{return}:E \\
+T \vdash p : X \\
+\Longrightarrow \\
+f : {*r : E, *p : X} \vdash \Gamma
+\end{align*}
+
+First we take a duplicate environment $\Delta$, and insert a tuple type of
+empty open types into it, representing our shadowed parameters.
+
+We want our parameter types to be open so that any attribute references in the
+body of the function modify their type.
+
+`*r' and `*p' represent special meta-attributes for the return type and the
+parameter type which we can use for function objects.
+
+Next up is the actual function call, which is when we apply our function
+definition types. Luckily, it is considerably simpler.
+
+\begin{align*}
+&FunctionCall\\
+\texttt{f(a)},\ \Gamma \vdash f : T \\
+\Gamma \vdash a : X,\ T \vdash *p : X' \\
+X \approx X' \rightarrow S \\
+S \rightarrow T \vdash \texttt{return} : E\\
+\Longrightarrow \\
+\texttt{f(a)} : E
+\end{align*}
+
+This rule introduces a couple new symbols. $\approx$ is used to denote
+\emph{unification}, which is explained in the next section. In the third line
+we assume that $X$ unifies with $X'$. The right arrow denotes that the
+unification produces a substitution $S$. In the forth line, we apply the
+substitution $S$ to the function type $T$, and then derive from that our return
+type.
+
+Our final type inference rule, and most complicated, is that of class definition.
+
+\begin{align*}
+&ClassDefinition\\
+\texttt{class C: b},\ \Gamma = \Delta, \\
+\Delta \vdash b : T,\ T \vdash \texttt{init}:E \\
+T \vdash \texttt{self} : X \\
+\Longrightarrow \\
+C : T ++ \{*r : X ++ E \}
+\end{align*}
+
+$X ++ E$ represents the merging of types X and E, where duplicate types in E overwrite those in X.
+
+This last rule is quite rough and likely does not contain all the details in
+the implementation of class definition type inference.
+
+\subsection*{Unification and Substitution}
 
 \section*{Examples and Cases}
 
