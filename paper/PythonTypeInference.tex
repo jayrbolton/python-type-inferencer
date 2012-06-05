@@ -1,7 +1,7 @@
 \documentclass{article}
 \usepackage{amsmath}
 
-\title{Python Type Inference: If It Quacks Like a Duck...}
+\title{Structural Type Inference: If It Quacks Like a Duck...}
 \author{Jay R Bolton}
 
 \addtolength{\oddsidemargin}{-.875in}
@@ -18,7 +18,7 @@
 Python is a wildly dynamic language whose program behavior depends almost
 entirely on the execution path. Despite being very multi-paradigm, it is also
 not a very complicated language, with an abstract grammar of only around 100
-lines. The enforcement of type correctness in python is performed at run-time
+lines. The enforcement of type correctness in Python is performed at run-time
 using Duck Typing, where we are only concerned with the comparative structure
 of two objects. We'll explore this further in sections below.
 
@@ -72,7 +72,7 @@ class A(object):
 	y = 'a'
 \end{verbatim}
 
-The class A is given two fields, x and y, so it has the type: ${x : int, y : str}$, which is a two-element set of keys and values, where the keys are \emph{attribute labels} and the values are \emph{other types}.
+The class A is given two fields, x and y, so it has the type: $\{x : int, y : str\}$, which is a two-element set of keys and values, where the keys are \emph{attribute labels} and the values are \emph{other types}.
 
 Duck typing is usually defined as a ``dynamic typing'' system, but this does
 not necessarily have to be true.  The language Scala allows programmers to
@@ -89,7 +89,7 @@ This is a Scala function that takes an object with two fields: x and y. We are n
 
 \subsection*{Type Enforcement}
 
-In python type errors occur almost entirely when we reference attributes for some object. For example:
+In Python, type errors occur almost entirely when we reference attributes for some object. For example:
 
 \begin{verbatim}
 a = A()
@@ -119,31 +119,34 @@ Our type grammar is fairly simple; we use sets of pairs to represent types, and
 map those to labels.
 
 The `type environment,' or the set of all types inferred so far, is simply a
-type itself.
+type itself. It can also be said to be the type of the module, or the file, of
+the program.
 
 \begin{align*}
-Type = \alpha\{ Label : Type, \dots, Label : Type \} \\
-Label = [a-z] \\
-Environment = Type \\
-TList = [Type, Type, \dots, Type]
+& Type = \alpha\{ Name : Type, \dots, Name : Type \} \\
+& Name = [a-z] \\
+& Environment = Type \\
+& List = [Type, Type, \dots, Type] \\
+& Tuple = [Type, Type, \dots, Type] \\
+& Error = ``message"
 \end{align*}
 
-The $\alpha$ represents a type label.
+The $\alpha$ represents a type label and may be any lower-case Greek letter.
 
 We must distinguish between \emph{type labels} and \emph{attribute names}.  An
-attribute name is paired with both a type label and a type. The reason is that
-we may have two attributes with two different names but with the same type. We
+attribute name is paired with both a type label and a type. 
+We may have two attributes with two different names but with the same type. We
 may also have two attributes with the same name but with different types. It is
-therefore necessary to be able to distinguish types in and of themselves with the
-attribute names mapped to the types.
+therefore necessary to be able to distinguish types in and of themselves.
 
-The built-in Python types list, tuple, and dictionary are special cases. They
+Certain built-in Python types---Lists, Tuples, and Dictionaries---are special cases. They
 are container objects whose items we would like to be able to see all at once
 in the type signature, so we store a list of the types of its contents.
 
-Recall that in Python, everything is an object. That includes functions and
+Recall that in Python, everything is an object, including functions and
 classes. A function type is not a special case in this system; it is simply an
-object type with attributes that make it callable.
+object type with attributes that make it callable. A class object is also
+callable, and the return value is the type of its instances.
 
 \subsection*{Notation}
 
@@ -157,8 +160,8 @@ We use a crossbeam symbol, $\Gamma \vdash\ e\ :\ T$, to indicate that we are abl
 to derive the type $T$ for attribute $e$ from the environment $\Gamma$.
 
 A long right arrow indicates the application of a rule. Above the arrow, we
-have the assumption and below it is the conclusion that we can draw using that
-assumption.
+have the assumptions and conditions; below it is the conclusion that we can draw using 
+those assumptions.
 
 For example:
 
@@ -171,6 +174,11 @@ c:E \vdash \Gamma
 States that if we assume we can derive the type of attribute $a$ from the
 environment $\Gamma$ to be of type $T$, and the type of attribute $b$ from $T$ to be $E$, then we can say that attribute $c$ has type $E$, and that we can insert that mapping back into $\Gamma$.
 
+The $\vdash$ operator is overloader for our purposes. If the left hand side is
+a type, then we are doing a lookup on the attributes in that type. If the left
+hand side is a pair of attribute mapped to type, then we are inserting that
+pair into the type on the right hand side.
+
 Assumptions above the arrow are separated by commas or line breaks and often
 start with the actual syntax we are defining a rule for.
 
@@ -181,7 +189,7 @@ single object, which is a sort of axiom or first principle rather than a rule.
 
 \begin{align*}
 &Lookup\\
-\Gamma \vdash\ e\ :\ T
+& \Gamma \vdash\ e\ :\ T
 \end{align*}
 
 The assignment rule is the next simplest. The type of the left hand side of an
@@ -189,9 +197,9 @@ assignment is derived from the type of the right hand side.
 
 \begin{align*}
 &Assignment\\
-\texttt{x = e},\ \Gamma\ \vdash\ e:T\\
-\Longrightarrow \\
-x\ :\ T \vdash \Gamma \\
+& \texttt{x = e},\ \Gamma\ \vdash\ e:T\\
+& \Longrightarrow \\
+& x\ :\ T \vdash \Gamma \\
 \end{align*}
 
 Attribute reference is a look-up of the type of the object. We first get the
@@ -200,13 +208,15 @@ attribute from the type of x.
 
 \begin{align*}
 &Attribute\\
-\frac{\texttt{x.y},\ \Gamma\ \vdash\ x:T,\ T \vdash y:\Upsilon} {\texttt{x.y}\ :\ \Upsilon} \\
+& \texttt{x.y},\ \Gamma\ \vdash\ x:T,\ T \vdash y:\Upsilon\\
+& \Longrightarrow \\
+& \texttt{x.y}\ :\ \Upsilon \\
 \end{align*}
 
-The next step forward is function definition, which is also a large step forward in complexity.
+The next step is function definition, which is also a large step forward in complexity.
 
 In order to define this rule, we need to have a new notation for \emph{open
-types}. Open types are types that will absorb new attributes when attributes
+types}. Open types are types that will absorb new attributes when they
 are referenced on them. In other words, when we reference an undefined
 attribute on an object, that object then acquires that attribute name mapped to
 an empty type inside the object's own type.
@@ -217,22 +227,23 @@ Here is the open type version of the attribute referencing rule:
 
 \begin{align*}
 &OpenAttribute\\
-\frac{\texttt{x.y},\ \Gamma\ \vdash\ x:(T),\ (T) \vdash y:Nil}
-{\texttt{x.y}\ :\ \alpha\{\},\ y\ :\ \alpha \vdash (T)} \\
+& \texttt{x.y},\ \Gamma\ \vdash\ x:(T),\ (T) \vdash y:None \\
+& \Longrightarrow \\
+& \texttt{x.y}\ :\ \alpha\{\},\ y\ :\ \alpha\{\} \vdash (T) \\
 \end{align*}
 
 Now we can define our large function definition inference rule:
 
-Capital delta represents our "scoped environment." It is a copy of the environment with the parameter types overwritten, or ``shadowed.''
+Capital delta represents our ``scoped environment.'' It is a copy of the environment with the parameter types overwritten, or ``shadowed.''
 
 \begin{align*}
 &FunctionDefinition\\
-\texttt{def f(p): b},\ \Gamma = \Delta, \\
-p = p_1,\dots,p_n, p : Tuple([(\alpha_1\{\}),\dots,(\alpha_n\{\})]) \vdash \Delta \\
-\Delta \vdash b : T,\ T \vdash \texttt{return}:E \\
-T \vdash p : X \\
-\Longrightarrow \\
-f : {*r : E, *p : X} \vdash \Gamma
+& \texttt{def f(p):b},\ \Gamma = \Delta, \\
+& p = (p_1,\dots,p_n, p) : Tuple([(\alpha_1\{\}),\dots,(\alpha_n\{\})]) \vdash \Delta \\
+& \Delta \vdash b : T,\ T \vdash \texttt{return}:E \\
+& T \vdash p : X \\
+& \Longrightarrow \\
+& f : \{*r : E, *p : X\} \vdash \Gamma
 \end{align*}
 
 First we take a duplicate environment $\Delta$, and insert a tuple type of
@@ -242,19 +253,19 @@ We want our parameter types to be open so that any attribute references in the
 body of the function modify their type.
 
 `*r' and `*p' represent special meta-attributes for the return type and the
-parameter type which we can use for function objects.
+parameter type which we can use for callable objects.
 
 Next up is the actual function call, which is when we apply our function
-definition types. Luckily, it is considerably simpler.
+definition types. Luckily, it is slightly simpler.
 
 \begin{align*}
 &FunctionCall\\
-\texttt{f(a)},\ \Gamma \vdash f : T \\
-\Gamma \vdash a : X,\ T \vdash *p : X' \\
-X \approx X' \rightarrow S \\
-S \rightarrow T \vdash \texttt{return} : E\\
-\Longrightarrow \\
-\texttt{f(a)} : E
+& \texttt{f(a)},\ \Gamma \vdash f : T \\
+& \Gamma \vdash a : X,\ T \vdash *p : X' \\
+& X \approx X' = S \\
+& S \rightarrow T \vdash \texttt{return} : E\\
+& \Longrightarrow \\
+& \texttt{f(a)} : E
 \end{align*}
 
 This rule introduces a couple new symbols. $\approx$ is used to denote
@@ -264,32 +275,147 @@ unification produces a substitution $S$. In the forth line, we apply the
 substitution $S$ to the function type $T$, and then derive from that our return
 type.
 
-Our final type inference rule, and most complicated, is that of class definition.
+Our final type inference rule is that of class definition.
 
 \begin{align*}
 &ClassDefinition\\
-\texttt{class C: b},\ \Gamma = \Delta, \\
-\Delta \vdash b : T,\ T \vdash \texttt{init}:E \\
-T \vdash \texttt{self} : X \\
-\Longrightarrow \\
-C : T ++ \{*r : X ++ E \}
+& \texttt{class C: b},\ \Gamma = \Delta, \\
+& \Delta \vdash b : T,\ T \vdash \texttt{init}:E \\
+& T \vdash \texttt{self} : X \\
+& \Longrightarrow \\
+& C : T + \{*r : X + E \}
 \end{align*}
 
-$X ++ E$ represents the merging of types X and E, where duplicate types in E overwrite those in X.
+$X + E$ represents the merging of types X and E, where duplicate types in E overwrite those in X.
 
-This last rule is quite rough and likely does not contain all the details in
-the implementation of class definition type inference.
+In this rule, we derive the type of our body to be $T$, and then look up the
+type of the constructor or \texttt{init} function from within the type of the
+body. For the the attributes of the instance objects, we look up the type of
+`self.' We combine the type from the constructor with the one from self to put
+into the return field for the class. We give the class itself all the remaining
+fields.
+
+This last rule is quite rough and does not contain all the details in the
+implementation of class definition type inference. For example, in order for
+the open type `self' to propogate up into the type of the class body, we would
+have to add a special case in function definition. Also in python, assignments
+in the body provide fields for both the class and the instances.  Despite its
+lack of accuracy, hopefully the rule will convery the general idea.
 
 \subsection*{Unification and Substitution}
 
+Unification is used in the function call rule to check that the given
+function type and the applied type are compatible.
+
+Unification produces a substitution, which is a mapping of labels to types,
+indicating that the types for each of the lables should be replaced with those
+listed.
+
+\begin{align*}
+Substitution = \{a_1 \mapsto s_1, \dots, a_n \mapsto s_n\}
+\end{align*}
+
+Unification itself is performed according to the following rules:
+
+\begin{enumerate}
+\item An attribute `a' with an empty type $A$ unifies with any other type $T$ , producing $\{a \mapsto T\}$ 
+\item When unifying non-empty types $a : \Upsilon$ and $T$, all attributes in $T$ must be
+present and unifiable in $\Upsilon$. This also produces the substitution $\{a \mapsto T\}$
+\item List and tuple types must unify their contained types element-wise. For example: the list $l : \Lambda$ unified with $T$ produces $\{l \mapsto T\}$ where all types inside $\Lambda$ and $T$ are unifiable element-wise.
+\end{enumerate}
+
+A unification of types $X$ and $Y$ produce a substitution $S$, denoted $X
+\approx Y = S$. We can apply that substitution to a type $Y$ with $S
+\rightarrow Y = Y'$, where $Y'$ is the type $Y$ but with all substitutions in
+$S$ applied.
+
 \section*{Examples and Cases}
 
-Present an example program and walk through all the type inference rules. 
+Our example will use the shortest code possible that demonstrates all the type inference rules. We'll walk through the heuristics required to then infer all the types in the environment (also known as the type of the module).
 
-Then discuss the edge cases and limitations of inferencing python, such as dynamic redefinition of attributes.
+\begin{minipage}{\linewidth}
+\begin{verbatim}
+class C:
+  x = 1
+  __init__(self):
+    self.y = "s"
+    self.z = 2
+  smeth(x,y): return x
+  imeth(self): return self.x
+c = C()
+d = C.smeth(9,"q")
+e = c.imeth()
+f = C.none()
+\end{verbatim}
+\end{minipage}
+
+We'll briefly walk through the application of the type inference rules. In
+order to save space, we won't step through the actual rules, we'll just show
+their conclusions.  The algorithm will go top-down, and upon reaching names and
+primitives, will then traverse bottom-up.
+
+\begin{align*}
+Assignment,FunctionDefinition,ClassDefinition \\
+\Longrightarrow\\
+\Gamma \vdash C : \alpha\{x:1,\ *r:\{y:str, z:int, x:int\}\, *p:Tuple[]\}
+\end{align*}
+
+Analysis of the body of the class produces a type for $C$ that is callable.
+This callable type has an empty parameter tuple and a return type that
+represents the type of the instances for the class.
+
+\begin{align*}
+FunctionCall, Assignment \Longrightarrow \Gamma \vdash c : \alpha\{y:str, z:int, x:int\}
+\end{align*}
+
+Our constructor produces the instance type of class C. 
+
+\begin{align*}
+FunctionCall, Assignment \Longrightarrow \Gamma \vdash d : int
+\end{align*}
+
+Calling the static method \texttt{smeth} returns the type of the first parameter, an integer.
+
+\begin{align*}
+FunctionCall, Assignment \Longrightarrow \Gamma \vdash  e : int
+\end{align*}
+
+Calling the instance method \texttt{imeth} returns the type of the attribute `x' inside `c', with is an integer. Note that in the function call, `c' is bound to `self' in the first parameter.
+
+\begin{align*}
+FunctionCall, Assignment \Longrightarrow f : Error\ "undefined"
+\end{align*}
+
+When we try to reference an undefined attribute ``none'' on `c', then we return an Error type with a message.
 
 \section*{Improvement and Expansion}
 
-Talk about how the system could be expanded and all its potential uses.
+The two major features not included in this system are rules for module
+importing and rules for super classes.
+
+
+\section*{The Implementation}
+
+This system has been implemented in Jython (a Python interpreter that produces
+byte code for the Java Virtual machine), located at
+\texttt{https://github.com/aesacus/python-type-inferencer}. The design of that program is described in a presentation at:
+
+\texttt{https://docs.google.com/presentation/d/19vKKkBxZPOV1TP4DecFaXtIoMewjXlAVXo2GhZ0t0j0}.
+
+The above program works well on a pre-written demo of sample Python code. It
+could use expansion and further testing, as well as more readable and usable
+data output. It comes with a demo script (\texttt{demo.py}) that showcases its
+features.
+
+\section*{References and Further Reading}
+
+I derived most of the rules and functions myself. The basic structure of type
+inference, where you pass around an environment, apply unification and get
+substitutions, was learned from Cardelli.
+
+\begin{itemize}
+\item Luca Cardelli. ``Basic Polymorphic Typechecking''
+\item Bryan Hackett and Shu-yu Guo. ``Fast and Precise Hybrid Type Inference for Javascript''
+\end{itemize}
 
 \end{document}

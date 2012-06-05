@@ -34,19 +34,4 @@ z = A.smethod(1)
 
 # Instance method reference
 
-z = a.imethod()
-
-# Reference of attributes in functions
-def g(x): return x.z
-g(a) # : int
-
-## Type errors:
-
-# Undefined attributes
-a.wat
-A.wat
-a.smethod()
-A.imethod()
-
-def f(x): return x.quack
-f(a)
+w = a.imethod()

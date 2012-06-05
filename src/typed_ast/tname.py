@@ -22,7 +22,6 @@ class TName(TNode):
 		self.id = self.node.id
 		self.typ = env.get_type(self.id)
 		if self.typ == None:
-			self.typ = typ.TError("Undefined")
+			self.typ = typ.TError(self.id + " undefined",self.node.lineno)
 			env.add_type(self.typ, self.id)
 		return (self, sub.Substitution(), env)
-

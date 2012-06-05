@@ -84,6 +84,10 @@ class TObj(Type):
 			return subst.Substitution({self.label : typ})
 		elif isinstance(typ,TObj):
 			if not typ.attributes.attrs: return subst.Substitution({typ.label : self})
+			# XXX this is so crappy. We need to just get rid of the attributes.unify method and put that logic in here.
+			for name,attr in typ.attributes.attrs.iteritems():
+				my_type = self.attributes.get_type(name)
+				if not my_type: return subst.Substitution({self.label : TError("Cannot unify " + self.label + " and " + typ.label)})
 			return self.attributes.unify(typ.attributes)
 		else:
 			err = TError("Conflicting types: " + str(self) + " and " + str(typ))
@@ -92,6 +96,7 @@ class TObj(Type):
 ## XXX TODO inherit attributes
 class TError(TObj):
 	attributes = attr.Attributes()
+	open_type = False
 	def __init__(self,message,lineno=None):
 		self.message = message
 		self.label = message
@@ -106,6 +111,7 @@ class TError(TObj):
 
 class TBuiltin(TObj):
 	label = "builtin"
+	open_type = False
 
 	def __init__(self,pytype=None):
 		self.pytype = pytype
@@ -193,13 +199,61 @@ class TDict(TBuiltin):
 	def apply_sub(self,sub): return self
 
 class TSelf(TBuiltin):
-	label = "self"
+	label = "*self"
 	pytype = object
+	open_type = True
 
 	def __init__(self,attrs=None):
 		if attrs == None: self.attributes = attr.Attributes({})
 		else: self.attributes = attr.Attributes(attrs)
 
-	def apply_sub(self,sub): return self
-	def __repr__(self): return "s" + str(self.attributes)
-	def __str__(self): return "s" + str(self.attributes)
+	def apply_sub(self,sub):
+		self_sub = sub.subs.get('*self')
+		if self_sub: return self_sub
+		else: return self
+
+	def __repr__(self): return "*s" + str(self.attributes)
+	def __str__(self): return "*s" + str(self.attributes)
+	def unify(self,typ): return subst.Substitution({'self' : typ})
+
+#class TRec(TBuiltin):
+#	"""
+#	The recursive type
+#	"""
+#	label = "*rec"
+#	pytype = object
+#	open_type = True
+#
+#	def __init__(self,obj):
+#		self.ref = obj
+#		self.attributes = attr.Attributes(attrs)
+#
+#	def apply_sub(self,sub):
+#		self_sub = sub.subs.get('*rec')
+#		if self_sub: return self_sub
+#		else: return self
+#
+#	def __repr__(self): return "s" + str(self.attributes)
+#	def __str__(self): return "s" + str(self.attributes)
+#	def unify(self,typ): return subst.Substitution({'self' : typ})
+
+#class TMaybe(TBuiltin):
+#	"""
+#	The maybe type
+#	"""
+#	label = "*rec"
+#	pytype = object
+#	open_type = True
+#
+#	def __init__(self,obj):
+#		self.ref = obj
+#		self.attributes = attr.Attributes(attrs)
+#
+#	def apply_sub(self,sub):
+#		self_sub = sub.subs.get('*rec')
+#		if self_sub: return self_sub
+#		else: return self
+#
+#	def __repr__(self): return "s" + str(self.attributes)
+#	def __str__(self): return "s" + str(self.attributes)
+#	def unify(self,typ): return subst.Substitution({'self' : typ})

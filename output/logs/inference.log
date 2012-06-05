@@ -1,6 +1,6 @@
 INFO:root:Parsing and traversing the source...
 INFO:root:Source is a filename, opening and reading
-INFO:root:Loaded source (src/tests/classes.py):
+INFO:root:Loaded source (src/tests/classes2.py):
 # Class definition
 
 class A(object):
@@ -12,9 +12,10 @@ class A(object):
 		self.y = "str"
 		self.n = 1
 
+	# Operator overloading
 	def __add__(self,n): return n
 
-	# Static methods	
+	# Static methods
 	def smethod(p1): return p1 # : (a{}) -> a{}
 
 	# Instance methods
@@ -28,7 +29,49 @@ a = A() # : A{...}
 
 y = a.z # : int
 
-# Operator overloading
+q = a + 2  # : int
+
+# Static method reference
+
+z = A.smethod(1)
+
+# Instance method reference
+
+w = a.imethod()
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=13, col_offset=13), Name(id='n', ctx=Param(), lineno=13, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=29), lineno=13, col_offset=22)], decorator_list=[], lineno=13, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=16, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=16, col_offset=25), lineno=16, col_offset=18)], decorator_list=[], lineno=16, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=19, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=19, col_offset=27), lineno=19, col_offset=20)], decorator_list=[], lineno=19, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=23, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=4), lineno=23, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=27, col_offset=0)], value=Attribute(value=Name(id='a', ctx=Load(), lineno=27, col_offset=4), attr='z', ctx=Load(), lineno=27, col_offset=4), lineno=27, col_offset=0), Assign(targets=[Name(id='q', ctx=Store(), lineno=29, col_offset=0)], value=BinOp(left=Name(id='a', ctx=Load(), lineno=29, col_offset=4), op=Add(), right=Num(n=2, lineno=29, col_offset=8), lineno=29, col_offset=4), lineno=29, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=33, col_offset=0)], value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=33, col_offset=4), attr='smethod', ctx=Load(), lineno=33, col_offset=4), args=[Num(n=1, lineno=33, col_offset=14)], keywords=[], starargs=None, kwargs=None, lineno=33, col_offset=4), lineno=33, col_offset=0), Assign(targets=[Name(id='w', ctx=Store(), lineno=37, col_offset=0)], value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=37, col_offset=4), attr='imethod', ctx=Load(), lineno=37, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=37, col_offset=4), lineno=37, col_offset=0)])
+INFO:root:Traversing a module...
+INFO:root:Parsing and traversing the source...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/classes2.py):
+# Class definition
+
+class A(object):
+	# Assignment attributes
+	z = 1
+
+	def __init__(self,x):
+		self.x = x
+		self.y = "str"
+		self.n = 1
+
+	# Operator overloading
+	def __add__(self,n): return n
+
+	# Static methods
+	def smethod(p1): return p1 # : (a{}) -> a{}
+
+	# Instance methods
+	def imethod(self): return self # : (A{...}) -> A{...}
+
+# Construction
+
+a = A() # : A{...}
+
+# Attribute reference
+
+y = a.z # : int
 
 q = a + 2  # : int
 
@@ -38,44 +81,175 @@ z = A.smethod(1)
 
 # Instance method reference
 
-z = a.imethod()
-
-## Type errors:
-
-# Undefined attributes
-a.wat
-A.wat
-a.smethod()
-A.imethod()
+w = a.imethod()
 
 INFO:root:Parsed source. Raw AST is:
-Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=12, col_offset=13), Name(id='n', ctx=Param(), lineno=12, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=12, col_offset=29), lineno=12, col_offset=22)], decorator_list=[], lineno=12, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=15, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=15, col_offset=25), lineno=15, col_offset=18)], decorator_list=[], lineno=15, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=18, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=18, col_offset=27), lineno=18, col_offset=20)], decorator_list=[], lineno=18, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=22, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=22, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=22, col_offset=4), lineno=22, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=26, col_offset=0)], value=Attribute(value=Name(id='a', ctx=Load(), lineno=26, col_offset=4), attr='z', ctx=Load(), lineno=26, col_offset=4), lineno=26, col_offset=0), Assign(targets=[Name(id='q', ctx=Store(), lineno=30, col_offset=0)], value=BinOp(left=Name(id='a', ctx=Load(), lineno=30, col_offset=4), op=Add(), right=Num(n=2, lineno=30, col_offset=8), lineno=30, col_offset=4), lineno=30, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=34, col_offset=0)], value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=34, col_offset=4), attr='smethod', ctx=Load(), lineno=34, col_offset=4), args=[Num(n=1, lineno=34, col_offset=14)], keywords=[], starargs=None, kwargs=None, lineno=34, col_offset=4), lineno=34, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=38, col_offset=0)], value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=38, col_offset=4), attr='imethod', ctx=Load(), lineno=38, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=38, col_offset=4), lineno=38, col_offset=0), Expr(value=Attribute(value=Name(id='a', ctx=Load(), lineno=43, col_offset=0), attr='wat', ctx=Load(), lineno=43, col_offset=0), lineno=43, col_offset=0), Expr(value=Attribute(value=Name(id='A', ctx=Load(), lineno=44, col_offset=0), attr='wat', ctx=Load(), lineno=44, col_offset=0), lineno=44, col_offset=0), Expr(value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=45, col_offset=0), attr='smethod', ctx=Load(), lineno=45, col_offset=0), args=[], keywords=[], starargs=None, kwargs=None, lineno=45, col_offset=0), lineno=45, col_offset=0), Expr(value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=46, col_offset=0), attr='imethod', ctx=Load(), lineno=46, col_offset=0), args=[], keywords=[], starargs=None, kwargs=None, lineno=46, col_offset=0), lineno=46, col_offset=0)])
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=13, col_offset=13), Name(id='n', ctx=Param(), lineno=13, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=29), lineno=13, col_offset=22)], decorator_list=[], lineno=13, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=16, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=16, col_offset=25), lineno=16, col_offset=18)], decorator_list=[], lineno=16, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=19, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=19, col_offset=27), lineno=19, col_offset=20)], decorator_list=[], lineno=19, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=23, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=4), lineno=23, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=27, col_offset=0)], value=Attribute(value=Name(id='a', ctx=Load(), lineno=27, col_offset=4), attr='z', ctx=Load(), lineno=27, col_offset=4), lineno=27, col_offset=0), Assign(targets=[Name(id='q', ctx=Store(), lineno=29, col_offset=0)], value=BinOp(left=Name(id='a', ctx=Load(), lineno=29, col_offset=4), op=Add(), right=Num(n=2, lineno=29, col_offset=8), lineno=29, col_offset=4), lineno=29, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=33, col_offset=0)], value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=33, col_offset=4), attr='smethod', ctx=Load(), lineno=33, col_offset=4), args=[Num(n=1, lineno=33, col_offset=14)], keywords=[], starargs=None, kwargs=None, lineno=33, col_offset=4), lineno=33, col_offset=0), Assign(targets=[Name(id='w', ctx=Store(), lineno=37, col_offset=0)], value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=37, col_offset=4), attr='imethod', ctx=Load(), lineno=37, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=37, col_offset=4), lineno=37, col_offset=0)])
+INFO:root:Traversing a module...
+INFO:root:Parsing and traversing the source...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/classes2.py):
+# Class definition
+
+class A(object):
+	# Assignment attributes
+	z = 1
+
+	def __init__(self,x):
+		self.x = x
+		self.y = "str"
+		self.n = 1
+
+	# Operator overloading
+	def __add__(self,n): return n
+
+	# Static methods
+	def smethod(p1): return p1 # : (a{}) -> a{}
+
+	# Instance methods
+	def imethod(self): return self # : (A{...}) -> A{...}
+
+# Construction
+
+a = A() # : A{...}
+
+# Attribute reference
+
+y = a.z # : int
+
+q = a + 2  # : int
+
+# Static method reference
+
+z = A.smethod(1)
+
+# Instance method reference
+
+w = a.imethod()
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=13, col_offset=13), Name(id='n', ctx=Param(), lineno=13, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=29), lineno=13, col_offset=22)], decorator_list=[], lineno=13, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=16, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=16, col_offset=25), lineno=16, col_offset=18)], decorator_list=[], lineno=16, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=19, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=19, col_offset=27), lineno=19, col_offset=20)], decorator_list=[], lineno=19, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=23, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=4), lineno=23, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=27, col_offset=0)], value=Attribute(value=Name(id='a', ctx=Load(), lineno=27, col_offset=4), attr='z', ctx=Load(), lineno=27, col_offset=4), lineno=27, col_offset=0), Assign(targets=[Name(id='q', ctx=Store(), lineno=29, col_offset=0)], value=BinOp(left=Name(id='a', ctx=Load(), lineno=29, col_offset=4), op=Add(), right=Num(n=2, lineno=29, col_offset=8), lineno=29, col_offset=4), lineno=29, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=33, col_offset=0)], value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=33, col_offset=4), attr='smethod', ctx=Load(), lineno=33, col_offset=4), args=[Num(n=1, lineno=33, col_offset=14)], keywords=[], starargs=None, kwargs=None, lineno=33, col_offset=4), lineno=33, col_offset=0), Assign(targets=[Name(id='w', ctx=Store(), lineno=37, col_offset=0)], value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=37, col_offset=4), attr='imethod', ctx=Load(), lineno=37, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=37, col_offset=4), lineno=37, col_offset=0)])
+INFO:root:Traversing a module...
+INFO:root:Parsing and traversing the source...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/classes2.py):
+# Class definition
+
+class A(object):
+	# Assignment attributes
+	z = 1
+
+	def __init__(self,x):
+		self.x = x
+		self.y = "str"
+		self.n = 1
+
+	# Operator overloading
+	def __add__(self,n): return n
+
+	# Static methods
+	def smethod(p1): return p1 # : (a{}) -> a{}
+
+	# Instance methods
+	def imethod(self): return self # : (A{...}) -> A{...}
+
+# Construction
+
+a = A() # : A{...}
+
+# Attribute reference
+
+y = a.z # : int
+
+q = a + 2  # : int
+
+# Static method reference
+
+z = A.smethod(1)
+
+# Instance method reference
+
+w = a.imethod()
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=13, col_offset=13), Name(id='n', ctx=Param(), lineno=13, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=29), lineno=13, col_offset=22)], decorator_list=[], lineno=13, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=16, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=16, col_offset=25), lineno=16, col_offset=18)], decorator_list=[], lineno=16, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=19, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=19, col_offset=27), lineno=19, col_offset=20)], decorator_list=[], lineno=19, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=23, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=4), lineno=23, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=27, col_offset=0)], value=Attribute(value=Name(id='a', ctx=Load(), lineno=27, col_offset=4), attr='z', ctx=Load(), lineno=27, col_offset=4), lineno=27, col_offset=0), Assign(targets=[Name(id='q', ctx=Store(), lineno=29, col_offset=0)], value=BinOp(left=Name(id='a', ctx=Load(), lineno=29, col_offset=4), op=Add(), right=Num(n=2, lineno=29, col_offset=8), lineno=29, col_offset=4), lineno=29, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=33, col_offset=0)], value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=33, col_offset=4), attr='smethod', ctx=Load(), lineno=33, col_offset=4), args=[Num(n=1, lineno=33, col_offset=14)], keywords=[], starargs=None, kwargs=None, lineno=33, col_offset=4), lineno=33, col_offset=0), Assign(targets=[Name(id='w', ctx=Store(), lineno=37, col_offset=0)], value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=37, col_offset=4), attr='imethod', ctx=Load(), lineno=37, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=37, col_offset=4), lineno=37, col_offset=0)])
 INFO:root:Traversing a module...
 INFO:root:Unifying a function call...
-INFO:root:Given type: A{'*return': t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}, 'smethod': t125{'*return': t123{}, '*params': tuple124[t123{}]}, '*params': tuple129[], 'z': <type 'int'>}
-INFO:root:Applied type: t131{'*return': t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}, '*params': tuple130[]}
-INFO:root:Substitution: [t78 >> t78{},t120 >> t120{},self >> s{},]
-DEBUG:root:Unified type: t131{'*return': t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}, '*params': tuple130[]}
+INFO:root:Given type: A{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}, 'smethod': t128{'*return': t126{}, '*params': tuple127[t126{}]}, '*params': tuple132[], 'z': <type 'int'>}
+INFO:root:Applied type: t134{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}, '*params': tuple133[]}
+INFO:root:Substitution: [t134 >> <<Type error, line 0: Cannot unify t134 and A>>,]
+DEBUG:root:Unified type: t134{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}, '*params': tuple133[]}
 INFO:root:Unifying a function call...
-INFO:root:Given type: t125{'*return': t123{}, '*params': tuple124[t123{}]}
-INFO:root:Applied type: t161{'*return': t123{}, '*params': tuple160[<type 'int'>]}
-INFO:root:Substitution: [t123 >> <type 'int'>,]
-DEBUG:root:Unified type: t161{'*return': <type 'int'>, '*params': tuple160[<type 'int'>]}
+INFO:root:Given type: t128{'*return': t126{}, '*params': tuple127[t126{}]}
+INFO:root:Applied type: t164{'*return': t126{}, '*params': tuple163[<type 'int'>]}
+INFO:root:Substitution: [t126 >> <type 'int'>,]
+DEBUG:root:Unified type: t164{'*return': <type 'int'>, '*params': tuple163[<type 'int'>]}
 INFO:root:Unifying a function call...
-INFO:root:Given type: t127{'*return': s{}, '*params': tuple126[s{}]}
-INFO:root:Applied type: t163{'*return': s{}, '*params': tuple162[s{}]}
+INFO:root:Parsing and traversing the source...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/classes2.py):
+# Class definition
+
+class A(object):
+	# Assignment attributes
+	z = 1
+
+	def __init__(self,x):
+		self.x = x
+		self.y = "str"
+		self.n = 1
+
+	# Operator overloading
+	def __add__(self,n): return n
+
+	# Static methods
+	def smethod(p1): return p1 # : (a{}) -> a{}
+
+	# Instance methods
+	def imethod(self): return self # : (A{...}) -> A{...}
+
+# Construction
+
+a = A() # : A{...}
+
+# Attribute reference
+
+y = a.z # : int
+
+q = a + 2  # : int
+
+# Static method reference
+
+z = A.smethod(1)
+
+# Instance method reference
+
+w = a.imethod()
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=13, col_offset=13), Name(id='n', ctx=Param(), lineno=13, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=29), lineno=13, col_offset=22)], decorator_list=[], lineno=13, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=16, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=16, col_offset=25), lineno=16, col_offset=18)], decorator_list=[], lineno=16, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=19, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=19, col_offset=27), lineno=19, col_offset=20)], decorator_list=[], lineno=19, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=23, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=4), lineno=23, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=27, col_offset=0)], value=Attribute(value=Name(id='a', ctx=Load(), lineno=27, col_offset=4), attr='z', ctx=Load(), lineno=27, col_offset=4), lineno=27, col_offset=0), Assign(targets=[Name(id='q', ctx=Store(), lineno=29, col_offset=0)], value=BinOp(left=Name(id='a', ctx=Load(), lineno=29, col_offset=4), op=Add(), right=Num(n=2, lineno=29, col_offset=8), lineno=29, col_offset=4), lineno=29, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=33, col_offset=0)], value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=33, col_offset=4), attr='smethod', ctx=Load(), lineno=33, col_offset=4), args=[Num(n=1, lineno=33, col_offset=14)], keywords=[], starargs=None, kwargs=None, lineno=33, col_offset=4), lineno=33, col_offset=0), Assign(targets=[Name(id='w', ctx=Store(), lineno=37, col_offset=0)], value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=37, col_offset=4), attr='imethod', ctx=Load(), lineno=37, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=37, col_offset=4), lineno=37, col_offset=0)])
+INFO:root:Traversing a module...
+INFO:root:Unifying a function call...
+INFO:root:Given type: A{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}, 'smethod': t128{'*return': t126{}, '*params': tuple127[t126{}]}, '*params': tuple132[], 'z': <type 'int'>}
+INFO:root:Applied type: t134{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}, '*params': tuple133[]}
+INFO:root:Substitution: [t134 >> <<Type error, line 0: Cannot unify t134 and A>>,]
+DEBUG:root:Unified type: t134{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}, '*params': tuple133[]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: t128{'*return': t126{}, '*params': tuple127[t126{}]}
+INFO:root:Applied type: t164{'*return': t126{}, '*params': tuple163[<type 'int'>]}
+INFO:root:Substitution: [t126 >> <type 'int'>,]
+DEBUG:root:Unified type: t164{'*return': <type 'int'>, '*params': tuple163[<type 'int'>]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: t130{'*return': s{}, '*params': tuple129[s{}]}
+INFO:root:Applied type: t166{'*return': s{}, '*params': tuple165[s{}]}
 INFO:root:Substitution: [self >> s{},]
-DEBUG:root:Unified type: t163{'*return': s{}, '*params': tuple162[s{}]}
-INFO:root:Unifying a function call...
-INFO:root:Given type: <<Type error, line 45: Object: t128 has no attribute: smethod>>
-INFO:root:Unifying a function call...
-INFO:root:Given type: <<Type error, line 46: Object: A has no attribute: imethod>>
+DEBUG:root:Unified type: t166{'*return': s{}, '*params': tuple165[s{}]}
 INFO:root:Analyzed Tree:
-INFO:root:  src/tests/classes.py
-  Type: src/tests/classes.py{'a': t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}, 'z': s{}, 'A': A{'*return': t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}, 'smethod': t125{'*return': t123{}, '*params': tuple124[t123{}]}, '*params': tuple129[], 'z': <type 'int'>}, 'y': <type 'int'>, 'q': <type 'int'>}
+INFO:root:  src/tests/classes2.py
+  Type: src/tests/classes2.py{'w': s{}, 'a': t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}, 'z': <type 'int'>, 'A': A{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}, 'smethod': t128{'*return': t126{}, '*params': tuple127[t126{}]}, '*params': tuple132[], 'z': <type 'int'>}, 'y': <type 'int'>, 'q': <type 'int'>}
   Body: 
     Class Definition
-    Type: A{'*return': t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}, 'smethod': t125{'*return': t123{}, '*params': tuple124[t123{}]}, '*params': tuple129[], 'z': <type 'int'>}
+    Type: A{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}, 'smethod': t128{'*return': t126{}, '*params': tuple127[t126{}]}, '*params': tuple132[], 'z': <type 'int'>}
     Name: A
     Superclasses: []
     Body: 
@@ -90,7 +264,7 @@ INFO:root:  src/tests/classes.py
         Type: <type 'int'>
         n =  1
       Function Definition
-      Type: t119{'*return': <type 'NoneType'>, '*params': tuple79[s{'n': <type 'int'>, 'x': t78{}, 'y': <type 'str'>}, t78{}]}
+      Type: t122{'*return': <type 'NoneType'>, '*params': tuple79[s{'n': <type 'int'>, 'x': t78{}, 'y': <type 'str'>}, t78{}]}
       Name: __init__
       Arguments:
         Arguments
@@ -139,37 +313,37 @@ INFO:root:  src/tests/classes.py
           Type: <type 'int'>
           n =  1
       Function Definition
-      Type: t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}
+      Type: t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}
       Name: __add__
       Arguments:
         Arguments
-        Type: tuple121[s{}, t120{}]
-      Body: 
-        Return
-        Type: t120{}
-        Value: 
-          Name Node
-          Type: t120{}
-          id = n
-      Function Definition
-      Type: t125{'*return': t123{}, '*params': tuple124[t123{}]}
-      Name: smethod
-      Arguments:
-        Arguments
-        Type: tuple124[t123{}]
+        Type: tuple124[s{}, t123{}]
       Body: 
         Return
         Type: t123{}
         Value: 
           Name Node
           Type: t123{}
+          id = n
+      Function Definition
+      Type: t128{'*return': t126{}, '*params': tuple127[t126{}]}
+      Name: smethod
+      Arguments:
+        Arguments
+        Type: tuple127[t126{}]
+      Body: 
+        Return
+        Type: t126{}
+        Value: 
+          Name Node
+          Type: t126{}
           id = p1
       Function Definition
-      Type: t127{'*return': s{}, '*params': tuple126[s{}]}
+      Type: t130{'*return': s{}, '*params': tuple129[s{}]}
       Name: imethod
       Arguments:
         Arguments
-        Type: tuple126[s{}]
+        Type: tuple129[s{}]
       Body: 
         Return
         Type: s{}
@@ -178,17 +352,17 @@ INFO:root:  src/tests/classes.py
           Type: s{}
           id = self
     Assignment
-    Type: t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}
+    Type: t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}
     Targets: 
       Name Node
-      Type: t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}
+      Type: t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}
       id = a
     Value: 
       Function Call
-      Type: t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}
+      Type: t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}
       Function: 
         Name Node
-        Type: A{'*return': t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}, 'smethod': t125{'*return': t123{}, '*params': tuple124[t123{}]}, '*params': tuple129[], 'z': <type 'int'>}
+        Type: A{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}, 'smethod': t128{'*return': t126{}, '*params': tuple127[t126{}]}, '*params': tuple132[], 'z': <type 'int'>}
         id = A
       Arguments: 
     Assignment
@@ -202,7 +376,7 @@ INFO:root:  src/tests/classes.py
       Type: <type 'int'>
       Object: 
         Name Node
-        Type: t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}
+        Type: t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}
         id = a
       Attribute: z
     Assignment
@@ -217,7 +391,7 @@ INFO:root:  src/tests/classes.py
       Operator: __add__
       Left: 
         Name Node
-        Type: t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}
+        Type: t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}
         id = a
       Right: 
         Number
@@ -234,10 +408,10 @@ INFO:root:  src/tests/classes.py
       Type: <type 'int'>
       Function: 
         Attribute Reference
-        Type: t125{'*return': t123{}, '*params': tuple124[t123{}]}
+        Type: t128{'*return': t126{}, '*params': tuple127[t126{}]}
         Object: 
           Name Node
-          Type: A{'*return': t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}, 'smethod': t125{'*return': t123{}, '*params': tuple124[t123{}]}, '*params': tuple129[], 'z': <type 'int'>}
+          Type: A{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}, 'smethod': t128{'*return': t126{}, '*params': tuple127[t126{}]}, '*params': tuple132[], 'z': <type 'int'>}
           id = A
         Attribute: smethod
       Arguments: 
@@ -249,65 +423,269 @@ INFO:root:  src/tests/classes.py
     Targets: 
       Name Node
       Type: s{}
-      id = z
+      id = w
     Value: 
       Function Call
       Type: s{}
       Function: 
         Attribute Reference
-        Type: t127{'*return': s{}, '*params': tuple126[s{}]}
+        Type: t130{'*return': s{}, '*params': tuple129[s{}]}
         Object: 
           Name Node
-          Type: t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}
+          Type: t131{'n': <type 'int'>, 'imethod': t130{'*return': s{}, '*params': tuple129[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[s{}, t123{}]}, 'y': <type 'str'>}
           id = a
         Attribute: imethod
       Arguments: 
-    Expression
-    Type: <<Type error, line 43: Object: t128 has no attribute: wat>>
+
+INFO:root:Parsing and traversing the source...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/classes2.py):
+# Class definition
+
+class A(object):
+	# Assignment attributes
+	z = 1
+
+	def __init__(self,x):
+		self.x = x
+		self.y = "str"
+		self.n = 1
+
+	# Operator overloading
+	def __add__(self,n): return n
+
+	# Static methods
+	def smethod(p1): return p1 # : (a{}) -> a{}
+
+	# Instance methods
+	def imethod(self): return self # : (A{...}) -> A{...}
+
+# Construction
+
+a = A() # : A{...}
+
+# Attribute reference
+
+y = a.z # : int
+
+q = a + 2  # : int
+
+# Static method reference
+
+z = A.smethod(1)
+
+# Instance method reference
+
+w = a.imethod()
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=13, col_offset=13), Name(id='n', ctx=Param(), lineno=13, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=29), lineno=13, col_offset=22)], decorator_list=[], lineno=13, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=16, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=16, col_offset=25), lineno=16, col_offset=18)], decorator_list=[], lineno=16, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=19, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=19, col_offset=27), lineno=19, col_offset=20)], decorator_list=[], lineno=19, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=23, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=4), lineno=23, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=27, col_offset=0)], value=Attribute(value=Name(id='a', ctx=Load(), lineno=27, col_offset=4), attr='z', ctx=Load(), lineno=27, col_offset=4), lineno=27, col_offset=0), Assign(targets=[Name(id='q', ctx=Store(), lineno=29, col_offset=0)], value=BinOp(left=Name(id='a', ctx=Load(), lineno=29, col_offset=4), op=Add(), right=Num(n=2, lineno=29, col_offset=8), lineno=29, col_offset=4), lineno=29, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=33, col_offset=0)], value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=33, col_offset=4), attr='smethod', ctx=Load(), lineno=33, col_offset=4), args=[Num(n=1, lineno=33, col_offset=14)], keywords=[], starargs=None, kwargs=None, lineno=33, col_offset=4), lineno=33, col_offset=0), Assign(targets=[Name(id='w', ctx=Store(), lineno=37, col_offset=0)], value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=37, col_offset=4), attr='imethod', ctx=Load(), lineno=37, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=37, col_offset=4), lineno=37, col_offset=0)])
+INFO:root:Traversing a module...
+INFO:root:Unifying a function call...
+INFO:root:Given type: A{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}, 'smethod': t128{'*return': t126{}, '*params': tuple127[t126{}]}, '*params': tuple132[], 'z': <type 'int'>}
+INFO:root:Applied type: t134{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}, '*params': tuple133[]}
+INFO:root:Substitution: [t134 >> <<Type error, line 0: Cannot unify t134 and A>>,]
+DEBUG:root:Unified type: t134{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}, '*params': tuple133[]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: t128{'*return': t126{}, '*params': tuple127[t126{}]}
+INFO:root:Applied type: t164{'*return': t126{}, '*params': tuple163[<type 'int'>]}
+INFO:root:Substitution: [t126 >> <type 'int'>,]
+DEBUG:root:Unified type: t164{'*return': <type 'int'>, '*params': tuple163[<type 'int'>]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: t130{'*return': *s{}, '*params': tuple129[*s{}]}
+INFO:root:Applied type: t166{'*return': *s{}, '*params': tuple165[*s{}]}
+INFO:root:Substitution: [self >> *s{},]
+DEBUG:root:Unified type: t166{'*return': *s{}, '*params': tuple165[*s{}]}
+INFO:root:Analyzed Tree:
+INFO:root:  src/tests/classes2.py
+  Type: src/tests/classes2.py{'w': *s{}, 'a': t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}, 'z': <type 'int'>, 'A': A{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}, 'smethod': t128{'*return': t126{}, '*params': tuple127[t126{}]}, '*params': tuple132[], 'z': <type 'int'>}, 'y': <type 'int'>, 'q': <type 'int'>}
+  Body: 
+    Class Definition
+    Type: A{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}, 'smethod': t128{'*return': t126{}, '*params': tuple127[t126{}]}, '*params': tuple132[], 'z': <type 'int'>}
+    Name: A
+    Superclasses: []
     Body: 
-      Attribute Reference
-      Type: <<Type error, line 43: Object: t128 has no attribute: wat>>
-      Object: 
+      Assignment
+      Type: <type 'int'>
+      Targets: 
         Name Node
-        Type: t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}
-        id = a
-      Attribute: wat
-    Expression
-    Type: <<Type error, line 44: Object: A has no attribute: wat>>
-    Body: 
-      Attribute Reference
-      Type: <<Type error, line 44: Object: A has no attribute: wat>>
-      Object: 
-        Name Node
-        Type: A{'*return': t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}, 'smethod': t125{'*return': t123{}, '*params': tuple124[t123{}]}, '*params': tuple129[], 'z': <type 'int'>}
-        id = A
-      Attribute: wat
-    Expression
-    Type: <<Type error, line 45: Object: t128 has no attribute: smethod>>
-    Body: 
+        Type: <type 'int'>
+        id = z
+      Value: 
+        Number
+        Type: <type 'int'>
+        n =  1
+      Function Definition
+      Type: t122{'*return': <type 'NoneType'>, '*params': tuple79[*s{'n': <type 'int'>, 'x': t78{}, 'y': <type 'str'>}, t78{}]}
+      Name: __init__
+      Arguments:
+        Arguments
+        Type: tuple79[*s{'n': <type 'int'>, 'x': t78{}, 'y': <type 'str'>}, t78{}]
+      Body: 
+        Assignment
+        Type: t78{}
+        Targets: 
+          Attribute Reference
+          Type: t78{}
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t78{}, 'y': <type 'str'>}
+            id = self
+          Attribute: x
+        Value: 
+          Name Node
+          Type: t78{}
+          id = x
+        Assignment
+        Type: <type 'str'>
+        Targets: 
+          Attribute Reference
+          Type: <type 'str'>
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t78{}, 'y': <type 'str'>}
+            id = self
+          Attribute: y
+        Value: 
+          String
+          Type: <type 'str'>
+          s =  str
+        Assignment
+        Type: <type 'int'>
+        Targets: 
+          Attribute Reference
+          Type: <type 'int'>
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t78{}, 'y': <type 'str'>}
+            id = self
+          Attribute: n
+        Value: 
+          Number
+          Type: <type 'int'>
+          n =  1
+      Function Definition
+      Type: t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}
+      Name: __add__
+      Arguments:
+        Arguments
+        Type: tuple124[*s{}, t123{}]
+      Body: 
+        Return
+        Type: t123{}
+        Value: 
+          Name Node
+          Type: t123{}
+          id = n
+      Function Definition
+      Type: t128{'*return': t126{}, '*params': tuple127[t126{}]}
+      Name: smethod
+      Arguments:
+        Arguments
+        Type: tuple127[t126{}]
+      Body: 
+        Return
+        Type: t126{}
+        Value: 
+          Name Node
+          Type: t126{}
+          id = p1
+      Function Definition
+      Type: t130{'*return': *s{}, '*params': tuple129[*s{}]}
+      Name: imethod
+      Arguments:
+        Arguments
+        Type: tuple129[*s{}]
+      Body: 
+        Return
+        Type: *s{}
+        Value: 
+          Name Node
+          Type: *s{}
+          id = self
+    Assignment
+    Type: t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}
+    Targets: 
+      Name Node
+      Type: t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}
+      id = a
+    Value: 
       Function Call
-      Type: <<Type error, line 45: Object: t128 has no attribute: smethod>>
+      Type: t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}
+      Function: 
+        Name Node
+        Type: A{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}, 'smethod': t128{'*return': t126{}, '*params': tuple127[t126{}]}, '*params': tuple132[], 'z': <type 'int'>}
+        id = A
+      Arguments: 
+    Assignment
+    Type: <type 'int'>
+    Targets: 
+      Name Node
+      Type: <type 'int'>
+      id = y
+    Value: 
+      Attribute Reference
+      Type: <type 'int'>
+      Object: 
+        Name Node
+        Type: t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}
+        id = a
+      Attribute: z
+    Assignment
+    Type: <type 'int'>
+    Targets: 
+      Name Node
+      Type: <type 'int'>
+      id = q
+    Value: 
+      Binary Operator
+      Type: <type 'int'>
+      Operator: __add__
+      Left: 
+        Name Node
+        Type: t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}
+        id = a
+      Right: 
+        Number
+        Type: <type 'int'>
+        n =  2
+    Assignment
+    Type: <type 'int'>
+    Targets: 
+      Name Node
+      Type: <type 'int'>
+      id = z
+    Value: 
+      Function Call
+      Type: <type 'int'>
       Function: 
         Attribute Reference
-        Type: <<Type error, line 45: Object: t128 has no attribute: smethod>>
+        Type: t128{'*return': t126{}, '*params': tuple127[t126{}]}
         Object: 
           Name Node
-          Type: t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}
-          id = a
+          Type: A{'*return': t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}, 'smethod': t128{'*return': t126{}, '*params': tuple127[t126{}]}, '*params': tuple132[], 'z': <type 'int'>}
+          id = A
         Attribute: smethod
       Arguments: 
-    Expression
-    Type: <<Type error, line 46: Object: A has no attribute: imethod>>
-    Body: 
+        Number
+        Type: <type 'int'>
+        n =  1
+    Assignment
+    Type: *s{}
+    Targets: 
+      Name Node
+      Type: *s{}
+      id = w
+    Value: 
       Function Call
-      Type: <<Type error, line 46: Object: A has no attribute: imethod>>
+      Type: *s{}
       Function: 
         Attribute Reference
-        Type: <<Type error, line 46: Object: A has no attribute: imethod>>
+        Type: t130{'*return': *s{}, '*params': tuple129[*s{}]}
         Object: 
           Name Node
-          Type: A{'*return': t128{'n': <type 'int'>, 'imethod': t127{'*return': s{}, '*params': tuple126[s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t122{'*return': t120{}, '*params': tuple121[s{}, t120{}]}, 'y': <type 'str'>}, 'smethod': t125{'*return': t123{}, '*params': tuple124[t123{}]}, '*params': tuple129[], 'z': <type 'int'>}
-          id = A
+          Type: t131{'n': <type 'int'>, 'imethod': t130{'*return': *s{}, '*params': tuple129[*s{}]}, 'x': t78{}, 'z': <type 'int'>, '__add__': t125{'*return': t123{}, '*params': tuple124[*s{}, t123{}]}, 'y': <type 'str'>}
+          id = a
         Attribute: imethod
       Arguments: 
 
@@ -327,17 +705,17 @@ INFO:root:Traversing a module...
 INFO:root:Traversing a list...
 INFO:root:Analyzed Tree:
 INFO:root:  src/tests/assignment.py
-  Type: src/tests/assignment.py{'f': <type 'float'>, 'l': ls[<type 'int'>, <type 'int'>], 'undef': <type 'int'>, 's': <type 'str'>, 'y': <<Type error, line 0: Undefined>>, 'i': <type 'int'>}
+  Type: src/tests/assignment.py{'f': <type 'float'>, 'l': ls[<type 'int'>, <type 'int'>], 'undef': <type 'int'>, 's': <type 'str'>, 'y': <<Type error, line 1: y undefined>>, 'i': <type 'int'>}
   Body: 
     Assignment
-    Type: <<Type error, line 0: Undefined>>
+    Type: <<Type error, line 1: y undefined>>
     Targets: 
       Name Node
-      Type: <<Type error, line 0: Undefined>>
+      Type: <<Type error, line 1: y undefined>>
       id = undef
     Value: 
       Name Node
-      Type: <<Type error, line 0: Undefined>>
+      Type: <<Type error, line 1: y undefined>>
       id = y
     Assignment
     Type: <type 'int'>
@@ -398,7 +776,66 @@ INFO:root:  src/tests/assignment.py
 
 INFO:root:Parsing and traversing the source...
 INFO:root:Source is a filename, opening and reading
-INFO:root:Loaded source (src/tests/functions.py):
+INFO:root:Loaded source (src/tests/arithmetic.py):
+(1 + 2) * 4 / 5 % 6 // 8
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[Expr(value=BinOp(left=BinOp(left=BinOp(left=BinOp(left=BinOp(left=Num(n=1, lineno=1, col_offset=1), op=Add(), right=Num(n=2, lineno=1, col_offset=5), lineno=1, col_offset=1), op=Mult(), right=Num(n=4, lineno=1, col_offset=10), lineno=1, col_offset=0), op=Div(), right=Num(n=5, lineno=1, col_offset=14), lineno=1, col_offset=12), op=Mod(), right=Num(n=6, lineno=1, col_offset=18), lineno=1, col_offset=16), op=FloorDiv(), right=Num(n=8, lineno=1, col_offset=23), lineno=1, col_offset=20), lineno=1, col_offset=0)])
+INFO:root:Traversing a module...
+INFO:root:Analyzed Tree:
+INFO:root:  src/tests/arithmetic.py
+  Type: src/tests/arithmetic.py{}
+  Body: 
+    Expression
+    Type: <type 'int'>
+    Body: 
+      Binary Operator
+      Type: <type 'int'>
+      Operator: __floordiv__
+      Left: 
+        Binary Operator
+        Type: <type 'int'>
+        Operator: __mod__
+        Left: 
+          Binary Operator
+          Type: <type 'int'>
+          Operator: __div__
+          Left: 
+            Binary Operator
+            Type: <type 'int'>
+            Operator: __mult__
+            Left: 
+              Binary Operator
+              Type: <type 'int'>
+              Operator: __add__
+              Left: 
+                Number
+                Type: <type 'int'>
+                n =  1
+              Right: 
+                Number
+                Type: <type 'int'>
+                n =  2
+            Right: 
+              Number
+              Type: <type 'int'>
+              n =  4
+          Right: 
+            Number
+            Type: <type 'int'>
+            n =  5
+        Right: 
+          Number
+          Type: <type 'int'>
+          n =  6
+      Right: 
+        Number
+        Type: <type 'int'>
+        n =  8
+
+INFO:root:Parsing and traversing the source...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/functions1.py):
 
 # Basic
 def hi(y,z): # : (a{}, b{}) -> str
@@ -407,94 +844,56 @@ def hi(y,z): # : (a{}, b{}) -> str
 	"""
 	return "hi"
 
+a = hi(1,2)       # : str
+
 # Shadowing: shadow n as a parameter
 n = 4 # : int
 
 def shadow(n): # : (a{}) -> a{}
 	return n
 
-n # : int
-
-# Returning a function object
-def f(): return hi # : () -> ((a{}, b{}) -> str)
-
-## Multiple return types
-#
-## def multi(p):
-## 	if p: return 1
-## 	else: return 2
-
-# Function application to parameters in the body changes the type of the parameters.
-
-def S(x,y):  return x      # : (a{}, b{}) -> a{}
-def S2(x,y): return S(x,y) # : (a{}, b{}) -> a{}
-
-# Function calls:
-
-a = hi(1,2)       # : str
 b = shadow("ret") # : str
-c = S("s",2)      # : str
-c = S2(2,"s")     # : int
-d = S(hi,shadow)  # : t3{...} (hi function type)
+
+n # : int
 
 # Type errors:
 # Parameters too many or few:
-hi(1,2,3) # : error: conflicting params
-hi(1)     # : error: conflicting params
+e1 = hi(1,2,3) # : error: conflicting params
+e2 = hi(1)     # : error: conflicting params
 
 INFO:root:Parsed source. Raw AST is:
-Module(body=[FunctionDef(name='hi', args=arguments(args=[Name(id='y', ctx=Param(), lineno=3, col_offset=7), Name(id='z', ctx=Param(), lineno=3, col_offset=9)], vararg=None, kwarg=None, defaults=[]), body=[Expr(value=Str(s='\n\tThis is a really amazing docstring\n\t', lineno=6, col_offset=-1), lineno=6, col_offset=-1), Return(value=Str(s='hi', lineno=7, col_offset=8), lineno=7, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='n', ctx=Store(), lineno=10, col_offset=0)], value=Num(n=4, lineno=10, col_offset=4), lineno=10, col_offset=0), FunctionDef(name='shadow', args=arguments(args=[Name(id='n', ctx=Param(), lineno=12, col_offset=11)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=8), lineno=13, col_offset=1)], decorator_list=[], lineno=12, col_offset=0), Expr(value=Name(id='n', ctx=Load(), lineno=15, col_offset=0), lineno=15, col_offset=0), FunctionDef(name='f', args=arguments(args=[], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='hi', ctx=Load(), lineno=18, col_offset=16), lineno=18, col_offset=9)], decorator_list=[], lineno=18, col_offset=0), FunctionDef(name='S', args=arguments(args=[Name(id='x', ctx=Param(), lineno=28, col_offset=6), Name(id='y', ctx=Param(), lineno=28, col_offset=8)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='x', ctx=Load(), lineno=28, col_offset=20), lineno=28, col_offset=13)], decorator_list=[], lineno=28, col_offset=0), FunctionDef(name='S2', args=arguments(args=[Name(id='x', ctx=Param(), lineno=29, col_offset=7), Name(id='y', ctx=Param(), lineno=29, col_offset=9)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Call(func=Name(id='S', ctx=Load(), lineno=29, col_offset=20), args=[Name(id='x', ctx=Load(), lineno=29, col_offset=22), Name(id='y', ctx=Load(), lineno=29, col_offset=24)], keywords=[], starargs=None, kwargs=None, lineno=29, col_offset=20), lineno=29, col_offset=13)], decorator_list=[], lineno=29, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=33, col_offset=0)], value=Call(func=Name(id='hi', ctx=Load(), lineno=33, col_offset=4), args=[Num(n=1, lineno=33, col_offset=7), Num(n=2, lineno=33, col_offset=9)], keywords=[], starargs=None, kwargs=None, lineno=33, col_offset=4), lineno=33, col_offset=0), Assign(targets=[Name(id='b', ctx=Store(), lineno=34, col_offset=0)], value=Call(func=Name(id='shadow', ctx=Load(), lineno=34, col_offset=4), args=[Str(s='ret', lineno=34, col_offset=11)], keywords=[], starargs=None, kwargs=None, lineno=34, col_offset=4), lineno=34, col_offset=0), Assign(targets=[Name(id='c', ctx=Store(), lineno=35, col_offset=0)], value=Call(func=Name(id='S', ctx=Load(), lineno=35, col_offset=4), args=[Str(s='s', lineno=35, col_offset=6), Num(n=2, lineno=35, col_offset=10)], keywords=[], starargs=None, kwargs=None, lineno=35, col_offset=4), lineno=35, col_offset=0), Assign(targets=[Name(id='c', ctx=Store(), lineno=36, col_offset=0)], value=Call(func=Name(id='S2', ctx=Load(), lineno=36, col_offset=4), args=[Num(n=2, lineno=36, col_offset=7), Str(s='s', lineno=36, col_offset=9)], keywords=[], starargs=None, kwargs=None, lineno=36, col_offset=4), lineno=36, col_offset=0), Assign(targets=[Name(id='d', ctx=Store(), lineno=37, col_offset=0)], value=Call(func=Name(id='S', ctx=Load(), lineno=37, col_offset=4), args=[Name(id='hi', ctx=Load(), lineno=37, col_offset=6), Name(id='shadow', ctx=Load(), lineno=37, col_offset=9)], keywords=[], starargs=None, kwargs=None, lineno=37, col_offset=4), lineno=37, col_offset=0), Expr(value=Call(func=Name(id='hi', ctx=Load(), lineno=41, col_offset=0), args=[Num(n=1, lineno=41, col_offset=3), Num(n=2, lineno=41, col_offset=5), Num(n=3, lineno=41, col_offset=7)], keywords=[], starargs=None, kwargs=None, lineno=41, col_offset=0), lineno=41, col_offset=0), Expr(value=Call(func=Name(id='hi', ctx=Load(), lineno=42, col_offset=0), args=[Num(n=1, lineno=42, col_offset=3)], keywords=[], starargs=None, kwargs=None, lineno=42, col_offset=0), lineno=42, col_offset=0)])
+Module(body=[FunctionDef(name='hi', args=arguments(args=[Name(id='y', ctx=Param(), lineno=3, col_offset=7), Name(id='z', ctx=Param(), lineno=3, col_offset=9)], vararg=None, kwarg=None, defaults=[]), body=[Expr(value=Str(s='\n\tThis is a really amazing docstring\n\t', lineno=6, col_offset=-1), lineno=6, col_offset=-1), Return(value=Str(s='hi', lineno=7, col_offset=8), lineno=7, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=9, col_offset=0)], value=Call(func=Name(id='hi', ctx=Load(), lineno=9, col_offset=4), args=[Num(n=1, lineno=9, col_offset=7), Num(n=2, lineno=9, col_offset=9)], keywords=[], starargs=None, kwargs=None, lineno=9, col_offset=4), lineno=9, col_offset=0), Assign(targets=[Name(id='n', ctx=Store(), lineno=12, col_offset=0)], value=Num(n=4, lineno=12, col_offset=4), lineno=12, col_offset=0), FunctionDef(name='shadow', args=arguments(args=[Name(id='n', ctx=Param(), lineno=14, col_offset=11)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=15, col_offset=8), lineno=15, col_offset=1)], decorator_list=[], lineno=14, col_offset=0), Assign(targets=[Name(id='b', ctx=Store(), lineno=17, col_offset=0)], value=Call(func=Name(id='shadow', ctx=Load(), lineno=17, col_offset=4), args=[Str(s='ret', lineno=17, col_offset=11)], keywords=[], starargs=None, kwargs=None, lineno=17, col_offset=4), lineno=17, col_offset=0), Expr(value=Name(id='n', ctx=Load(), lineno=19, col_offset=0), lineno=19, col_offset=0), Assign(targets=[Name(id='e1', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Name(id='hi', ctx=Load(), lineno=23, col_offset=5), args=[Num(n=1, lineno=23, col_offset=8), Num(n=2, lineno=23, col_offset=10), Num(n=3, lineno=23, col_offset=12)], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=5), lineno=23, col_offset=0), Assign(targets=[Name(id='e2', ctx=Store(), lineno=24, col_offset=0)], value=Call(func=Name(id='hi', ctx=Load(), lineno=24, col_offset=5), args=[Num(n=1, lineno=24, col_offset=8)], keywords=[], starargs=None, kwargs=None, lineno=24, col_offset=5), lineno=24, col_offset=0)])
 INFO:root:Traversing a module...
 INFO:root:Unifying a function call...
-INFO:root:Given type: t116{'*return': t113{}, '*params': tuple115[t113{}, t114{}]}
-INFO:root:Applied type: t121{'*return': t113{}, '*params': tuple120[t117{}, t118{}]}
-INFO:root:Substitution: [t113 >> t113{},t118 >> t114{},t117 >> t113{},]
-DEBUG:root:Unified type: t121{'*return': t113{}, '*params': tuple120[t113{}, t114{}]}
+INFO:root:Given type: t260{'*return': <type 'str'>, '*params': tuple233[t231{}, t232{}]}
+INFO:root:Applied type: t288{'*return': <type 'str'>, '*params': tuple287[<type 'int'>, <type 'int'>]}
+INFO:root:Substitution: [t231 >> <type 'int'>,t232 >> <type 'int'>,]
+DEBUG:root:Unified type: t288{'*return': <type 'str'>, '*params': tuple287[<type 'int'>, <type 'int'>]}
 INFO:root:Unifying a function call...
-INFO:root:Given type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
-INFO:root:Applied type: t150{'*return': <type 'str'>, '*params': tuple149[<type 'int'>, <type 'int'>]}
-INFO:root:Substitution: [t65 >> <type 'int'>,t66 >> <type 'int'>,]
-DEBUG:root:Unified type: t150{'*return': <type 'str'>, '*params': tuple149[<type 'int'>, <type 'int'>]}
+INFO:root:Given type: t304{'*return': t302{}, '*params': tuple303[t302{}]}
+INFO:root:Applied type: t319{'*return': t302{}, '*params': tuple318[<type 'str'>]}
+INFO:root:Substitution: [t302 >> <type 'str'>,]
+DEBUG:root:Unified type: t319{'*return': <type 'str'>, '*params': tuple318[<type 'str'>]}
 INFO:root:Unifying a function call...
-INFO:root:Given type: t110{'*return': t108{}, '*params': tuple109[t108{}]}
-INFO:root:Applied type: t165{'*return': t108{}, '*params': tuple164[<type 'str'>]}
-INFO:root:Substitution: [t108 >> <type 'str'>,]
-DEBUG:root:Unified type: t165{'*return': <type 'str'>, '*params': tuple164[<type 'str'>]}
+INFO:root:Given type: t260{'*return': <type 'str'>, '*params': tuple233[t231{}, t232{}]}
+INFO:root:Applied type: t360{'*return': <type 'str'>, '*params': tuple359[<type 'int'>, <type 'int'>, <type 'int'>]}
+INFO:root:Substitution: [tuple359 >> <<Type error, line 0: Conflicting types: tuple359[<type 'int'>, <type 'int'>, <type 'int'>] and tuple233[t231{}, t232{}]>>,]
+DEBUG:root:Unified type: t360{'*return': <type 'str'>, '*params': <<Type error, line 0: Conflicting types: tuple359[<type 'int'>, <type 'int'>, <type 'int'>] and tuple233[t231{}, t232{}]>>}
 INFO:root:Unifying a function call...
-INFO:root:Given type: t116{'*return': t113{}, '*params': tuple115[t113{}, t114{}]}
-INFO:root:Applied type: t193{'*return': t113{}, '*params': tuple192[<type 'str'>, <type 'int'>]}
-INFO:root:Substitution: [t113 >> <type 'str'>,t114 >> <type 'int'>,]
-DEBUG:root:Unified type: t193{'*return': <type 'str'>, '*params': tuple192[<type 'str'>, <type 'int'>]}
-INFO:root:Unifying a function call...
-INFO:root:Given type: t122{'*return': t113{}, '*params': tuple119[t113{}, t114{}]}
-INFO:root:Applied type: t221{'*return': t113{}, '*params': tuple220[<type 'int'>, <type 'str'>]}
-INFO:root:Substitution: [t113 >> <type 'int'>,t114 >> <type 'str'>,]
-DEBUG:root:Unified type: t221{'*return': <type 'int'>, '*params': tuple220[<type 'int'>, <type 'str'>]}
-INFO:root:Unifying a function call...
-INFO:root:Given type: t116{'*return': t113{}, '*params': tuple115[t113{}, t114{}]}
-INFO:root:Applied type: t223{'*return': t113{}, '*params': tuple222[t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}, t110{'*return': t108{}, '*params': tuple109[t108{}]}]}
-INFO:root:Substitution: [t113 >> t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]},t114 >> t110{'*return': t108{}, '*params': tuple109[t108{}]},]
-DEBUG:root:Unified type: t223{'*return': t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}, '*params': tuple222[t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}, t110{'*return': t108{}, '*params': tuple109[t108{}]}]}
-INFO:root:Unifying a function call...
-INFO:root:Given type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
-INFO:root:Applied type: t264{'*return': <type 'str'>, '*params': tuple263[<type 'int'>, <type 'int'>, <type 'int'>]}
-INFO:root:Substitution: [tuple263 >> <<Type error, line 0: Conflicting types: tuple263[<type 'int'>, <type 'int'>, <type 'int'>] and tuple67[t65{}, t66{}]>>,]
-DEBUG:root:Unified type: t264{'*return': <type 'str'>, '*params': <<Type error, line 0: Conflicting types: tuple263[<type 'int'>, <type 'int'>, <type 'int'>] and tuple67[t65{}, t66{}]>>}
-INFO:root:Unifying a function call...
-INFO:root:Given type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
-INFO:root:Applied type: t279{'*return': <type 'str'>, '*params': tuple278[<type 'int'>]}
-INFO:root:Substitution: [tuple278 >> <<Type error, line 0: Conflicting types: tuple278[<type 'int'>] and tuple67[t65{}, t66{}]>>,]
-DEBUG:root:Unified type: t279{'*return': <type 'str'>, '*params': <<Type error, line 0: Conflicting types: tuple278[<type 'int'>] and tuple67[t65{}, t66{}]>>}
+INFO:root:Given type: t260{'*return': <type 'str'>, '*params': tuple233[t231{}, t232{}]}
+INFO:root:Applied type: t375{'*return': <type 'str'>, '*params': tuple374[<type 'int'>]}
+INFO:root:Substitution: [tuple374 >> <<Type error, line 0: Conflicting types: tuple374[<type 'int'>] and tuple233[t231{}, t232{}]>>,]
+DEBUG:root:Unified type: t375{'*return': <type 'str'>, '*params': <<Type error, line 0: Conflicting types: tuple374[<type 'int'>] and tuple233[t231{}, t232{}]>>}
 INFO:root:Analyzed Tree:
-INFO:root:  src/tests/functions.py
-  Type: src/tests/functions.py{'S': t116{'*return': t113{}, '*params': tuple115[t113{}, t114{}]}, 'f': t112{'*return': t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}, '*params': tuple111[]}, 'c': <type 'int'>, 'b': <type 'str'>, 'n': <type 'int'>, 'hi': t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}, 'a': <type 'str'>, 'shadow': t110{'*return': t108{}, '*params': tuple109[t108{}]}, 'S2': t122{'*return': t113{}, '*params': tuple119[t113{}, t114{}]}, 'd': t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}}
+INFO:root:  src/tests/functions1.py
+  Type: src/tests/functions1.py{'e2': <<Type error, line 24: Conflicting types: tuple374[<type 'int'>] and tuple233[t231{}, t232{}]>>, 'b': <type 'str'>, 'n': <type 'int'>, 'hi': t260{'*return': <type 'str'>, '*params': tuple233[t231{}, t232{}]}, 'e1': <<Type error, line 23: Conflicting types: tuple359[<type 'int'>, <type 'int'>, <type 'int'>] and tuple233[t231{}, t232{}]>>, 'a': <type 'str'>, 'shadow': t304{'*return': t302{}, '*params': tuple303[t302{}]}}
   Body: 
     Function Definition
-    Type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
+    Type: t260{'*return': <type 'str'>, '*params': tuple233[t231{}, t232{}]}
     Name: hi
     Arguments:
       Arguments
-      Type: tuple67[t65{}, t66{}]
+      Type: tuple233[t231{}, t232{}]
     Body: 
       Expression
       Type: <type 'str'>
@@ -511,6 +910,26 @@ INFO:root:  src/tests/functions.py
         Type: <type 'str'>
         s =  hi
     Assignment
+    Type: <type 'str'>
+    Targets: 
+      Name Node
+      Type: <type 'str'>
+      id = a
+    Value: 
+      Function Call
+      Type: <type 'str'>
+      Function: 
+        Name Node
+        Type: t260{'*return': <type 'str'>, '*params': tuple233[t231{}, t232{}]}
+        id = hi
+      Arguments: 
+        Number
+        Type: <type 'int'>
+        n =  1
+        Number
+        Type: <type 'int'>
+        n =  2
+    Assignment
     Type: <type 'int'>
     Targets: 
       Name Node
@@ -521,72 +940,169 @@ INFO:root:  src/tests/functions.py
       Type: <type 'int'>
       n =  4
     Function Definition
-    Type: t110{'*return': t108{}, '*params': tuple109[t108{}]}
+    Type: t304{'*return': t302{}, '*params': tuple303[t302{}]}
     Name: shadow
     Arguments:
       Arguments
-      Type: tuple109[t108{}]
+      Type: tuple303[t302{}]
     Body: 
       Return
-      Type: t108{}
+      Type: t302{}
       Value: 
         Name Node
-        Type: t108{}
+        Type: t302{}
         id = n
+    Assignment
+    Type: <type 'str'>
+    Targets: 
+      Name Node
+      Type: <type 'str'>
+      id = b
+    Value: 
+      Function Call
+      Type: <type 'str'>
+      Function: 
+        Name Node
+        Type: t304{'*return': t302{}, '*params': tuple303[t302{}]}
+        id = shadow
+      Arguments: 
+        String
+        Type: <type 'str'>
+        s =  ret
     Expression
     Type: <type 'int'>
     Body: 
       Name Node
       Type: <type 'int'>
       id = n
+    Assignment
+    Type: <<Type error, line 23: Conflicting types: tuple359[<type 'int'>, <type 'int'>, <type 'int'>] and tuple233[t231{}, t232{}]>>
+    Targets: 
+      Name Node
+      Type: <<Type error, line 23: Conflicting types: tuple359[<type 'int'>, <type 'int'>, <type 'int'>] and tuple233[t231{}, t232{}]>>
+      id = e1
+    Value: 
+      Function Call
+      Type: <<Type error, line 23: Conflicting types: tuple359[<type 'int'>, <type 'int'>, <type 'int'>] and tuple233[t231{}, t232{}]>>
+      Function: 
+        Name Node
+        Type: t260{'*return': <type 'str'>, '*params': tuple233[t231{}, t232{}]}
+        id = hi
+      Arguments: 
+        Number
+        Type: <type 'int'>
+        n =  1
+        Number
+        Type: <type 'int'>
+        n =  2
+        Number
+        Type: <type 'int'>
+        n =  3
+    Assignment
+    Type: <<Type error, line 24: Conflicting types: tuple374[<type 'int'>] and tuple233[t231{}, t232{}]>>
+    Targets: 
+      Name Node
+      Type: <<Type error, line 24: Conflicting types: tuple374[<type 'int'>] and tuple233[t231{}, t232{}]>>
+      id = e2
+    Value: 
+      Function Call
+      Type: <<Type error, line 24: Conflicting types: tuple374[<type 'int'>] and tuple233[t231{}, t232{}]>>
+      Function: 
+        Name Node
+        Type: t260{'*return': <type 'str'>, '*params': tuple233[t231{}, t232{}]}
+        id = hi
+      Arguments: 
+        Number
+        Type: <type 'int'>
+        n =  1
+
+INFO:root:Parsing and traversing the source...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/functions2.py):
+
+
+# Returning a function object
+def f(): return hi # : 'hi' is undefined
+
+# Function application to parameters in the body changes the type of the parameters.
+
+def S(x,y):  return x      # : (a{}, b{}) -> a{}
+def S2(x,y): return S(x,y) # : (a{}, b{}) -> a{}
+
+a = S("s",2)      # : str
+b = S2(2,"s")     # : int
+#c = S(S2,S)       # : type of S2
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[FunctionDef(name='f', args=arguments(args=[], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='hi', ctx=Load(), lineno=4, col_offset=16), lineno=4, col_offset=9)], decorator_list=[], lineno=4, col_offset=0), FunctionDef(name='S', args=arguments(args=[Name(id='x', ctx=Param(), lineno=8, col_offset=6), Name(id='y', ctx=Param(), lineno=8, col_offset=8)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='x', ctx=Load(), lineno=8, col_offset=20), lineno=8, col_offset=13)], decorator_list=[], lineno=8, col_offset=0), FunctionDef(name='S2', args=arguments(args=[Name(id='x', ctx=Param(), lineno=9, col_offset=7), Name(id='y', ctx=Param(), lineno=9, col_offset=9)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Call(func=Name(id='S', ctx=Load(), lineno=9, col_offset=20), args=[Name(id='x', ctx=Load(), lineno=9, col_offset=22), Name(id='y', ctx=Load(), lineno=9, col_offset=24)], keywords=[], starargs=None, kwargs=None, lineno=9, col_offset=20), lineno=9, col_offset=13)], decorator_list=[], lineno=9, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=11, col_offset=0)], value=Call(func=Name(id='S', ctx=Load(), lineno=11, col_offset=4), args=[Str(s='s', lineno=11, col_offset=6), Num(n=2, lineno=11, col_offset=10)], keywords=[], starargs=None, kwargs=None, lineno=11, col_offset=4), lineno=11, col_offset=0), Assign(targets=[Name(id='b', ctx=Store(), lineno=12, col_offset=0)], value=Call(func=Name(id='S2', ctx=Load(), lineno=12, col_offset=4), args=[Num(n=2, lineno=12, col_offset=7), Str(s='s', lineno=12, col_offset=9)], keywords=[], starargs=None, kwargs=None, lineno=12, col_offset=4), lineno=12, col_offset=0)])
+INFO:root:Traversing a module...
+INFO:root:Unifying a function call...
+INFO:root:Given type: t381{'*return': t378{}, '*params': tuple380[t378{}, t379{}]}
+INFO:root:Applied type: t386{'*return': t378{}, '*params': tuple385[t382{}, t383{}]}
+INFO:root:Substitution: [t382 >> t378{},t378 >> t378{},t383 >> t379{},]
+DEBUG:root:Unified type: t386{'*return': t378{}, '*params': tuple385[t378{}, t379{}]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: t381{'*return': t378{}, '*params': tuple380[t378{}, t379{}]}
+INFO:root:Applied type: t415{'*return': t378{}, '*params': tuple414[<type 'str'>, <type 'int'>]}
+INFO:root:Substitution: [t379 >> <type 'int'>,t378 >> <type 'str'>,]
+DEBUG:root:Unified type: t415{'*return': <type 'str'>, '*params': tuple414[<type 'str'>, <type 'int'>]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: t387{'*return': t378{}, '*params': tuple384[t378{}, t379{}]}
+INFO:root:Applied type: t443{'*return': t378{}, '*params': tuple442[<type 'int'>, <type 'str'>]}
+INFO:root:Substitution: [t379 >> <type 'str'>,t378 >> <type 'int'>,]
+DEBUG:root:Unified type: t443{'*return': <type 'int'>, '*params': tuple442[<type 'int'>, <type 'str'>]}
+INFO:root:Analyzed Tree:
+INFO:root:  src/tests/functions2.py
+  Type: src/tests/functions2.py{'S': t381{'*return': t378{}, '*params': tuple380[t378{}, t379{}]}, 'b': <type 'int'>, 'f': t377{'*return': <<Type error, line 4: hi undefined>>, '*params': tuple376[]}, 'a': <type 'str'>, 'S2': t387{'*return': t378{}, '*params': tuple384[t378{}, t379{}]}}
+  Body: 
     Function Definition
-    Type: t112{'*return': t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}, '*params': tuple111[]}
+    Type: t377{'*return': <<Type error, line 4: hi undefined>>, '*params': tuple376[]}
     Name: f
     Arguments:
       Arguments
-      Type: tuple111[]
+      Type: tuple376[]
     Body: 
       Return
-      Type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
+      Type: <<Type error, line 4: hi undefined>>
       Value: 
         Name Node
-        Type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
+        Type: <<Type error, line 4: hi undefined>>
         id = hi
     Function Definition
-    Type: t116{'*return': t113{}, '*params': tuple115[t113{}, t114{}]}
+    Type: t381{'*return': t378{}, '*params': tuple380[t378{}, t379{}]}
     Name: S
     Arguments:
       Arguments
-      Type: tuple115[t113{}, t114{}]
+      Type: tuple380[t378{}, t379{}]
     Body: 
       Return
-      Type: t113{}
+      Type: t378{}
       Value: 
         Name Node
-        Type: t113{}
+        Type: t378{}
         id = x
     Function Definition
-    Type: t122{'*return': t113{}, '*params': tuple119[t113{}, t114{}]}
+    Type: t387{'*return': t378{}, '*params': tuple384[t378{}, t379{}]}
     Name: S2
     Arguments:
       Arguments
-      Type: tuple119[t113{}, t114{}]
+      Type: tuple384[t378{}, t379{}]
     Body: 
       Return
-      Type: t113{}
+      Type: t378{}
       Value: 
         Function Call
-        Type: t113{}
+        Type: t378{}
         Function: 
           Name Node
-          Type: t116{'*return': t113{}, '*params': tuple115[t113{}, t114{}]}
+          Type: t381{'*return': t378{}, '*params': tuple380[t378{}, t379{}]}
           id = S
         Arguments: 
           Name Node
-          Type: t117{}
+          Type: t382{}
           id = x
           Name Node
-          Type: t118{}
+          Type: t383{}
           id = y
     Assignment
     Type: <type 'str'>
@@ -599,44 +1115,7 @@ INFO:root:  src/tests/functions.py
       Type: <type 'str'>
       Function: 
         Name Node
-        Type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
-        id = hi
-      Arguments: 
-        Number
-        Type: <type 'int'>
-        n =  1
-        Number
-        Type: <type 'int'>
-        n =  2
-    Assignment
-    Type: <type 'str'>
-    Targets: 
-      Name Node
-      Type: <type 'str'>
-      id = b
-    Value: 
-      Function Call
-      Type: <type 'str'>
-      Function: 
-        Name Node
-        Type: t110{'*return': t108{}, '*params': tuple109[t108{}]}
-        id = shadow
-      Arguments: 
-        String
-        Type: <type 'str'>
-        s =  ret
-    Assignment
-    Type: <type 'str'>
-    Targets: 
-      Name Node
-      Type: <type 'str'>
-      id = c
-    Value: 
-      Function Call
-      Type: <type 'str'>
-      Function: 
-        Name Node
-        Type: t116{'*return': t113{}, '*params': tuple115[t113{}, t114{}]}
+        Type: t381{'*return': t378{}, '*params': tuple380[t378{}, t379{}]}
         id = S
       Arguments: 
         String
@@ -650,13 +1129,13 @@ INFO:root:  src/tests/functions.py
     Targets: 
       Name Node
       Type: <type 'int'>
-      id = c
+      id = b
     Value: 
       Function Call
       Type: <type 'int'>
       Function: 
         Name Node
-        Type: t122{'*return': t113{}, '*params': tuple119[t113{}, t114{}]}
+        Type: t387{'*return': t378{}, '*params': tuple384[t378{}, t379{}]}
         id = S2
       Arguments: 
         Number
@@ -665,62 +1144,442 @@ INFO:root:  src/tests/functions.py
         String
         Type: <type 'str'>
         s =  s
-    Assignment
-    Type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
-    Targets: 
-      Name Node
-      Type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
-      id = d
-    Value: 
-      Function Call
-      Type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
-      Function: 
-        Name Node
-        Type: t116{'*return': t113{}, '*params': tuple115[t113{}, t114{}]}
-        id = S
-      Arguments: 
-        Name Node
-        Type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
-        id = hi
-        Name Node
-        Type: t110{'*return': t108{}, '*params': tuple109[t108{}]}
-        id = shadow
-    Expression
-    Type: <<Type error, line 41: Conflicting types: tuple263[<type 'int'>, <type 'int'>, <type 'int'>] and tuple67[t65{}, t66{}]>>
+
+INFO:root:Parsing and traversing the source...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/functions3.py):
+
+# Function definition using attributes adds those attributes to the type
+
+def attr(x,y):
+	x.a1
+	y.a2
+
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[FunctionDef(name='attr', args=arguments(args=[Name(id='x', ctx=Param(), lineno=4, col_offset=9), Name(id='y', ctx=Param(), lineno=4, col_offset=11)], vararg=None, kwarg=None, defaults=[]), body=[Expr(value=Attribute(value=Name(id='x', ctx=Load(), lineno=5, col_offset=1), attr='a1', ctx=Load(), lineno=5, col_offset=1), lineno=5, col_offset=1), Expr(value=Attribute(value=Name(id='y', ctx=Load(), lineno=6, col_offset=1), attr='a2', ctx=Load(), lineno=6, col_offset=1), lineno=6, col_offset=1)], decorator_list=[], lineno=4, col_offset=0)])
+INFO:root:Traversing a module...
+INFO:root:Analyzed Tree:
+INFO:root:  src/tests/functions3.py
+  Type: src/tests/functions3.py{'attr': t462{'*return': <type 'NoneType'>, '*params': tuple446[t444{'a1': t447{}}, t445{'a2': t448{}}]}}
+  Body: 
+    Function Definition
+    Type: t462{'*return': <type 'NoneType'>, '*params': tuple446[t444{'a1': t447{}}, t445{'a2': t448{}}]}
+    Name: attr
+    Arguments:
+      Arguments
+      Type: tuple446[t444{'a1': t447{}}, t445{'a2': t448{}}]
     Body: 
-      Function Call
-      Type: <<Type error, line 41: Conflicting types: tuple263[<type 'int'>, <type 'int'>, <type 'int'>] and tuple67[t65{}, t66{}]>>
-      Function: 
+      Expression
+      Type: t447{}
+      Body: 
+        Attribute Reference
+        Type: t447{}
+        Object: 
+          Name Node
+          Type: t444{'a1': t447{}}
+          id = x
+        Attribute: a1
+      Expression
+      Type: t448{}
+      Body: 
+        Attribute Reference
+        Type: t448{}
+        Object: 
+          Name Node
+          Type: t445{'a2': t448{}}
+          id = y
+        Attribute: a2
+
+INFO:root:Parsing and traversing the source...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/classes1.py):
+# Class definition
+
+class A(object):
+	# Assignment attributes
+	z = 1
+
+	def __init__(self,x):
+		self.x = x
+		self.y = "str"
+		self.n = 1
+
+	# Operator overloading
+	def __add__(self,n): return n
+
+	# Static methods
+	def smethod(p1): return p1 # : (a{}) -> a{}
+
+	# Instance methods
+	def imethod(self): return self # : (A{...}) -> A{...}
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=13, col_offset=13), Name(id='n', ctx=Param(), lineno=13, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=29), lineno=13, col_offset=22)], decorator_list=[], lineno=13, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=16, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=16, col_offset=25), lineno=16, col_offset=18)], decorator_list=[], lineno=16, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=19, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=19, col_offset=27), lineno=19, col_offset=20)], decorator_list=[], lineno=19, col_offset=1)], decorator_list=[], lineno=3, col_offset=0)])
+INFO:root:Traversing a module...
+INFO:root:Analyzed Tree:
+INFO:root:  src/tests/classes1.py
+  Type: src/tests/classes1.py{'A': A{'*return': t529{'n': <type 'int'>, 'imethod': t528{'*return': *s{}, '*params': tuple527[*s{}]}, 'x': t476{}, 'z': <type 'int'>, '__add__': t523{'*return': t521{}, '*params': tuple522[*s{}, t521{}]}, 'y': <type 'str'>}, 'smethod': t526{'*return': t524{}, '*params': tuple525[t524{}]}, '*params': tuple530[], 'z': <type 'int'>}}
+  Body: 
+    Class Definition
+    Type: A{'*return': t529{'n': <type 'int'>, 'imethod': t528{'*return': *s{}, '*params': tuple527[*s{}]}, 'x': t476{}, 'z': <type 'int'>, '__add__': t523{'*return': t521{}, '*params': tuple522[*s{}, t521{}]}, 'y': <type 'str'>}, 'smethod': t526{'*return': t524{}, '*params': tuple525[t524{}]}, '*params': tuple530[], 'z': <type 'int'>}
+    Name: A
+    Superclasses: []
+    Body: 
+      Assignment
+      Type: <type 'int'>
+      Targets: 
         Name Node
-        Type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
-        id = hi
-      Arguments: 
+        Type: <type 'int'>
+        id = z
+      Value: 
         Number
         Type: <type 'int'>
         n =  1
+      Function Definition
+      Type: t520{'*return': <type 'NoneType'>, '*params': tuple477[*s{'n': <type 'int'>, 'x': t476{}, 'y': <type 'str'>}, t476{}]}
+      Name: __init__
+      Arguments:
+        Arguments
+        Type: tuple477[*s{'n': <type 'int'>, 'x': t476{}, 'y': <type 'str'>}, t476{}]
+      Body: 
+        Assignment
+        Type: t476{}
+        Targets: 
+          Attribute Reference
+          Type: t476{}
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t476{}, 'y': <type 'str'>}
+            id = self
+          Attribute: x
+        Value: 
+          Name Node
+          Type: t476{}
+          id = x
+        Assignment
+        Type: <type 'str'>
+        Targets: 
+          Attribute Reference
+          Type: <type 'str'>
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t476{}, 'y': <type 'str'>}
+            id = self
+          Attribute: y
+        Value: 
+          String
+          Type: <type 'str'>
+          s =  str
+        Assignment
+        Type: <type 'int'>
+        Targets: 
+          Attribute Reference
+          Type: <type 'int'>
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t476{}, 'y': <type 'str'>}
+            id = self
+          Attribute: n
+        Value: 
+          Number
+          Type: <type 'int'>
+          n =  1
+      Function Definition
+      Type: t523{'*return': t521{}, '*params': tuple522[*s{}, t521{}]}
+      Name: __add__
+      Arguments:
+        Arguments
+        Type: tuple522[*s{}, t521{}]
+      Body: 
+        Return
+        Type: t521{}
+        Value: 
+          Name Node
+          Type: t521{}
+          id = n
+      Function Definition
+      Type: t526{'*return': t524{}, '*params': tuple525[t524{}]}
+      Name: smethod
+      Arguments:
+        Arguments
+        Type: tuple525[t524{}]
+      Body: 
+        Return
+        Type: t524{}
+        Value: 
+          Name Node
+          Type: t524{}
+          id = p1
+      Function Definition
+      Type: t528{'*return': *s{}, '*params': tuple527[*s{}]}
+      Name: imethod
+      Arguments:
+        Arguments
+        Type: tuple527[*s{}]
+      Body: 
+        Return
+        Type: *s{}
+        Value: 
+          Name Node
+          Type: *s{}
+          id = self
+
+INFO:root:Parsing and traversing the source...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/classes2.py):
+# Class definition
+
+class A(object):
+	# Assignment attributes
+	z = 1
+
+	def __init__(self,x):
+		self.x = x
+		self.y = "str"
+		self.n = 1
+
+	# Operator overloading
+	def __add__(self,n): return n
+
+	# Static methods
+	def smethod(p1): return p1 # : (a{}) -> a{}
+
+	# Instance methods
+	def imethod(self): return self # : (A{...}) -> A{...}
+
+# Construction
+
+a = A() # : A{...}
+
+# Attribute reference
+
+y = a.z # : int
+
+q = a + 2  # : int
+
+# Static method reference
+
+z = A.smethod(1)
+
+# Instance method reference
+
+w = a.imethod()
+
+INFO:root:Parsed source. Raw AST is:
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=13, col_offset=13), Name(id='n', ctx=Param(), lineno=13, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=29), lineno=13, col_offset=22)], decorator_list=[], lineno=13, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=16, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=16, col_offset=25), lineno=16, col_offset=18)], decorator_list=[], lineno=16, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=19, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=19, col_offset=27), lineno=19, col_offset=20)], decorator_list=[], lineno=19, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=23, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=4), lineno=23, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=27, col_offset=0)], value=Attribute(value=Name(id='a', ctx=Load(), lineno=27, col_offset=4), attr='z', ctx=Load(), lineno=27, col_offset=4), lineno=27, col_offset=0), Assign(targets=[Name(id='q', ctx=Store(), lineno=29, col_offset=0)], value=BinOp(left=Name(id='a', ctx=Load(), lineno=29, col_offset=4), op=Add(), right=Num(n=2, lineno=29, col_offset=8), lineno=29, col_offset=4), lineno=29, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=33, col_offset=0)], value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=33, col_offset=4), attr='smethod', ctx=Load(), lineno=33, col_offset=4), args=[Num(n=1, lineno=33, col_offset=14)], keywords=[], starargs=None, kwargs=None, lineno=33, col_offset=4), lineno=33, col_offset=0), Assign(targets=[Name(id='w', ctx=Store(), lineno=37, col_offset=0)], value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=37, col_offset=4), attr='imethod', ctx=Load(), lineno=37, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=37, col_offset=4), lineno=37, col_offset=0)])
+INFO:root:Traversing a module...
+INFO:root:Unifying a function call...
+INFO:root:Given type: A{'*return': t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}, 'smethod': t594{'*return': t592{}, '*params': tuple593[t592{}]}, '*params': tuple598[], 'z': <type 'int'>}
+INFO:root:Applied type: t600{'*return': t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}, '*params': tuple599[]}
+INFO:root:Substitution: [t600 >> <<Type error, line 0: Cannot unify t600 and A>>,]
+DEBUG:root:Unified type: t600{'*return': t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}, '*params': tuple599[]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: t594{'*return': t592{}, '*params': tuple593[t592{}]}
+INFO:root:Applied type: t630{'*return': t592{}, '*params': tuple629[<type 'int'>]}
+INFO:root:Substitution: [t592 >> <type 'int'>,]
+DEBUG:root:Unified type: t630{'*return': <type 'int'>, '*params': tuple629[<type 'int'>]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: t596{'*return': *s{}, '*params': tuple595[*s{}]}
+INFO:root:Applied type: t632{'*return': *s{}, '*params': tuple631[*s{}]}
+INFO:root:Substitution: [self >> *s{},]
+DEBUG:root:Unified type: t632{'*return': *s{}, '*params': tuple631[*s{}]}
+INFO:root:Analyzed Tree:
+INFO:root:  src/tests/classes2.py
+  Type: src/tests/classes2.py{'w': *s{}, 'a': t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}, 'z': <type 'int'>, 'A': A{'*return': t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}, 'smethod': t594{'*return': t592{}, '*params': tuple593[t592{}]}, '*params': tuple598[], 'z': <type 'int'>}, 'y': <type 'int'>, 'q': <type 'int'>}
+  Body: 
+    Class Definition
+    Type: A{'*return': t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}, 'smethod': t594{'*return': t592{}, '*params': tuple593[t592{}]}, '*params': tuple598[], 'z': <type 'int'>}
+    Name: A
+    Superclasses: []
+    Body: 
+      Assignment
+      Type: <type 'int'>
+      Targets: 
+        Name Node
+        Type: <type 'int'>
+        id = z
+      Value: 
+        Number
+        Type: <type 'int'>
+        n =  1
+      Function Definition
+      Type: t588{'*return': <type 'NoneType'>, '*params': tuple545[*s{'n': <type 'int'>, 'x': t544{}, 'y': <type 'str'>}, t544{}]}
+      Name: __init__
+      Arguments:
+        Arguments
+        Type: tuple545[*s{'n': <type 'int'>, 'x': t544{}, 'y': <type 'str'>}, t544{}]
+      Body: 
+        Assignment
+        Type: t544{}
+        Targets: 
+          Attribute Reference
+          Type: t544{}
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t544{}, 'y': <type 'str'>}
+            id = self
+          Attribute: x
+        Value: 
+          Name Node
+          Type: t544{}
+          id = x
+        Assignment
+        Type: <type 'str'>
+        Targets: 
+          Attribute Reference
+          Type: <type 'str'>
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t544{}, 'y': <type 'str'>}
+            id = self
+          Attribute: y
+        Value: 
+          String
+          Type: <type 'str'>
+          s =  str
+        Assignment
+        Type: <type 'int'>
+        Targets: 
+          Attribute Reference
+          Type: <type 'int'>
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t544{}, 'y': <type 'str'>}
+            id = self
+          Attribute: n
+        Value: 
+          Number
+          Type: <type 'int'>
+          n =  1
+      Function Definition
+      Type: t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}
+      Name: __add__
+      Arguments:
+        Arguments
+        Type: tuple590[*s{}, t589{}]
+      Body: 
+        Return
+        Type: t589{}
+        Value: 
+          Name Node
+          Type: t589{}
+          id = n
+      Function Definition
+      Type: t594{'*return': t592{}, '*params': tuple593[t592{}]}
+      Name: smethod
+      Arguments:
+        Arguments
+        Type: tuple593[t592{}]
+      Body: 
+        Return
+        Type: t592{}
+        Value: 
+          Name Node
+          Type: t592{}
+          id = p1
+      Function Definition
+      Type: t596{'*return': *s{}, '*params': tuple595[*s{}]}
+      Name: imethod
+      Arguments:
+        Arguments
+        Type: tuple595[*s{}]
+      Body: 
+        Return
+        Type: *s{}
+        Value: 
+          Name Node
+          Type: *s{}
+          id = self
+    Assignment
+    Type: t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}
+    Targets: 
+      Name Node
+      Type: t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}
+      id = a
+    Value: 
+      Function Call
+      Type: t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}
+      Function: 
+        Name Node
+        Type: A{'*return': t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}, 'smethod': t594{'*return': t592{}, '*params': tuple593[t592{}]}, '*params': tuple598[], 'z': <type 'int'>}
+        id = A
+      Arguments: 
+    Assignment
+    Type: <type 'int'>
+    Targets: 
+      Name Node
+      Type: <type 'int'>
+      id = y
+    Value: 
+      Attribute Reference
+      Type: <type 'int'>
+      Object: 
+        Name Node
+        Type: t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}
+        id = a
+      Attribute: z
+    Assignment
+    Type: <type 'int'>
+    Targets: 
+      Name Node
+      Type: <type 'int'>
+      id = q
+    Value: 
+      Binary Operator
+      Type: <type 'int'>
+      Operator: __add__
+      Left: 
+        Name Node
+        Type: t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}
+        id = a
+      Right: 
         Number
         Type: <type 'int'>
         n =  2
-        Number
-        Type: <type 'int'>
-        n =  3
-    Expression
-    Type: <<Type error, line 42: Conflicting types: tuple278[<type 'int'>] and tuple67[t65{}, t66{}]>>
-    Body: 
+    Assignment
+    Type: <type 'int'>
+    Targets: 
+      Name Node
+      Type: <type 'int'>
+      id = z
+    Value: 
       Function Call
-      Type: <<Type error, line 42: Conflicting types: tuple278[<type 'int'>] and tuple67[t65{}, t66{}]>>
+      Type: <type 'int'>
       Function: 
-        Name Node
-        Type: t94{'*return': <type 'str'>, '*params': tuple67[t65{}, t66{}]}
-        id = hi
+        Attribute Reference
+        Type: t594{'*return': t592{}, '*params': tuple593[t592{}]}
+        Object: 
+          Name Node
+          Type: A{'*return': t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}, 'smethod': t594{'*return': t592{}, '*params': tuple593[t592{}]}, '*params': tuple598[], 'z': <type 'int'>}
+          id = A
+        Attribute: smethod
       Arguments: 
         Number
         Type: <type 'int'>
         n =  1
+    Assignment
+    Type: *s{}
+    Targets: 
+      Name Node
+      Type: *s{}
+      id = w
+    Value: 
+      Function Call
+      Type: *s{}
+      Function: 
+        Attribute Reference
+        Type: t596{'*return': *s{}, '*params': tuple595[*s{}]}
+        Object: 
+          Name Node
+          Type: t597{'n': <type 'int'>, 'imethod': t596{'*return': *s{}, '*params': tuple595[*s{}]}, 'x': t544{}, 'z': <type 'int'>, '__add__': t591{'*return': t589{}, '*params': tuple590[*s{}, t589{}]}, 'y': <type 'str'>}
+          id = a
+        Attribute: imethod
+      Arguments: 
 
 INFO:root:Parsing and traversing the source...
 INFO:root:Source is a filename, opening and reading
-INFO:root:Loaded source (src/tests/classes.py):
+INFO:root:Loaded source (src/tests/classes3.py):
 # Class definition
 
 class A(object):
@@ -744,194 +1603,202 @@ class A(object):
 # Construction
 
 a = A() # : A{...}
-
-# Attribute reference
-
-y = a.z # : int
-
-q = a + 2  # : int
-
-# Static method reference
-
-z = A.smethod(1)
-
-# Instance method reference
-
-z = a.imethod()
-
-# Reference of attributes in functions
-def g(x) = x.z
-g(a) # : int
-
-## Type errors:
-
-# Undefined attributes
-a.wat
-A.wat
-a.smethod()
-A.imethod()
-
-def f(x): x.quack
-f(a)
-
-INFO:root:Parsing and traversing the source...
-INFO:root:Source is a filename, opening and reading
-INFO:root:Loaded source (src/tests/classes.py):
-# Class definition
-
-class A(object):
-	# Assignment attributes
-	z = 1
-
-	def __init__(self,x):
-		self.x = x
-		self.y = "str"
-		self.n = 1
-
-	# Operator overloading
-	def __add__(self,n): return n
-
-	# Static methods
-	def smethod(p1): return p1 # : (a{}) -> a{}
-
-	# Instance methods
-	def imethod(self): return self # : (A{...}) -> A{...}
-
-# Construction
-
-a = A() # : A{...}
-
-# Attribute reference
-
-y = a.z # : int
-
-q = a + 2  # : int
-
-# Static method reference
-
-z = A.smethod(1)
-
-# Instance method reference
-
-z = a.imethod()
-
-# Reference of attributes in functions
-def g(x): = x.z
-g(a) # : int
-
-## Type errors:
-
-# Undefined attributes
-a.wat
-A.wat
-a.smethod()
-A.imethod()
-
-def f(x): x.quack
-f(a)
-
-INFO:root:Parsing and traversing the source...
-INFO:root:Source is a filename, opening and reading
-INFO:root:Loaded source (src/tests/classes.py):
-# Class definition
-
-class A(object):
-	# Assignment attributes
-	z = 1
-
-	def __init__(self,x):
-		self.x = x
-		self.y = "str"
-		self.n = 1
-
-	# Operator overloading
-	def __add__(self,n): return n
-
-	# Static methods
-	def smethod(p1): return p1 # : (a{}) -> a{}
-
-	# Instance methods
-	def imethod(self): return self # : (A{...}) -> A{...}
-
-# Construction
-
-a = A() # : A{...}
-
-# Attribute reference
-
-y = a.z # : int
-
-q = a + 2  # : int
-
-# Static method reference
-
-z = A.smethod(1)
-
-# Instance method reference
-
-z = a.imethod()
-
-# Reference of attributes in functions
-def g(x): = x.z
-g(a) # : int
-
-## Type errors:
-
-# Undefined attributes
-a.wat
-A.wat
-a.smethod()
-A.imethod()
-
-def f(x): x.quack
-f(a)
-
-INFO:root:Parsing and traversing the source...
-INFO:root:Source is a filename, opening and reading
-INFO:root:Loaded source (src/tests/classes.py):
-# Class definition
-
-class A(object):
-	# Assignment attributes
-	z = 1
-
-	def __init__(self,x):
-		self.x = x
-		self.y = "str"
-		self.n = 1
-
-	# Operator overloading
-	def __add__(self,n): return n
-
-	# Static methods
-	def smethod(p1): return p1 # : (a{}) -> a{}
-
-	# Instance methods
-	def imethod(self): return self # : (A{...}) -> A{...}
-
-# Construction
-
-a = A() # : A{...}
-
-# Attribute reference
-
-y = a.z # : int
-
-q = a + 2  # : int
-
-# Static method reference
-
-z = A.smethod(1)
-
-# Instance method reference
-
-z = a.imethod()
 
 # Reference of attributes in functions
 def g(x): return x.z
 g(a) # : int
 
-## Type errors:
+INFO:root:Parsed source. Raw AST is:
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=13, col_offset=13), Name(id='n', ctx=Param(), lineno=13, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=29), lineno=13, col_offset=22)], decorator_list=[], lineno=13, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=16, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=16, col_offset=25), lineno=16, col_offset=18)], decorator_list=[], lineno=16, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=19, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=19, col_offset=27), lineno=19, col_offset=20)], decorator_list=[], lineno=19, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=23, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=4), lineno=23, col_offset=0), FunctionDef(name='g', args=arguments(args=[Name(id='x', ctx=Param(), lineno=26, col_offset=6)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Attribute(value=Name(id='x', ctx=Load(), lineno=26, col_offset=17), attr='z', ctx=Load(), lineno=26, col_offset=17), lineno=26, col_offset=10)], decorator_list=[], lineno=26, col_offset=0), Expr(value=Call(func=Name(id='g', ctx=Load(), lineno=27, col_offset=0), args=[Name(id='a', ctx=Load(), lineno=27, col_offset=2)], keywords=[], starargs=None, kwargs=None, lineno=27, col_offset=0), lineno=27, col_offset=0)])
+INFO:root:Traversing a module...
+INFO:root:Unifying a function call...
+INFO:root:Given type: A{'*return': t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}, 'smethod': t696{'*return': t694{}, '*params': tuple695[t694{}]}, '*params': tuple700[], 'z': <type 'int'>}
+INFO:root:Applied type: t702{'*return': t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}, '*params': tuple701[]}
+INFO:root:Substitution: [t702 >> <<Type error, line 0: Cannot unify t702 and A>>,]
+DEBUG:root:Unified type: t702{'*return': t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}, '*params': tuple701[]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: t706{'*return': t705{}, '*params': tuple704[t703{'z': t705{}}]}
+INFO:root:Applied type: t708{'*return': t705{}, '*params': tuple707[t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}]}
+INFO:root:Substitution: [t705 >> <type 'int'>,]
+DEBUG:root:Unified type: t708{'*return': <type 'int'>, '*params': tuple707[t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}]}
+INFO:root:Analyzed Tree:
+INFO:root:  src/tests/classes3.py
+  Type: src/tests/classes3.py{'g': t706{'*return': t705{}, '*params': tuple704[t703{'z': t705{}}]}, 'a': t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}, 'A': A{'*return': t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}, 'smethod': t696{'*return': t694{}, '*params': tuple695[t694{}]}, '*params': tuple700[], 'z': <type 'int'>}}
+  Body: 
+    Class Definition
+    Type: A{'*return': t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}, 'smethod': t696{'*return': t694{}, '*params': tuple695[t694{}]}, '*params': tuple700[], 'z': <type 'int'>}
+    Name: A
+    Superclasses: []
+    Body: 
+      Assignment
+      Type: <type 'int'>
+      Targets: 
+        Name Node
+        Type: <type 'int'>
+        id = z
+      Value: 
+        Number
+        Type: <type 'int'>
+        n =  1
+      Function Definition
+      Type: t690{'*return': <type 'NoneType'>, '*params': tuple647[*s{'n': <type 'int'>, 'x': t646{}, 'y': <type 'str'>}, t646{}]}
+      Name: __init__
+      Arguments:
+        Arguments
+        Type: tuple647[*s{'n': <type 'int'>, 'x': t646{}, 'y': <type 'str'>}, t646{}]
+      Body: 
+        Assignment
+        Type: t646{}
+        Targets: 
+          Attribute Reference
+          Type: t646{}
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t646{}, 'y': <type 'str'>}
+            id = self
+          Attribute: x
+        Value: 
+          Name Node
+          Type: t646{}
+          id = x
+        Assignment
+        Type: <type 'str'>
+        Targets: 
+          Attribute Reference
+          Type: <type 'str'>
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t646{}, 'y': <type 'str'>}
+            id = self
+          Attribute: y
+        Value: 
+          String
+          Type: <type 'str'>
+          s =  str
+        Assignment
+        Type: <type 'int'>
+        Targets: 
+          Attribute Reference
+          Type: <type 'int'>
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t646{}, 'y': <type 'str'>}
+            id = self
+          Attribute: n
+        Value: 
+          Number
+          Type: <type 'int'>
+          n =  1
+      Function Definition
+      Type: t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}
+      Name: __add__
+      Arguments:
+        Arguments
+        Type: tuple692[*s{}, t691{}]
+      Body: 
+        Return
+        Type: t691{}
+        Value: 
+          Name Node
+          Type: t691{}
+          id = n
+      Function Definition
+      Type: t696{'*return': t694{}, '*params': tuple695[t694{}]}
+      Name: smethod
+      Arguments:
+        Arguments
+        Type: tuple695[t694{}]
+      Body: 
+        Return
+        Type: t694{}
+        Value: 
+          Name Node
+          Type: t694{}
+          id = p1
+      Function Definition
+      Type: t698{'*return': *s{}, '*params': tuple697[*s{}]}
+      Name: imethod
+      Arguments:
+        Arguments
+        Type: tuple697[*s{}]
+      Body: 
+        Return
+        Type: *s{}
+        Value: 
+          Name Node
+          Type: *s{}
+          id = self
+    Assignment
+    Type: t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}
+    Targets: 
+      Name Node
+      Type: t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}
+      id = a
+    Value: 
+      Function Call
+      Type: t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}
+      Function: 
+        Name Node
+        Type: A{'*return': t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}, 'smethod': t696{'*return': t694{}, '*params': tuple695[t694{}]}, '*params': tuple700[], 'z': <type 'int'>}
+        id = A
+      Arguments: 
+    Function Definition
+    Type: t706{'*return': t705{}, '*params': tuple704[t703{'z': t705{}}]}
+    Name: g
+    Arguments:
+      Arguments
+      Type: tuple704[t703{'z': t705{}}]
+    Body: 
+      Return
+      Type: t705{}
+      Value: 
+        Attribute Reference
+        Type: t705{}
+        Object: 
+          Name Node
+          Type: t703{'z': t705{}}
+          id = x
+        Attribute: z
+    Expression
+    Type: <type 'int'>
+    Body: 
+      Function Call
+      Type: <type 'int'>
+      Function: 
+        Name Node
+        Type: t706{'*return': t705{}, '*params': tuple704[t703{'z': t705{}}]}
+        id = g
+      Arguments: 
+        Name Node
+        Type: t699{'n': <type 'int'>, 'imethod': t698{'*return': *s{}, '*params': tuple697[*s{}]}, 'x': t646{}, 'z': <type 'int'>, '__add__': t693{'*return': t691{}, '*params': tuple692[*s{}, t691{}]}, 'y': <type 'str'>}
+        id = a
+
+INFO:root:Parsing and traversing the source...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/classes4.py):
+# Class definition
+
+class A(object):
+	# Assignment attributes
+	z = 1
+
+	def __init__(self,x):
+		self.x = x
+		self.y = "str"
+		self.n = 1
+
+	# Operator overloading
+	def __add__(self,n): return n
+
+	# Static methods
+	def smethod(p1): return p1 # : (a{}) -> a{}
+
+	# Instance methods
+	def imethod(self): return self # : (A{...}) -> A{...}
+
+# Construction
+
+a = A() # : A{...}
 
 # Undefined attributes
 a.wat
@@ -939,9 +1806,381 @@ A.wat
 a.smethod()
 A.imethod()
 
-def f(x): x.quack
+INFO:root:Parsed source. Raw AST is:
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=13, col_offset=13), Name(id='n', ctx=Param(), lineno=13, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=29), lineno=13, col_offset=22)], decorator_list=[], lineno=13, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=16, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=16, col_offset=25), lineno=16, col_offset=18)], decorator_list=[], lineno=16, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=19, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=19, col_offset=27), lineno=19, col_offset=20)], decorator_list=[], lineno=19, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=23, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=4), lineno=23, col_offset=0), Expr(value=Attribute(value=Name(id='a', ctx=Load(), lineno=26, col_offset=0), attr='wat', ctx=Load(), lineno=26, col_offset=0), lineno=26, col_offset=0), Expr(value=Attribute(value=Name(id='A', ctx=Load(), lineno=27, col_offset=0), attr='wat', ctx=Load(), lineno=27, col_offset=0), lineno=27, col_offset=0), Expr(value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=28, col_offset=0), attr='smethod', ctx=Load(), lineno=28, col_offset=0), args=[], keywords=[], starargs=None, kwargs=None, lineno=28, col_offset=0), lineno=28, col_offset=0), Expr(value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=29, col_offset=0), attr='imethod', ctx=Load(), lineno=29, col_offset=0), args=[], keywords=[], starargs=None, kwargs=None, lineno=29, col_offset=0), lineno=29, col_offset=0)])
+INFO:root:Traversing a module...
+INFO:root:Unifying a function call...
+INFO:root:Given type: A{'*return': t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}, 'smethod': t772{'*return': t770{}, '*params': tuple771[t770{}]}, '*params': tuple776[], 'z': <type 'int'>}
+INFO:root:Applied type: t778{'*return': t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}, '*params': tuple777[]}
+INFO:root:Substitution: [t778 >> <<Type error, line 0: Cannot unify t778 and A>>,]
+DEBUG:root:Unified type: t778{'*return': t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}, '*params': tuple777[]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: <<Type error, line 28: Object: a has no attribute: smethod>>
+INFO:root:Unifying a function call...
+INFO:root:Given type: <<Type error, line 29: Object: A has no attribute: imethod>>
+INFO:root:Analyzed Tree:
+INFO:root:  src/tests/classes4.py
+  Type: src/tests/classes4.py{'a': t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}, 'A': A{'*return': t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}, 'smethod': t772{'*return': t770{}, '*params': tuple771[t770{}]}, '*params': tuple776[], 'z': <type 'int'>}}
+  Body: 
+    Class Definition
+    Type: A{'*return': t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}, 'smethod': t772{'*return': t770{}, '*params': tuple771[t770{}]}, '*params': tuple776[], 'z': <type 'int'>}
+    Name: A
+    Superclasses: []
+    Body: 
+      Assignment
+      Type: <type 'int'>
+      Targets: 
+        Name Node
+        Type: <type 'int'>
+        id = z
+      Value: 
+        Number
+        Type: <type 'int'>
+        n =  1
+      Function Definition
+      Type: t766{'*return': <type 'NoneType'>, '*params': tuple723[*s{'n': <type 'int'>, 'x': t722{}, 'y': <type 'str'>}, t722{}]}
+      Name: __init__
+      Arguments:
+        Arguments
+        Type: tuple723[*s{'n': <type 'int'>, 'x': t722{}, 'y': <type 'str'>}, t722{}]
+      Body: 
+        Assignment
+        Type: t722{}
+        Targets: 
+          Attribute Reference
+          Type: t722{}
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t722{}, 'y': <type 'str'>}
+            id = self
+          Attribute: x
+        Value: 
+          Name Node
+          Type: t722{}
+          id = x
+        Assignment
+        Type: <type 'str'>
+        Targets: 
+          Attribute Reference
+          Type: <type 'str'>
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t722{}, 'y': <type 'str'>}
+            id = self
+          Attribute: y
+        Value: 
+          String
+          Type: <type 'str'>
+          s =  str
+        Assignment
+        Type: <type 'int'>
+        Targets: 
+          Attribute Reference
+          Type: <type 'int'>
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t722{}, 'y': <type 'str'>}
+            id = self
+          Attribute: n
+        Value: 
+          Number
+          Type: <type 'int'>
+          n =  1
+      Function Definition
+      Type: t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}
+      Name: __add__
+      Arguments:
+        Arguments
+        Type: tuple768[*s{}, t767{}]
+      Body: 
+        Return
+        Type: t767{}
+        Value: 
+          Name Node
+          Type: t767{}
+          id = n
+      Function Definition
+      Type: t772{'*return': t770{}, '*params': tuple771[t770{}]}
+      Name: smethod
+      Arguments:
+        Arguments
+        Type: tuple771[t770{}]
+      Body: 
+        Return
+        Type: t770{}
+        Value: 
+          Name Node
+          Type: t770{}
+          id = p1
+      Function Definition
+      Type: t774{'*return': *s{}, '*params': tuple773[*s{}]}
+      Name: imethod
+      Arguments:
+        Arguments
+        Type: tuple773[*s{}]
+      Body: 
+        Return
+        Type: *s{}
+        Value: 
+          Name Node
+          Type: *s{}
+          id = self
+    Assignment
+    Type: t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}
+    Targets: 
+      Name Node
+      Type: t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}
+      id = a
+    Value: 
+      Function Call
+      Type: t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}
+      Function: 
+        Name Node
+        Type: A{'*return': t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}, 'smethod': t772{'*return': t770{}, '*params': tuple771[t770{}]}, '*params': tuple776[], 'z': <type 'int'>}
+        id = A
+      Arguments: 
+    Expression
+    Type: <<Type error, line 26: Object: a has no attribute: wat>>
+    Body: 
+      Attribute Reference
+      Type: <<Type error, line 26: Object: a has no attribute: wat>>
+      Object: 
+        Name Node
+        Type: t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}
+        id = a
+      Attribute: wat
+    Expression
+    Type: <<Type error, line 27: Object: A has no attribute: wat>>
+    Body: 
+      Attribute Reference
+      Type: <<Type error, line 27: Object: A has no attribute: wat>>
+      Object: 
+        Name Node
+        Type: A{'*return': t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}, 'smethod': t772{'*return': t770{}, '*params': tuple771[t770{}]}, '*params': tuple776[], 'z': <type 'int'>}
+        id = A
+      Attribute: wat
+    Expression
+    Type: <<Type error, line 28: Object: a has no attribute: smethod>>
+    Body: 
+      Function Call
+      Type: <<Type error, line 28: Object: a has no attribute: smethod>>
+      Function: 
+        Attribute Reference
+        Type: <<Type error, line 28: Object: a has no attribute: smethod>>
+        Object: 
+          Name Node
+          Type: t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}
+          id = a
+        Attribute: smethod
+      Arguments: 
+    Expression
+    Type: <<Type error, line 29: Object: A has no attribute: imethod>>
+    Body: 
+      Function Call
+      Type: <<Type error, line 29: Object: A has no attribute: imethod>>
+      Function: 
+        Attribute Reference
+        Type: <<Type error, line 29: Object: A has no attribute: imethod>>
+        Object: 
+          Name Node
+          Type: A{'*return': t775{'n': <type 'int'>, 'imethod': t774{'*return': *s{}, '*params': tuple773[*s{}]}, 'x': t722{}, 'z': <type 'int'>, '__add__': t769{'*return': t767{}, '*params': tuple768[*s{}, t767{}]}, 'y': <type 'str'>}, 'smethod': t772{'*return': t770{}, '*params': tuple771[t770{}]}, '*params': tuple776[], 'z': <type 'int'>}
+          id = A
+        Attribute: imethod
+      Arguments: 
+
+INFO:root:Parsing and traversing the source...
+INFO:root:Source is a filename, opening and reading
+INFO:root:Loaded source (src/tests/classes5.py):
+# Class definition
+
+class A(object):
+	# Assignment attributes
+	z = 1
+
+	def __init__(self,x):
+		self.x = x
+		self.y = "str"
+		self.n = 1
+
+	# Operator overloading
+	def __add__(self,n): return n
+
+	# Static methods
+	def smethod(p1): return p1 # : (a{}) -> a{}
+
+	# Instance methods
+	def imethod(self): return self # : (A{...}) -> A{...}
+
+# Construction
+
+a = A() # : A{...}
+
+# Undefined attributes inside function application
+def f(x): return x.quack
 f(a)
 
 INFO:root:Parsed source. Raw AST is:
-Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=13, col_offset=13), Name(id='n', ctx=Param(), lineno=13, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=29), lineno=13, col_offset=22)], decorator_list=[], lineno=13, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=16, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=16, col_offset=25), lineno=16, col_offset=18)], decorator_list=[], lineno=16, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=19, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=19, col_offset=27), lineno=19, col_offset=20)], decorator_list=[], lineno=19, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=23, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=4), lineno=23, col_offset=0), Assign(targets=[Name(id='y', ctx=Store(), lineno=27, col_offset=0)], value=Attribute(value=Name(id='a', ctx=Load(), lineno=27, col_offset=4), attr='z', ctx=Load(), lineno=27, col_offset=4), lineno=27, col_offset=0), Assign(targets=[Name(id='q', ctx=Store(), lineno=29, col_offset=0)], value=BinOp(left=Name(id='a', ctx=Load(), lineno=29, col_offset=4), op=Add(), right=Num(n=2, lineno=29, col_offset=8), lineno=29, col_offset=4), lineno=29, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=33, col_offset=0)], value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=33, col_offset=4), attr='smethod', ctx=Load(), lineno=33, col_offset=4), args=[Num(n=1, lineno=33, col_offset=14)], keywords=[], starargs=None, kwargs=None, lineno=33, col_offset=4), lineno=33, col_offset=0), Assign(targets=[Name(id='z', ctx=Store(), lineno=37, col_offset=0)], value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=37, col_offset=4), attr='imethod', ctx=Load(), lineno=37, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=37, col_offset=4), lineno=37, col_offset=0), FunctionDef(name='g', args=arguments(args=[Name(id='x', ctx=Param(), lineno=40, col_offset=6)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Attribute(value=Name(id='x', ctx=Load(), lineno=40, col_offset=17), attr='z', ctx=Load(), lineno=40, col_offset=17), lineno=40, col_offset=10)], decorator_list=[], lineno=40, col_offset=0), Expr(value=Call(func=Name(id='g', ctx=Load(), lineno=41, col_offset=0), args=[Name(id='a', ctx=Load(), lineno=41, col_offset=2)], keywords=[], starargs=None, kwargs=None, lineno=41, col_offset=0), lineno=41, col_offset=0), Expr(value=Attribute(value=Name(id='a', ctx=Load(), lineno=46, col_offset=0), attr='wat', ctx=Load(), lineno=46, col_offset=0), lineno=46, col_offset=0), Expr(value=Attribute(value=Name(id='A', ctx=Load(), lineno=47, col_offset=0), attr='wat', ctx=Load(), lineno=47, col_offset=0), lineno=47, col_offset=0), Expr(value=Call(func=Attribute(value=Name(id='a', ctx=Load(), lineno=48, col_offset=0), attr='smethod', ctx=Load(), lineno=48, col_offset=0), args=[], keywords=[], starargs=None, kwargs=None, lineno=48, col_offset=0), lineno=48, col_offset=0), Expr(value=Call(func=Attribute(value=Name(id='A', ctx=Load(), lineno=49, col_offset=0), attr='imethod', ctx=Load(), lineno=49, col_offset=0), args=[], keywords=[], starargs=None, kwargs=None, lineno=49, col_offset=0), lineno=49, col_offset=0), FunctionDef(name='f', args=arguments(args=[Name(id='x', ctx=Param(), lineno=51, col_offset=6)], vararg=None, kwarg=None, defaults=[]), body=[Expr(value=Attribute(value=Name(id='x', ctx=Load(), lineno=51, col_offset=10), attr='quack', ctx=Load(), lineno=51, col_offset=10), lineno=51, col_offset=10)], decorator_list=[], lineno=51, col_offset=0), Expr(value=Call(func=Name(id='f', ctx=Load(), lineno=52, col_offset=0), args=[Name(id='a', ctx=Load(), lineno=52, col_offset=2)], keywords=[], starargs=None, kwargs=None, lineno=52, col_offset=0), lineno=52, col_offset=0)])
+Module(body=[ClassDef(name='A', bases=[Name(id='object', ctx=Load(), lineno=3, col_offset=8)], body=[Assign(targets=[Name(id='z', ctx=Store(), lineno=5, col_offset=1)], value=Num(n=1, lineno=5, col_offset=5), lineno=5, col_offset=1), FunctionDef(name='__init__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=7, col_offset=14), Name(id='x', ctx=Param(), lineno=7, col_offset=19)], vararg=None, kwarg=None, defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=8, col_offset=2), attr='x', ctx=Store(), lineno=8, col_offset=2)], value=Name(id='x', ctx=Load(), lineno=8, col_offset=11), lineno=8, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=9, col_offset=2), attr='y', ctx=Store(), lineno=9, col_offset=2)], value=Str(s='str', lineno=9, col_offset=11), lineno=9, col_offset=2), Assign(targets=[Attribute(value=Name(id='self', ctx=Load(), lineno=10, col_offset=2), attr='n', ctx=Store(), lineno=10, col_offset=2)], value=Num(n=1, lineno=10, col_offset=11), lineno=10, col_offset=2)], decorator_list=[], lineno=7, col_offset=1), FunctionDef(name='__add__', args=arguments(args=[Name(id='self', ctx=Param(), lineno=13, col_offset=13), Name(id='n', ctx=Param(), lineno=13, col_offset=18)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='n', ctx=Load(), lineno=13, col_offset=29), lineno=13, col_offset=22)], decorator_list=[], lineno=13, col_offset=1), FunctionDef(name='smethod', args=arguments(args=[Name(id='p1', ctx=Param(), lineno=16, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='p1', ctx=Load(), lineno=16, col_offset=25), lineno=16, col_offset=18)], decorator_list=[], lineno=16, col_offset=1), FunctionDef(name='imethod', args=arguments(args=[Name(id='self', ctx=Param(), lineno=19, col_offset=13)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Name(id='self', ctx=Load(), lineno=19, col_offset=27), lineno=19, col_offset=20)], decorator_list=[], lineno=19, col_offset=1)], decorator_list=[], lineno=3, col_offset=0), Assign(targets=[Name(id='a', ctx=Store(), lineno=23, col_offset=0)], value=Call(func=Name(id='A', ctx=Load(), lineno=23, col_offset=4), args=[], keywords=[], starargs=None, kwargs=None, lineno=23, col_offset=4), lineno=23, col_offset=0), FunctionDef(name='f', args=arguments(args=[Name(id='x', ctx=Param(), lineno=26, col_offset=6)], vararg=None, kwarg=None, defaults=[]), body=[Return(value=Attribute(value=Name(id='x', ctx=Load(), lineno=26, col_offset=17), attr='quack', ctx=Load(), lineno=26, col_offset=17), lineno=26, col_offset=10)], decorator_list=[], lineno=26, col_offset=0), Expr(value=Call(func=Name(id='f', ctx=Load(), lineno=27, col_offset=0), args=[Name(id='a', ctx=Load(), lineno=27, col_offset=2)], keywords=[], starargs=None, kwargs=None, lineno=27, col_offset=0), lineno=27, col_offset=0)])
 INFO:root:Traversing a module...
+INFO:root:Unifying a function call...
+INFO:root:Given type: A{'*return': t845{'n': <type 'int'>, 'imethod': t844{'*return': *s{}, '*params': tuple843[*s{}]}, 'x': t792{}, 'z': <type 'int'>, '__add__': t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}, 'y': <type 'str'>}, 'smethod': t842{'*return': t840{}, '*params': tuple841[t840{}]}, '*params': tuple846[], 'z': <type 'int'>}
+INFO:root:Applied type: t848{'*return': t845{'n': <type 'int'>, 'imethod': t844{'*return': *s{}, '*params': tuple843[*s{}]}, 'x': t792{}, 'z': <type 'int'>, '__add__': t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}, 'y': <type 'str'>}, '*params': tuple847[]}
+INFO:root:Substitution: [t848 >> <<Type error, line 0: Cannot unify t848 and A>>,]
+DEBUG:root:Unified type: t848{'*return': t845{'n': <type 'int'>, 'imethod': t844{'*return': *s{}, '*params': tuple843[*s{}]}, 'x': t792{}, 'z': <type 'int'>, '__add__': t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}, 'y': <type 'str'>}, '*params': tuple847[]}
+INFO:root:Unifying a function call...
+INFO:root:Given type: t852{'*return': t851{}, '*params': tuple850[t849{'quack': t851{}}]}
+INFO:root:Applied type: t854{'*return': t851{}, '*params': tuple853[t845{'n': <type 'int'>, 'imethod': t844{'*return': *s{}, '*params': tuple843[*s{}]}, 'x': t792{}, 'z': <type 'int'>, '__add__': t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}, 'y': <type 'str'>}]}
+INFO:root:Substitution: [t845 >> <<Type error, line 0: Cannot unify t845 and t849>>,t851 >> t851{},]
+DEBUG:root:Unified type: t854{'*return': t851{}, '*params': tuple853[<<Type error, line 0: Cannot unify t845 and t849>>]}
+INFO:root:Analyzed Tree:
+INFO:root:  src/tests/classes5.py
+  Type: src/tests/classes5.py{'f': t852{'*return': t851{}, '*params': tuple850[t849{'quack': t851{}}]}, 'a': t845{'n': <type 'int'>, 'imethod': t844{'*return': *s{}, '*params': tuple843[*s{}]}, 'x': t792{}, 'z': <type 'int'>, '__add__': t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}, 'y': <type 'str'>}, 'A': A{'*return': t845{'n': <type 'int'>, 'imethod': t844{'*return': *s{}, '*params': tuple843[*s{}]}, 'x': t792{}, 'z': <type 'int'>, '__add__': t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}, 'y': <type 'str'>}, 'smethod': t842{'*return': t840{}, '*params': tuple841[t840{}]}, '*params': tuple846[], 'z': <type 'int'>}}
+  Body: 
+    Class Definition
+    Type: A{'*return': t845{'n': <type 'int'>, 'imethod': t844{'*return': *s{}, '*params': tuple843[*s{}]}, 'x': t792{}, 'z': <type 'int'>, '__add__': t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}, 'y': <type 'str'>}, 'smethod': t842{'*return': t840{}, '*params': tuple841[t840{}]}, '*params': tuple846[], 'z': <type 'int'>}
+    Name: A
+    Superclasses: []
+    Body: 
+      Assignment
+      Type: <type 'int'>
+      Targets: 
+        Name Node
+        Type: <type 'int'>
+        id = z
+      Value: 
+        Number
+        Type: <type 'int'>
+        n =  1
+      Function Definition
+      Type: t836{'*return': <type 'NoneType'>, '*params': tuple793[*s{'n': <type 'int'>, 'x': t792{}, 'y': <type 'str'>}, t792{}]}
+      Name: __init__
+      Arguments:
+        Arguments
+        Type: tuple793[*s{'n': <type 'int'>, 'x': t792{}, 'y': <type 'str'>}, t792{}]
+      Body: 
+        Assignment
+        Type: t792{}
+        Targets: 
+          Attribute Reference
+          Type: t792{}
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t792{}, 'y': <type 'str'>}
+            id = self
+          Attribute: x
+        Value: 
+          Name Node
+          Type: t792{}
+          id = x
+        Assignment
+        Type: <type 'str'>
+        Targets: 
+          Attribute Reference
+          Type: <type 'str'>
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t792{}, 'y': <type 'str'>}
+            id = self
+          Attribute: y
+        Value: 
+          String
+          Type: <type 'str'>
+          s =  str
+        Assignment
+        Type: <type 'int'>
+        Targets: 
+          Attribute Reference
+          Type: <type 'int'>
+          Object: 
+            Name Node
+            Type: *s{'n': <type 'int'>, 'x': t792{}, 'y': <type 'str'>}
+            id = self
+          Attribute: n
+        Value: 
+          Number
+          Type: <type 'int'>
+          n =  1
+      Function Definition
+      Type: t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}
+      Name: __add__
+      Arguments:
+        Arguments
+        Type: tuple838[*s{}, t837{}]
+      Body: 
+        Return
+        Type: t837{}
+        Value: 
+          Name Node
+          Type: t837{}
+          id = n
+      Function Definition
+      Type: t842{'*return': t840{}, '*params': tuple841[t840{}]}
+      Name: smethod
+      Arguments:
+        Arguments
+        Type: tuple841[t840{}]
+      Body: 
+        Return
+        Type: t840{}
+        Value: 
+          Name Node
+          Type: t840{}
+          id = p1
+      Function Definition
+      Type: t844{'*return': *s{}, '*params': tuple843[*s{}]}
+      Name: imethod
+      Arguments:
+        Arguments
+        Type: tuple843[*s{}]
+      Body: 
+        Return
+        Type: *s{}
+        Value: 
+          Name Node
+          Type: *s{}
+          id = self
+    Assignment
+    Type: t845{'n': <type 'int'>, 'imethod': t844{'*return': *s{}, '*params': tuple843[*s{}]}, 'x': t792{}, 'z': <type 'int'>, '__add__': t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}, 'y': <type 'str'>}
+    Targets: 
+      Name Node
+      Type: t845{'n': <type 'int'>, 'imethod': t844{'*return': *s{}, '*params': tuple843[*s{}]}, 'x': t792{}, 'z': <type 'int'>, '__add__': t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}, 'y': <type 'str'>}
+      id = a
+    Value: 
+      Function Call
+      Type: t845{'n': <type 'int'>, 'imethod': t844{'*return': *s{}, '*params': tuple843[*s{}]}, 'x': t792{}, 'z': <type 'int'>, '__add__': t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}, 'y': <type 'str'>}
+      Function: 
+        Name Node
+        Type: A{'*return': t845{'n': <type 'int'>, 'imethod': t844{'*return': *s{}, '*params': tuple843[*s{}]}, 'x': t792{}, 'z': <type 'int'>, '__add__': t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}, 'y': <type 'str'>}, 'smethod': t842{'*return': t840{}, '*params': tuple841[t840{}]}, '*params': tuple846[], 'z': <type 'int'>}
+        id = A
+      Arguments: 
+    Function Definition
+    Type: t852{'*return': t851{}, '*params': tuple850[t849{'quack': t851{}}]}
+    Name: f
+    Arguments:
+      Arguments
+      Type: tuple850[t849{'quack': t851{}}]
+    Body: 
+      Return
+      Type: t851{}
+      Value: 
+        Attribute Reference
+        Type: t851{}
+        Object: 
+          Name Node
+          Type: t849{'quack': t851{}}
+          id = x
+        Attribute: quack
+    Expression
+    Type: <<Type error, line 27: Cannot unify t845 and t849>>
+    Body: 
+      Function Call
+      Type: <<Type error, line 27: Cannot unify t845 and t849>>
+      Function: 
+        Name Node
+        Type: t852{'*return': t851{}, '*params': tuple850[t849{'quack': t851{}}]}
+        id = f
+      Arguments: 
+        Name Node
+        Type: t845{'n': <type 'int'>, 'imethod': t844{'*return': *s{}, '*params': tuple843[*s{}]}, 'x': t792{}, 'z': <type 'int'>, '__add__': t839{'*return': t837{}, '*params': tuple838[*s{}, t837{}]}, 'y': <type 'str'>}
+        id = a
+

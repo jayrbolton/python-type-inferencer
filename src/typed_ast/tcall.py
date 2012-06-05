@@ -63,6 +63,7 @@ class TCall(TNode):
 		# Handle type error results from unification.
 		# If there was a type error in the parameters, propogate it up to the
 		# return type
+		# XXX this error type propagation is getting really ugly and unwieldy and crappy
 		err = unified_type.attributes.get_type("*params")
 		if isinstance(err,typ.TError):
 			self.typ = err
@@ -71,7 +72,12 @@ class TCall(TNode):
 		elif isinstance(unified_type,typ.TError):
 			self.typ = unified_type
 			self.typ.lineno = self.node.lineno
-		# No error, so our return type is correct.
-		else: self.typ = unified_type.attributes.get_type("*return")
+		# 'err' itself is not an error, but we may have errors within the tuple
+		elif isinstance(err, typ.TTuple):
+			self.typ = unified_type.attributes.get_type("*return")
+			for t in err.contained:
+				if isinstance(t,typ.TError):
+					self.typ = t
+					self.typ.lineno = self.node.lineno
 
 		return (self, sub, env)

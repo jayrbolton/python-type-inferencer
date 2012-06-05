@@ -51,6 +51,7 @@ class TFunctionDef(TNode):
 			(node1,sub1,env1) = typed_ast.TypedAST.traverse(n, env_scoped)
 			self.body.append(node1)
 			env_scoped.merge(env1)
+			env_scoped.apply_sub(sub1)
 			self.args.typ.apply_sub(sub1)
 
 		# Construct all the parameter and return types and encompass them in the function type.

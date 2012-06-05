@@ -38,12 +38,8 @@ class TBinOp(TNode):
 		else: 
 			applied_type = typ.TObj({"*return" : op_type.get_attr("*return"),
 			                     "*params" : typ.TTuple([typ.TSelf(),right_node.typ])})
-			print(op_type)
-			print(applied_type)
 			sub = applied_type.unify(op_type)
-			print(sub)
 			applied_type.apply_sub(sub)
-			print(applied_type)
 			self.typ = applied_type.get_attr("*return")
 			if isinstance(applied_type.get_attr("*params"),typ.TError):
 				self.typ = applied_type.get_attr("*params")
