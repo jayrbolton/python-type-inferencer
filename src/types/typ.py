@@ -33,6 +33,7 @@ class TObj(Type):
 		Pass a dict to the constructor to TObj of the mapping of names to types in the attributes of this object.
 		"""
 		self.attributes = attr.Attributes(attributes)
+		self.open_type = False
 		if label == None:
 			global total_vars
 			self.label = "t" + str(total_vars)

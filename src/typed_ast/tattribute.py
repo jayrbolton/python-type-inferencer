@@ -31,5 +31,10 @@ class TAttribute(TNode):
 		err = typ.TError("Object: " + self.value.id + " has no attribute: " + self.attr)
 		if self.value.typ == None: self.typ = err
 		else: self.typ = self.value.typ.get_attr(self.node.attr)
-		if self.typ == None: self.typ = err
+		if self.typ == None:
+			self.typ = err
+			if self.open_type:
+				t = TObj({})
+				self.value.typ.add_attr(t,self.attr)
+				self.typ = t
 		return (self, sub.Substitution(), env)

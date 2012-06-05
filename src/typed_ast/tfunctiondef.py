@@ -29,7 +29,10 @@ class TFunctionDef(TNode):
 		param_names,param_types = [],[]
 		for arg in self.args.args:
 			param_names.append(arg)
-			if arg != "self": param_types.append(typ.TObj({}))
+			if arg != "self":
+				t = typ.TObj({})
+				t.open_type = True
+				param_types.append(t)
 			else: param_types.append(typ.TSelf())
 		env_scoped = copy.deepcopy(env)
 		for name,t in env.attrs.iteritems():
