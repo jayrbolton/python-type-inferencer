@@ -23,6 +23,8 @@ class TAssign(TNode):
 		s += "  "*indents + "Value: \n" + self.value.format_tree(indents+1)
 		return s
 
+	def collect_errors(self): return super(TAssign,self).collect_errors()
+
 	def traverse(self, env):
 		# Infer the type of the value
 		(val_node, val_sub, val_env) = typed_ast.TypedAST.traverse(self.node.value, env)
@@ -45,7 +47,7 @@ class TAssign(TNode):
 				self_type = typ.TSelf({target_node.attr : self.typ})
 				env.add_type(self_type, 'self')
 			sub = subst.Substitution({target_node.attr : self.typ})
-		logging.debug("Envenvenv: " + str(env))
+		else: sub = subst.Substitution()
 		# elif isinstance(target_node, TList):
 		# elif isinstance(target_node, TTuple):
 		return (self, sub, env)

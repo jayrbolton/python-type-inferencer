@@ -11,11 +11,16 @@ class TNode(object):
 	node we have.
 	"""
 	def __init__(self, n):
-		self.node = n;
+		self.node = n
 		self.name = "Node"
-		self.typ = None
+		self.typ = typ.TObj({},"?")
 
 	def traverse(self, env): return (self, sub.Substitution(), env)
+
+	def collect_errors(self):
+		es = []
+		if isinstance(self.typ, typ.TError): es.append(self.typ)
+		return es
 
 	def format_tree(self, indents):
 		return "  "*indents + self.name + "\n" + "  "*indents + "Type: " + str(self.typ) + "\n"

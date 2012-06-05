@@ -21,6 +21,11 @@ class TFunctionDef(TNode):
 		for n in self.body: s+= n.format_tree(indents+1)
 		return s
 
+	def collect_errors(self):
+		es = super(TFunctionDef,self).collect_errors()
+		for n in self.body: es += n.collect_errors()
+		return es
+
 	def traverse(self, env):
 		# Create a new environment with the parameters removed from the parent
 		# environment (for shadowing) and create a tuple of parameter types

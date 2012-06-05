@@ -11,6 +11,7 @@ import sys, logging, types, re, copy, pdb, os
 
 from .. import builtins
 from .. import substitution as sub
+from .. import attributes as attr
 from ..types import typ
 from ast import *
 from tmodule import *
@@ -26,20 +27,21 @@ logging.basicConfig(filename='output/logs/inference.log',level=logging.DEBUG)
 
 class TypedAST(object):
 	"""
-	A module token with type information.
+	A container and utility object that allows the parsing of python source code
+	and the traversal of all our typed nodes.
 	"""
 
 	def __init__(self,source):
 		logging.info("Parsing and traversing the source...")
-		(m,s,e)= TypedAST.parse_file(source).traverse(builtins.env)
-		self.modules = [m]
+		self.modules = []
+		self.parse_file(source)
+		self.modules[-1].traverse(attr.Attributes())
 		logging.info("Analyzed Tree:")
 		logging.info(self.format_tree())
 
 	def __str__(self): return "Typed AST: " + ''.join([str(n) for n in self.modules])
 
-	@staticmethod
-	def parse_file(source):
+	def parse_file(self,source):
 		"""
 		Open source code and return an abstract syntax tree using python's ast
 		module.
@@ -67,9 +69,21 @@ class TypedAST(object):
 				source = source
 				filename = "Unknown"
 		logging.info("Loaded source (" + filename + "):\n" + source)
-		mod = TModule(parse(source),filename,source)
-		logging.info("Parsed source. Raw AST is:\n" + dump(mod.node,include_attributes=True))
-		return mod
+		self.modules.append(TModule(parse(source),filename,source))
+		logging.info("Parsed source. Raw AST is:\n" + dump(self.modules[-1].node,include_attributes=True))
+
+	@staticmethod
+	def pretty_dict(d, indent=0):
+		for key, value in d.iteritems():
+			print '  ' * indent + str(key)
+			if isinstance(value, dict): pretty(value, indent+1)
+			else: print '  ' * (indent+1) + str(value)
+
+	def print_modules(self):
+		for m in self.modules: TypedAST.pretty_dict(m.typ.attributes.attrs)
+
+	def print_src(self):
+		for m in self.modules: print(m.source)
 
 	def format_tree(self):
 		"""
@@ -78,6 +92,16 @@ class TypedAST(object):
 		s = ""
 		for m in self.modules: s += m.format_tree(1)
 		return s
+
+	def print_errors(self):
+		es = self.collect_errors()
+		print(str(len(es)) + " type errors.")
+		for e in es: print(e)
+
+	def collect_errors(self): 
+		es = []
+		for m in self.modules: es += m.collect_errors()
+		return es
 
 	@staticmethod
 	def traverse(n, env):

@@ -8,7 +8,9 @@ from substitution import *
 
 total_vars = 0 ### Generator of fresh names. XXX make this better? globals ew?
 class Attributes(object):
-	def __init__(self, attrs): self.attrs = attrs # Dictionary mapping of names to attrs
+	def __init__(self, attrs=None):
+		self.attrs = {}
+		if attrs: self.attrs = attrs
 
 	def __str__(self): return str(self.attrs)
 

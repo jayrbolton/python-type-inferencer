@@ -12,7 +12,7 @@ class A(object):
 	# Operator overloading
 	def __add__(self,n): return n
 
-	# Static methods	
+	# Static methods
 	def smethod(p1): return p1 # : (a{}) -> a{}
 
 	# Instance methods
@@ -25,6 +25,8 @@ a = A() # : A{...}
 # Attribute reference
 
 y = a.z # : int
+
+q = a + 2  # : int
 
 # Static method reference
 

@@ -19,6 +19,8 @@ class TAttribute(TNode):
 		s += "  "*indents + "Attribute: " + self.attr + "\n"
 		return s
 
+	def collect_errors(self): return super(TAttribute,self).collect_errors()
+
 	def traverse(self, env):
 		"""
 		Infer an attribute reference on an object; given the object and an
@@ -37,4 +39,10 @@ class TAttribute(TNode):
 				t = TObj({})
 				self.value.typ.add_attr(t,self.attr)
 				self.typ = t
+		if isinstance(self.value.typ,typ.TError): self.typ = self.value.typ
+		else:
+			err = typ.TError("Object: " + str(self.value.typ.label) + " has no attribute: " + self.attr, self.node.lineno)
+			if self.value.typ == None: self.typ = err
+			else: self.typ = self.value.typ.get_attr(self.node.attr)
+			if self.typ == None: self.typ = err
 		return (self, sub.Substitution(), env)

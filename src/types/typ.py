@@ -91,18 +91,37 @@ class TObj(Type):
 
 ## XXX TODO inherit attributes
 class TError(TObj):
-	attributes = attr.Attributes({'x':1})
-	def __init__(self,message): self.message = message
-	def __str__(self): return "<<Type Error: " + self.message + ">>"
-	def __repr__(self): return "<<Type Error: " + self.message + ">>"
+	attributes = attr.Attributes()
+	def __init__(self,message,lineno=None):
+		self.message = message
+		self.label = message
+		self.lineno = 0
+		if lineno: self.lineno = lineno
+
+	def __str__(self):
+		return "<<Type error, line " + str(self.lineno) + ": " + self.message + ">>"
+	def __repr__(self):
+		return "<<Type error, line " + str(self.lineno) + ": " + self.message + ">>"
 	def apply_sub(self,sub): return self
 
 class TBuiltin(TObj):
 	label = "builtin"
-	attributes = attr.Attributes({'x':1})
-	def __init__(self,pytype): self.pytype = pytype
+
+	def __init__(self,pytype=None):
+		self.pytype = pytype
+		rhs = TObj({})
+		s = TSelf()
+		self.attributes = attr.Attributes(
+			{'__add__' : TObj({"*return" : rhs, "*params" : TTuple([s,rhs])})
+			,'__floordiv__' : TObj({"*return" : rhs, "*params" : TTuple([s,rhs])})
+			,'__mult__' : TObj({"*return" : rhs, "*params" : TTuple([s,rhs])})
+			,'__div__' : TObj({"*return" : rhs, "*params" : TTuple([s,rhs])})
+			,'__sub__' : TObj({"*return" : rhs, "*params" : TTuple([s,rhs])})
+			,'__mod__' : TObj({"*return" : rhs, "*params" : TTuple([s,rhs])})
+			})
 
 	def __str__(self): return str(self.pytype)
+
 	def __repr__(self): return str(self.pytype)
 
 	def unify(self,typ):
@@ -124,7 +143,7 @@ class TBuiltin(TObj):
 
 class TTuple(TBuiltin):
 	pytype = tuple
-	attributes = attr.Attributes({'x':1})
+	attributes = attr.Attributes({'__getattr__':1})
 	def __init__(self, contained):
 		self.contained = contained
 		global total_vars
@@ -134,7 +153,8 @@ class TTuple(TBuiltin):
 	def __repr__(self): return str(self.label) + str(self.contained)
 
 	def unify(self,typ):
-		if isinstance(typ,TObj) and not typ.attributes.attrs: return subst.Substitution()
+		if isinstance(typ,TObj) and not typ.attributes.attrs:
+			return subst.Substitution()
 		elif isinstance(typ,TTuple):
 			sub = subst.Substitution()
 			if len(self.contained) == len(typ.contained):
@@ -163,6 +183,8 @@ class TList(TBuiltin):
 	def apply_sub(self,sub):
 		t = TList([c.apply_sub(sub) for c in self.contained])
 		return t
+	def __repr__(self): return "ls" + str(self.contained)
+	def __str__(self): return "ls" + str(self.contained)
 
 class TDict(TBuiltin):
 	label = "dict"
