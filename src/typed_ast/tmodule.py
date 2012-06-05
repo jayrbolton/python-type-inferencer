@@ -15,6 +15,11 @@ class TModule(TNode):
 		self.body = []
 		self.typ = typ.TObj({},filename)
 
+	def collect_errors(self):
+		es = super(TModule,self).collect_errors()
+		for n in self.body: es += n.collect_errors()
+		return es
+
 	def traverse(self, env):
 		logging.info("Traversing a module...")
 		for n in self.node.body:

@@ -21,6 +21,8 @@ class TCall(TNode):
 		for a in self.args: s += a.format_tree(indents+1)
 		return s
 
+	def collect_errors(self): return super(TCall,self).collect_errors()
+
 	def traverse(self, env):
 		logging.info("Unifying a function call...")
 		# From the function name, get the given type from the environment
@@ -30,6 +32,7 @@ class TCall(TNode):
 		logging.info("Given type: " + str(given_type))
 		if isinstance(given_type, typ.TError): # Bail out on an error
 			self.typ = given_type
+			self.typ.lineno = self.node.lineno
 			return (self, subst.Substitution(), env)
 
 		# Infer and construct the tuple of arguments
@@ -61,10 +64,13 @@ class TCall(TNode):
 		# If there was a type error in the parameters, propogate it up to the
 		# return type
 		err = unified_type.attributes.get_type("*params")
-		if isinstance(err,typ.TError): self.typ = err
+		if isinstance(err,typ.TError):
+			self.typ = err
+			self.typ.lineno = self.node.lineno
 		# Else if the unified type itself is an error, return that error
 		elif isinstance(unified_type,typ.TError):
 			self.typ = unified_type
+			self.typ.lineno = self.node.lineno
 		# No error, so our return type is correct.
 		else: self.typ = unified_type.attributes.get_type("*return")
 

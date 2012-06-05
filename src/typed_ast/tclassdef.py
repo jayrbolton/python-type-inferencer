@@ -23,6 +23,11 @@ class TClassDef(TNode):
 		for n in self.body: s += n.format_tree(indents+1)
 		return s
 
+	def collect_errors(self):
+		es = super(TClassDef,self).collect_errors()
+		for n in self.body: es += n.collect_errors() 
+		return es
+
 	def traverse(self, env):
 		"""
 		Infer a class definition.  This will create a new type inserted into the
@@ -52,7 +57,6 @@ class TClassDef(TNode):
 				if params:
 					first_param = params.contained[0]
 					if node1.fname == "__init__":
-						logging.debug("found init, env1: " + str(env1))
 						if isinstance(first_param, typ.TSelf):
 							self_type = env1.get_type('self')
 							if self_type: inst_attrs.update(self_type.attributes.attrs)

@@ -10,4 +10,6 @@ class TArgs(TNode):
 		self.name = "Arguments"
 		self.args = [n.id for n in n.args]
 
+	def collect_errors(self): return []
+
 	def format_tree(self,indents): return super(TArgs,self).format_tree(indents)
