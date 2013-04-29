@@ -1,4 +1,5 @@
 # All builtin types
+# http://docs.python.org/2/library/stdtypes.html
 
 from types.typ import *
 from attributes import *

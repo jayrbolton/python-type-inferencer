@@ -1,5 +1,5 @@
 """
-An Attributes is a dictionary of names and their type schemes. Names are
+Attributes are dictionaries of names and their type schemes. Names are
 syntactic names derived from the AST tree, such as variables, literals,
 primitives, function names, class names, and so forth.
 """
@@ -7,7 +7,10 @@ primitives, function names, class names, and so forth.
 from substitution import *
 
 total_vars = 0 ### Generator of fresh names. XXX make this better? globals ew?
+
+
 class Attributes(object):
+
 	def __init__(self, attrs=None):
 		self.attrs = {}
 		if attrs: self.attrs = attrs
@@ -15,21 +18,33 @@ class Attributes(object):
 	def __str__(self): return str(self.attrs)
 
 	def add_type(self, t, name=None):
-		if name == None:
+		"""
+		Insert a type into these attributes
+		"""
+		if name == None: # generate a name
 			global total_vars
 			n = "object" + str(total_vars)
 			total_vars += 1
 		else: n = name
 		self.attrs[n] = t
 
-	def get_type(self, name): return self.attrs.get(name)
+	def get_type(self, name):
+		"""
+		Retrieve the type mapped to the given name inside this dictionary of
+		attributes.
+		"""
+		return self.attrs.get(name)
 
-	def merge(self, a2): self.attrs.update(a2.attrs)
+	def merge(self, a2):
+		"""
+		Merge these attributes with another dictionary of attributes.
+		"""
+		self.attrs.update(a2.attrs)
 
 	def unify(self, a2):
 		"""
 		Unify all the types in these attributes with those in attributes a2.
-		-> Returns a Substitution
+		Returns a Substitution
 		"""
 		sub = Substitution() # initialize empty substitution
 		for name, typ1 in self.attrs.iteritems():
@@ -57,3 +72,4 @@ class Attributes(object):
 		s = []
 		for each_type in self.attrs.itervalues(): s.append(each_type.free_type_vars())
 		return set(s)
+
