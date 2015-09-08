@@ -1,3 +1,6 @@
+# Python Type Inference
+
+* Much of it is finished, with a full model for structural type inference built out.
 * Quickly run the demo with: $ jython demo.py
 * Step through the demo by hitting <ENTER>
 * See /paper/PythonTypeInference.pdf to read about the new type inference system I created for this project.
@@ -9,4 +12,6 @@
  * The output will go in logs/pytown.log
 
 
-The program's actual content is under /src/. I plan to better document the structure of the program very soon.
+The program's actual content is under /src/.
+
+If you're interested in structural type inference (type inference of duck typing), please contact me at jayrbolton@gmail.com
